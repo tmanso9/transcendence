@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import Chat from '@/components/Chat.vue'
+import ChatWrapper from '@/components/ChatWrapper.vue'
 import { ref } from 'vue'
 
 const showChat = ref(false)
@@ -26,17 +26,26 @@ const toggleChat = () => {
   </header>
 
   <RouterView />
-  <button @click="toggleChat">{{ chatText }}</button>
-  <Chat v-if="showChat" />
+  <button class="chat" @click="toggleChat">{{ chatText }}</button>
+  <chat-wrapper v-if="showChat" />
 </template>
 
 <style scoped lang="scss">
 .wrapper {
-  &__nav {
+	&__nav {
     display: flex;
     justify-content: space-around;
     width: 80%;
     margin: 20px auto;
+	& a {
+		text-decoration: none;
+	}
   }
+}
+
+.chat {
+  cursor: pointer;
+  margin: 0 auto;
+  display: block;
 }
 </style>
