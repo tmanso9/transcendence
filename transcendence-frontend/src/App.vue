@@ -33,7 +33,7 @@ const toggleChat = () => {
 
 <style scoped lang="scss">
 .wrapper {
-  &__nav {
+	&__nav {
     display: flex;
     justify-content: space-around;
     width: 80%;
