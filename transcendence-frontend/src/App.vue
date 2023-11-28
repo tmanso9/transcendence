@@ -32,15 +32,20 @@ const toggleChat = () => {
 
 <style scoped lang="scss">
 .wrapper {
-  &__nav {
+	&__nav {
     display: flex;
     justify-content: space-around;
     width: 80%;
     margin: 20px auto;
+	& a {
+		text-decoration: none;
+	}
   }
 }
 
 .chat {
   cursor: pointer;
+  margin: 0 auto;
+  display: block;
 }
 </style>
