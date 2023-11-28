@@ -4,9 +4,8 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   <header>
-
     <div class="wrapper">
-      <nav>
+      <nav class="wrapper__nav">
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/play">Play</RouterLink>
         <RouterLink to="/ranking">Ranking</RouterLink>
@@ -21,6 +20,13 @@ import { RouterLink, RouterView } from 'vue-router'
   <RouterView />
 </template>
 
-<style scoped>
-
+<style scoped lang="scss">
+.wrapper {
+  &__nav {
+    display: flex;
+	justify-content: space-around;
+	width: 80%;
+	margin: 20px auto;
+  }
+}
 </style>
