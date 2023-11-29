@@ -11,7 +11,7 @@
       <div
         class="ranking__user"
         v-for="(user, index) in orderedUsers()"
-        :class="topTree(index)"
+        :class="[topTree(index), isUser(user.username)]"
         :key="user.id"
       >
         <leaderboard-card :user="user" :index="index"></leaderboard-card>
@@ -24,8 +24,10 @@
 import { onMounted, ref } from 'vue'
 import type { User } from '@/types'
 import LeaderboardCard from '@/components/LeaderboardCard.vue'
+import { useUserStore } from '@/stores/user'
 
 const users = ref<User[]>([])
+const loggedUser = useUserStore()
 
 async function getUsers() {
   try {
@@ -56,7 +58,11 @@ const topTree = (index: number) => ({
   ranking__user__isBronze: index === 2
 })
 
-//TODO: check if user in top 10, else add below
+const isUser = (username: string | undefined) => ({
+  ranking__user__isUser: username === loggedUser.name
+})
+
+//TODO: check if user in top 10, else add below table
 </script>
 
 <style lang="scss">
@@ -72,20 +78,22 @@ const topTree = (index: number) => ({
     border-radius: 7px;
     padding-inline: 10px;
     padding-block: 7px;
-	margin-bottom: 15px;
+    margin-bottom: 15px;
   }
 
   &__title,
   &__user {
     display: grid;
     grid-template-columns: 1fr 2fr 1fr 2fr;
-	padding-block: 3px;
+    padding-block: 3px;
     &__position,
     &__username,
     &__points,
     &__victories {
       text-align: center;
     }
+  }
+  &__user {
     &__isGold,
     &__isSilver,
     &__isBronze {
@@ -99,6 +107,10 @@ const topTree = (index: number) => ({
     }
     &__isBronze {
       background-color: #cd7f32;
+    }
+
+    &__isUser {
+      border: 2px dashed gray;
     }
   }
 }
