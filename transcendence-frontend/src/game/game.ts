@@ -1,11 +1,5 @@
-import {h} from "vue";
-
 class object {
-    constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {
-        this.x = x;
-        this.y = y;
-        this.color = color;
-    }
+    constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {}
     collision(ball) {
         return false;
     }
@@ -14,9 +8,6 @@ class object {
 class rectangle extends object{
     constructor(public x: number, public y: number, public width: number, public height: number, public color:string, public orientation: string) {
         super(x, y, color);
-        this.width = width
-        this.height = height
-        this.orientation = orientation;
     }
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
