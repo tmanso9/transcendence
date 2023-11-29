@@ -2,18 +2,20 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', () => {
-  const name = ref('')
+  const username = ref('')
   const isAdmin = ref(false)
+  const points = ref(0)
 
   const login = () => {
-    name.value = 'touteiro'
+    username.value = 'mvenanci'
+	points.value = -1000
     console.log('Login successful')
   }
 
   const logout = () => {
     console.log('Logging out')
-    name.value = ''
+    username.value = ''
   }
 
-  return { name, isAdmin, login, logout }
+  return { username, isAdmin, points, login, logout }
 })

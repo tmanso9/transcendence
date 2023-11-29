@@ -8,20 +8,27 @@
         <span class="ranking__title__points">Points</span>
         <span class="ranking__title__victories">Wins / Losses</span>
       </div>
-      <div
+      <leaderboard-card
         class="ranking__user"
         v-for="(user, index) in orderedUsers()"
         :class="[topTree(index), isUser(user.username)]"
         :key="user.id"
-      >
-        <leaderboard-card :user="user" :index="index"></leaderboard-card>
-      </div>
+        :user="user"
+        :index="index"
+      ></leaderboard-card>
+      <leaderboard-card
+        class="ranking__user ranking__extra_row"
+        :class="isUser(loggedUser.username)"
+        v-if="loggedUser.username && showExtraRow"
+        :user="loggedUser"
+        :index="25"
+      ></leaderboard-card>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { User } from '@/types'
 import LeaderboardCard from '@/components/LeaderboardCard.vue'
 import { useUserStore } from '@/stores/user'
@@ -45,11 +52,13 @@ onMounted(() => {
 })
 
 const orderedUsers = (): User[] => {
-  return users.value.sort(function (prev: User, curr: User) {
-    if (!curr.points) curr.points = 0
-    if (!prev.points) prev.points = 0
-    return curr.points - prev.points
-  })
+  return users.value
+    .sort(function (prev: User, curr: User) {
+      if (!curr.points) curr.points = 0
+      if (!prev.points) prev.points = 0
+      return curr.points - prev.points
+    })
+    .slice(0, 4)
 }
 
 const topTree = (index: number) => ({
@@ -59,10 +68,18 @@ const topTree = (index: number) => ({
 })
 
 const isUser = (username: string | undefined) => ({
-  ranking__user__isUser: username === loggedUser.name
+  ranking__user__isUser: username === loggedUser.username
 })
 
-//TODO: check if user in top 10, else add below table
+const showExtraRow = computed(() => {
+  let show = false
+  const users = orderedUsers()
+  const top = users[users.length - 1]
+  if (top && top.points && loggedUser && loggedUser.points && loggedUser.points < top.points) {
+    show = true
+  }
+  return show
+})
 </script>
 
 <style lang="scss">
@@ -79,6 +96,10 @@ const isUser = (username: string | undefined) => ({
     padding-inline: 10px;
     padding-block: 7px;
     margin-bottom: 15px;
+  }
+
+  &__extra_row {
+    margin-top: 20px;
   }
 
   &__title,

@@ -1,8 +1,10 @@
 <template>
-  <span class="ranking__user__position">{{ index + 1 }}</span>
-  <a :href="`/users/${user.username}`" class="ranking__user__username">{{ user.username }}</a>
-  <span class="ranking__user__points"> {{ user.points }}</span>
-  <span class="ranking__user__victories">{{ user.wins }} / {{ user.losses }}</span>
+	<div>
+		<span class="ranking__user__position">{{ index + 1 }}</span>
+		<a :href="`/users/${user.username}`" class="ranking__user__username">{{ user.username }}</a>
+		<span class="ranking__user__points"> {{ user.points }}</span>
+		<span class="ranking__user__victories">{{ user.wins }} / {{ user.losses }}</span>
+	</div>
 </template>
 
 <script lang="ts" setup>
