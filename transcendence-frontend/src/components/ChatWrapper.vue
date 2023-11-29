@@ -4,6 +4,6 @@
 
 <style scoped lang="scss">
 h3 {
-	text-align: center;
+  text-align: center;
 }
 </style>
