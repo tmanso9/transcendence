@@ -1,3 +1,5 @@
+import type {Socket} from "socket.io-client";
+
 class object {
     constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {}
     collision(ball) {
@@ -51,9 +53,6 @@ class paddle extends rectangle{
 class Ball extends object {
     constructor(public x: number, public y: number, public radius: number, public dx: number, public dy: number, public color: string, collidable: boolean = false) {
         super(x, y, color, collidable);
-        this.radius = radius;
-        this.dx = dx;
-        this.dy = dy;
     }
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
@@ -67,7 +66,7 @@ class Ball extends object {
         this.y += this.dy;
     }
 
-    checkCollision(elements: object[]) {
+    checkCollision(elements: object[], socket: Socket) {
         for (const e of elements) {
             if (e.collidable && e.collision(this)) {
                 if (e.orientation == 'horizontal') {
@@ -75,6 +74,7 @@ class Ball extends object {
                 } else if (e instanceof paddle) {
                     this.dx = -this.dx;
                 } else {
+                    socket.emit('message', 'tetinhas');
                     this.x = 500;
                     this.y = 350;
                     this.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
@@ -113,14 +113,14 @@ function drawBoard(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 }
 
 
-export function game(canvas: HTMLCanvasElement) {
+export function game(canvas: HTMLCanvasElement, socket: Socket) {
     const ctx = canvas.getContext('2d');
     const hTop = new rectangle(0, 0, 1000, 10, '#ffffff', 'horizontal');
     const hBottom = new rectangle(0, 690, 1000, 10, '#ffffff', 'horizontal');
     const vLeft = new rectangle(0, 0, 10, 700, '#ffffff', 'vertical');
     const vRight = new rectangle(990, 0, 10, 700, '#ffffff', 'vertical');
-    const pL = new paddle(20, 275, 100, 150, 'red', 'vertical');
-    const pR = new paddle(870, 275, 100, 150, 'red', 'vertical');
+    const pL = new paddle(20, 275, 20, 150, 'red', 'vertical');
+    const pR = new paddle(960, 275, 20, 150, 'red', 'vertical');
     const ball = new Ball(100, 100, 15, 5, 5, 'white');
     const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
     document.addEventListener("keydown", keyDownHandler);
@@ -130,7 +130,7 @@ export function game(canvas: HTMLCanvasElement) {
             e.draw(ctx)
         }
         drawBoard(ctx, 500, 10, 500, 690);
-        ball.checkCollision(elements);
+        ball.checkCollision(elements, socket);
         ball.move();
         requestAnimationFrame(drawFrame)
     }
