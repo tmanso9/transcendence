@@ -1,6 +1,6 @@
 <template>
   <span class="ranking__user__position">{{ index + 1 }}</span>
-  <span class="ranking__user__username">{{ user.username }}</span>
+  <a :href="`/users/${user.username}`" class="ranking__user__username">{{ user.username }}</a>
   <span class="ranking__user__points"> {{ user.points }}</span>
   <span class="ranking__user__victories">{{ user.wins }} / {{ user.losses }}</span>
 </template>
@@ -24,6 +24,7 @@ defineProps<{
   &__victories {
     background-color: transparent;
     color: inherit;
+    text-decoration: none;
   }
 }
 </style>

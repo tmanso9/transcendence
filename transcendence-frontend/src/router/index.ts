@@ -26,7 +26,7 @@ const router = createRouter({
       component: () => import('../views/RankingView.vue')
     },
     {
-      path: '/me',
+      path: '/users/:username',
       component: () => import('../views/AccountView.vue')
     },
     {
