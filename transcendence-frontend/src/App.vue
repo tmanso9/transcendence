@@ -26,20 +26,21 @@ const toggleChat = () => {
   </header>
 
   <RouterView />
+  <v-btn> Button </v-btn>
   <button class="chat" @click="toggleChat">{{ chatText }}</button>
   <chat-wrapper v-if="showChat" />
 </template>
 
 <style scoped lang="scss">
 .wrapper {
-	&__nav {
+  &__nav {
     display: flex;
     justify-content: space-around;
     width: 80%;
     margin: 20px auto;
-	& a {
-		text-decoration: none;
-	}
+    & a {
+      text-decoration: none;
+    }
   }
 }
 
