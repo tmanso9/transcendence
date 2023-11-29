@@ -6,7 +6,8 @@
 
     <a class="login__forty-two" href="/auth/42" @click.prevent="login('logging in with 42')">42</a>
     <a class="login__google" href="/auth/google" @click.prevent="login('logging in with google')"
-      >Google</a>
+      >Google</a
+    >
     <form class="login__email" @submit.prevent="login('logging in with email')">
       <label for="email">Email: </label><input type="email" name="email" id="email" /><br />
       <label for="password">Password: </label
@@ -65,7 +66,7 @@ const login = (msg: String) => {
     border-radius: 5px;
   }
   &__email label {
-	background-color: transparent;
+    background-color: transparent;
   }
   &__forty-two,
   &__google {

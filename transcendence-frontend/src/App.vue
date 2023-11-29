@@ -6,7 +6,7 @@ import { ref } from 'vue'
 import { useUserStore } from './stores/user'
 
 const showChat = ref(false)
-const showLogin= ref(false)
+const showLogin = ref(false)
 const chatText = ref('Show chat')
 const user = useUserStore()
 
@@ -16,7 +16,7 @@ const toggleChat = () => {
 }
 
 const toggleLogin = () => {
-	showLogin.value = !showLogin.value
+  showLogin.value = !showLogin.value
 }
 </script>
 
@@ -29,15 +29,15 @@ const toggleLogin = () => {
         <RouterLink to="/ranking">Ranking</RouterLink>
         <RouterLink to="/me">Account</RouterLink>
         <RouterLink to="/about">About</RouterLink>
-		<button class="login" v-if="user.name" @click="user.logout()">Logout</button>
-		<button class="login" v-else @click="toggleLogin">Login</button>
-	</nav>
-</div>
-</header>
+        <button class="login" v-if="user.name" @click="user.logout()">Logout</button>
+        <button class="login" v-else @click="toggleLogin">Login</button>
+      </nav>
+    </div>
+  </header>
 
-	<div class="loginWrapper" v-if="showLogin" @click.self="showLogin=false">
-		<login-wrapper @login="showLogin=false" />
-	</div>
+  <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
+    <login-wrapper @login="showLogin = false" />
+  </div>
   <RouterView />
   <button class="chat" @click="toggleChat">{{ chatText }}</button>
   <chat-wrapper v-if="showChat" />
@@ -63,15 +63,15 @@ const toggleLogin = () => {
 }
 
 .login {
-	cursor: pointer;
-	border: 0;
+  cursor: pointer;
+  border: 0;
 }
 
 .loginWrapper {
-	width: 100vw;
-	height: 100vh;
-	z-index: 2;
-	background-color: rgba(0, 0, 0, .5);
-	position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
 }
 </style>
