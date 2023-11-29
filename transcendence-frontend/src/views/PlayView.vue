@@ -34,9 +34,40 @@ class paddle {
   }
 }
 
+class rectangle {
+  constructor(x, y, width, height, color) {
+    this.x = x;
+    this.y = y;
+    this.width = width
+    this.height = height
+    this.color = color
+  }
+  draw() {
+    const ctx = canvas.value.getContext('2d');
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+  collision(ball) {
+    if (ball.x + ball.radius > this.x && ball.x - ball.radius < this.x + this.width) {
+      if (ball.y + ball.radius > this.y && ball.y - ball.radius < this.y + this.height) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+}
 
 const canvas = ref(null)
 const paddle1 = new paddle(20, 300, 20, 100, '#ffffff');
+const hTop = new rectangle(0, 0, 1000, 10, '#ffffff');
+const hBottom = new rectangle(0, 690, 1000, 10, '#ffffff');
+const vLeft = new rectangle(0, 0, 10, 700, '#ffffff');
+const vRight = new rectangle(990, 0, 10, 700, '#ffffff');
+const obstacles = [hTop, hBottom, vLeft, vRight, paddle1];
 let centerX = 500;
 let centerY = 350;
 let paddleY = 300;
@@ -44,28 +75,45 @@ let radius = 30;
 let dx = 4 * ((Math.random() - 0.5) < 0 ? 1:-1); // Change in x (speed)
 let dy = 4 * ((Math.random() - 0.5) < 0 ? 1:-1); // Change in y (speed)
 function drawFrame() {
-  const ctx = canvas.value.getContext('2d')
-  ctx.beginPath();
-  ctx.rect(0, 0, 1000, 700);
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 20;
-  ctx.stroke();
-  ctx.closePath();
+  // const ctx = canvas.value.getContext('2d')
+  // ctx.beginPath();
+  // ctx.rect(0, 0, 1000, 700);
+  // ctx.strokeStyle = '#ffffff';
+  // ctx.lineWidth = 20;
+  // ctx.stroke();
+  // ctx.closePath();
+  hTop.draw();
+  hBottom.draw();
+  vLeft.draw();
+  vRight.draw();
 }
 
 function checkCollision() {
   // if (centerX + radius > 990 || centerX - radius < 10) {
-  if (centerX - radius < 10) {
-    centerX = 500;
-    centerY = 350;
-    dx = 4 * ((Math.random() - 0.5) < 0 ? 1:-1);
-    dy = 4 * ((Math.random() - 0.5) < 0 ? 1:-1);
-  }
-  if (centerX + radius > 990 || paddle1.collision({x: centerX, y: centerY, radius: radius})) {
-    dx = -dx;
-  }
-  if (centerY + radius > 690 || centerY - radius < 10) {
-    dy = -dy;
+  // if (centerX - radius < 10) {
+  //   centerX = 500;
+  //   centerY = 350;
+  //   dx = 4 * ((Math.random() - 0.5) < 0 ? 1:-1);
+  //   dy = 4 * ((Math.random() - 0.5) < 0 ? 1:-1);
+  // }
+  // if (centerX + radius > 990 || paddle1.collision({x: centerX, y: centerY, radius: radius})) {
+  //   dx = -dx;
+  // }
+  // if (centerY + radius > 690 || centerY - radius < 10) {
+  //   dy = -dy;
+  // }
+  for (let i = 0; i < obstacles.length; i++) {
+    if (obstacles[i].collision({x: centerX, y: centerY, radius: radius})) {
+      if (obstacles[i] === paddle1) {
+        dx = -dx;
+      } else {
+        if (obstacles[i] === hTop || obstacles[i] === hBottom) {
+          dy = -dy;
+        } else {
+          dx = -dx;
+        }
+      }
+    }
   }
 }
 
@@ -112,6 +160,7 @@ body{
 }
 canvas{
   display: block;
+  margin: 0px auto;
   background: black;
 }
 </style>
