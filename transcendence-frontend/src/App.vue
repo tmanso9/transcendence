@@ -27,7 +27,7 @@ const toggleLogin = () => {
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/play">Play</RouterLink>
         <RouterLink to="/ranking">Ranking</RouterLink>
-        <RouterLink to="/me">Account</RouterLink>
+        <RouterLink v-if="user.name.length" :to="`/users/${user.name}`">Account</RouterLink>
         <RouterLink to="/about">About</RouterLink>
         <button class="login" v-if="user.name" @click="user.logout()">Logout</button>
         <button class="login" v-else @click="toggleLogin">Login</button>
