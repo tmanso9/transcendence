@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import ChatWrapper from '@/components/ChatWrapper.vue'
-import { ref } from 'vue'
+import { RouterLink, RouterView } from "vue-router";
+import ChatWrapper from "@/components/ChatWrapper.vue";
+import { ref } from "vue";
 
-const showChat = ref(false)
-const chatText = ref('Show chat')
+const showChat = ref(false);
+const chatText = ref("Show chat");
 
 const toggleChat = () => {
-  showChat.value = !showChat.value
-  chatText.value = showChat.value ? 'Hide chat' : 'Show chat'
-}
+  showChat.value = !showChat.value;
+  chatText.value = showChat.value ? "Hide chat" : "Show chat";
+};
 </script>
 
 <template>
@@ -26,7 +26,6 @@ const toggleChat = () => {
   </header>
 
   <RouterView />
-  <v-btn> Button </v-btn>
   <button class="chat" @click="toggleChat">{{ chatText }}</button>
   <chat-wrapper v-if="showChat" />
 </template>
