@@ -119,7 +119,12 @@ function createNewChannel(
         </v-virtual-scroll>
       </div>
     </div>
-    <div class="chatMessagesBox" v-if="selectedChannel"></div>
+    <div class="chatMessagesBox" v-if="selectedChannel">
+      <div class="messageScroll">
+        <v-virtual-scroll :items="allChannelsUserIsIn" height="500">
+        </v-virtual-scroll>
+      </div>
+    </div>
   </div>
 </template>
 
