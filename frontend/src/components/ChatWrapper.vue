@@ -183,15 +183,15 @@ function channelMessages(channel: any) {
 .chatBox {
   display: flex;
   flex-direction: row;
-  padding: 1em;
+  // padding: 1em;
 }
 
 .chatBox > .chatBar {
   display: flex;
   flex-direction: column;
   min-width: 20em;
+  min-height: 47em;
   padding: 0.5em;
-  border-radius: 1em 0 0 0;
   border-left: solid 0.2em rgb(1, 55, 40);
   border-top: solid 0.2em rgb(1, 55, 40);
   border-right: solid 0.2em rgb(1, 55, 40);
@@ -203,7 +203,6 @@ function channelMessages(channel: any) {
   min-width: 50em;
   border-top: solid 0.2em rgb(1, 55, 40);
   border-right: solid 0.2em rgb(1, 55, 40);
-  border-radius: 0 1em 0 0;
   padding: 1em;
 }
 
@@ -224,7 +223,7 @@ function channelMessages(channel: any) {
   display: flex;
   flex-direction: row;
   align-items: center;
-	margin-top: 1em;
+  margin-top: 1em;
 }
 
 .messageChip {

@@ -26,8 +26,14 @@ const toggleChat = () => {
   </header>
 
   <RouterView />
-  <button class="chat" @click="toggleChat">{{ chatText }}</button>
-  <chat-wrapper v-if="showChat" />
+  <div class="chatPopUp">
+    <div @click="toggleChat" class="chat-toggle-button">
+      <v-icon icon="mdi-forum"></v-icon>
+    </div>
+    <transition name="slide-up">
+      <chat-wrapper v-if="showChat" />
+    </transition>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -43,9 +49,32 @@ const toggleChat = () => {
   }
 }
 
-.chat {
+.chatPopUp {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  bottom: 1em;
+  left: 40em;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: transform 0.5s;
+}
+.slide-up-enter,
+.slide-up-leave-to {
+  transform: translateY(100%);
+}
+
+.chatPopUp > .chat-toggle-button {
+  margin: 0;
+  padding: 0.5em;
   cursor: pointer;
-  margin: 0 auto;
-  display: block;
+  text-align: center;
+  width: 20em;
+  background-color: rgb(1, 55, 40);
+  border-radius: 1em 1em 0 0;
+  position: absolute;
+  bottom: 0;
 }
 </style>
