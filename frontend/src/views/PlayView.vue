@@ -21,13 +21,26 @@ function pause() {
   s.emit('pause', 'play')
 }
 
+function reset() {
+  s.emit('reset', 'reset')
+}
+
+function test() {
+  s.emit('message', 'reset')
+}
 </script>
 
 <template>
   <canvas width="1000" height="700" id="game-canvas" ref="canvas"></canvas>
     <h4>Move left paddle up and down with the arrow keys</h4>
-  <button @click="play">Play</button>
-  <button @click="pause">Pause</button>
+  <div>
+    <v-btn variant="outlined" color="white" @click="play">Play</v-btn >
+    <v-btn variant="outlined" color="white" @click="pause">Pause</v-btn >
+    <v-btn variant="outlined" color="white" @click="reset">Reset</v-btn >
+  </div>
+  <div>
+    <v-btn variant="outlined" color="white" @click="test">tetinhas</v-btn >
+  </div>
 </template>
 
 <style>

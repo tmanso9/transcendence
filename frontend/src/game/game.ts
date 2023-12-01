@@ -18,44 +18,11 @@ class rectangle extends object{
         ctx.fill();
         ctx.closePath();
     }
-    collision(ball) {
-        if (ball.x + ball.radius > this.x && ball.x - ball.radius < this.x + this.width) {
-            if (ball.y + ball.radius > this.y && ball.y - ball.radius < this.y + this.height) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 
 class paddle extends rectangle{
     constructor(public x: number, public y: number, public width: number, public height: number, public color:string, public orientation: string) {
         super(x, y, width, height, color, orientation);
-    }
-    moveUp() {
-        // if (this.y == 10)
-        //     return;
-        // else if (this.y - 30 < 10) {
-        //   this.y = 10;
-        // }
-        // // else
-        // //     this.y -= 30;
-        // socket.emit('moveUp', id);
-        // socket.on('paddle', (data: {x:number, y:number}) => {
-        //   this.y = data.y;
-        // });
-    }
-    moveDown() {
-        // if (this.y + this.height == 690)
-        //     return;
-        // else if (this.y + this.height + 30 > 690)
-        //     this.y = 690 - this.height;
-        // else
-        //     this.y += 30;
-        // socket.emit('moveDown', id);
-        // socket.on('paddle', (data: {x:number, y:number}) => {
-        //   this.y = data.y;
-        // });
     }
 }
 
@@ -69,28 +36,6 @@ class Ball extends object {
         ctx.fillStyle = this.color;
         ctx.fill();
         ctx.closePath();
-    }
-    move() {
-        this.x += this.dx;
-        this.y += this.dy;
-    }
-
-    checkCollision(elements: object[]) {
-        for (const e of elements) {
-            if (e.collidable && e.collision(this)) {
-                if (e.orientation == 'horizontal') {
-                    this.dy = -this.dy;
-                } else if (e instanceof paddle) {
-                    this.dx = -this.dx;
-                } else {
-                    // socket.emit('play', 'tetinhas');
-                    this.x = 500;
-                    this.y = 350;
-                    this.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
-                    this.dy = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
-                }
-            }
-        }
     }
 }
 

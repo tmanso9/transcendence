@@ -26,7 +26,6 @@ const toggleChat = () => {
   </header>
 
   <RouterView />
-  <v-btn> Button </v-btn>
   <button class="chat" @click="toggleChat">{{ chatText }}</button>
   <chat-wrapper v-if="showChat" />
 </template>
