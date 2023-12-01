@@ -33,20 +33,29 @@ class paddle extends rectangle{
         super(x, y, width, height, color, orientation);
     }
     moveUp() {
-        if (this.y == 10)
-            return;
-        else if (this.y - 30 < 10)
-            this.y = 10;
-        else
-            this.y -= 30;
+        // if (this.y == 10)
+        //     return;
+        // else if (this.y - 30 < 10) {
+        //   this.y = 10;
+        // }
+        // // else
+        // //     this.y -= 30;
+        // socket.emit('moveUp', id);
+        // socket.on('paddle', (data: {x:number, y:number}) => {
+        //   this.y = data.y;
+        // });
     }
     moveDown() {
-        if (this.y + this.height == 690)
-            return;
-        else if (this.y + this.height + 30 > 690)
-            this.y = 690 - this.height;
-        else
-            this.y += 30;
+        // if (this.y + this.height == 690)
+        //     return;
+        // else if (this.y + this.height + 30 > 690)
+        //     this.y = 690 - this.height;
+        // else
+        //     this.y += 30;
+        // socket.emit('moveDown', id);
+        // socket.on('paddle', (data: {x:number, y:number}) => {
+        //   this.y = data.y;
+        // });
     }
 }
 
@@ -123,10 +132,22 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
     const pR = new paddle(960, 275, 20, 150, 'red', 'vertical');
     const ball = new Ball(500, 350, 15, 5, 5, 'white');
     const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
-    document.addEventListener("keydown", keyDownHandler);
+    window.addEventListener("keydown", keyDownHandler);
     socket.on("ball", (data: {x:number, y:number}) => {
       ball.x = data.x;
       ball.y = data.y;
+    });
+    socket.on('paddleUp2', (data: {x:number, y:number}) => {
+      pR.y = data.y;
+    });
+    socket.on('paddleDown2', (data: {x:number, y:number}) => {
+      pR.y = data.y;
+    });
+    socket.on('paddleUp1', (data: {x:number, y:number}) => {
+      pL.y = data.y;
+    });
+    socket.on('paddleDown1', (data: {x:number, y:number}) => {
+      pL.y = data.y;
     });
     function drawFrame() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -134,20 +155,17 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
             e.draw(ctx)
         }
         drawBoard(ctx, 500, 10, 500, 690);
-        // ball.checkCollision(elements, socket);
-        // ball.move();
         requestAnimationFrame(drawFrame)
     }
     function keyDownHandler(e) {
         if (e.key == "Up" || e.key == "ArrowUp") {
-            pR.moveUp();
-        }
-        else if (e.key == "Down" || e.key == "ArrowDown") {
-            pR.moveDown();
+          socket.emit('moveUp', 2);
+        } else if (e.key == "Down" || e.key == "ArrowDown") {
+          socket.emit('moveDown', 2);
         } else if (e.key == "w"){
-            pL.moveUp();
+          socket.emit('moveUp', 1);
         } else if (e.key == "s"){
-            pL.moveDown();
+          socket.emit('moveDown', 1);
         }
     }
     drawFrame();

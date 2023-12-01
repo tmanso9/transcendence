@@ -8,15 +8,16 @@ const s = new io("http://localhost:3000/");
 onMounted(async () => {
   await  nextTick()
   s.on("connect", () => {
-    console.log("connected", s.id);
+    console.log("connected", s);
   });
+  s.emit('reset', 'reset')
   game(canvas.value as any, s);
 })
 
 function play() {
   s.emit('play', 'play')
 }
-async function pause() {
+function pause() {
   s.emit('pause', 'play')
 }
 
