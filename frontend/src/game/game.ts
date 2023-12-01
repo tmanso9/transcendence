@@ -66,7 +66,7 @@ class Ball extends object {
         this.y += this.dy;
     }
 
-    checkCollision(elements: object[], socket: Socket) {
+    checkCollision(elements: object[]) {
         for (const e of elements) {
             if (e.collidable && e.collision(this)) {
                 if (e.orientation == 'horizontal') {
@@ -134,7 +134,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
             e.draw(ctx)
         }
         drawBoard(ctx, 500, 10, 500, 690);
-        ball.checkCollision(elements, socket);
+        // ball.checkCollision(elements, socket);
         // ball.move();
         requestAnimationFrame(drawFrame)
     }
