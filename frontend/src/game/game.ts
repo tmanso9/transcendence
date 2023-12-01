@@ -74,7 +74,7 @@ class Ball extends object {
                 } else if (e instanceof paddle) {
                     this.dx = -this.dx;
                 } else {
-                    socket.emit('message', 'tetinhas');
+                    // socket.emit('play', 'tetinhas');
                     this.x = 500;
                     this.y = 350;
                     this.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
@@ -121,9 +121,13 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
     const vRight = new rectangle(990, 0, 10, 700, '#ffffff', 'vertical');
     const pL = new paddle(20, 275, 20, 150, 'red', 'vertical');
     const pR = new paddle(960, 275, 20, 150, 'red', 'vertical');
-    const ball = new Ball(100, 100, 15, 5, 5, 'white');
+    const ball = new Ball(500, 350, 15, 5, 5, 'white');
     const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
     document.addEventListener("keydown", keyDownHandler);
+    socket.on("ball", (data: {x:number, y:number}) => {
+      ball.x = data.x;
+      ball.y = data.y;
+    });
     function drawFrame() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         for (const e of elements) {
@@ -131,7 +135,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
         }
         drawBoard(ctx, 500, 10, 500, 690);
         ball.checkCollision(elements, socket);
-        ball.move();
+        // ball.move();
         requestAnimationFrame(drawFrame)
     }
     function keyDownHandler(e) {

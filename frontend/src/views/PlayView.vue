@@ -13,13 +13,11 @@ onMounted(async () => {
   game(canvas.value as any, s);
 })
 
-async function test() {
-  await fetch('http://localhost:3000/')
-    .then(response => response.text())
-    .then(data => console.log(data))
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+function play() {
+  s.emit('play', 'play')
+}
+async function pause() {
+  s.emit('pause', 'play')
 }
 
 </script>
@@ -27,7 +25,8 @@ async function test() {
 <template>
   <canvas width="1000" height="700" id="game-canvas" ref="canvas"></canvas>
     <h4>Move left paddle up and down with the arrow keys</h4>
-  <button class="chat" @click="test">oiiiiiiiiiiii</button>
+  <button @click="play">Play</button>
+  <button @click="pause">Pause</button>
 </template>
 
 <style>
