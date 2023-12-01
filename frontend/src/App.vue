@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import ChatWrapper from "@/components/ChatWrapper.vue";
+import ChatWrapper from "@/components/chat/ChatWrapper.vue";
 import { ref } from "vue";
 
 const showChat = ref(false);
@@ -30,9 +30,7 @@ const toggleChat = () => {
     <div @click="toggleChat" class="chat-toggle-button">
       <v-icon icon="mdi-forum"></v-icon>
     </div>
-    <transition name="slide-up">
-      <chat-wrapper v-if="showChat" />
-    </transition>
+    <chat-wrapper v-if="showChat" />
   </div>
 </template>
 
@@ -57,15 +55,6 @@ const toggleChat = () => {
   left: 40em;
 }
 
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: transform 0.5s;
-}
-.slide-up-enter,
-.slide-up-leave-to {
-  transform: translateY(100%);
-}
-
 .chatPopUp > .chat-toggle-button {
   margin: 0;
   padding: 0.5em;
@@ -74,7 +63,5 @@ const toggleChat = () => {
   width: 20em;
   background-color: rgb(1, 55, 40);
   border-radius: 1em 1em 0 0;
-  position: absolute;
-  bottom: 0;
 }
 </style>

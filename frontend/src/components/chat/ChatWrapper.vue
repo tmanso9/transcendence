@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { createElementBlock, ref } from "vue";
+import "./chat.scss";
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 
 const currentUser = ref("rui");
@@ -16,6 +17,16 @@ const allChannelsUserIsIn = ref([
     messages: [
       { sender: "rui", content: "ola a todos" },
       { sender: "joao", content: "ola rui" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
+      { sender: "roberto", content: "ola" },
       { sender: "roberto", content: "ola" },
     ],
   },
@@ -97,6 +108,11 @@ function channelMessages(channel: any) {
       return allChannelsUserIsIn.value[i].messages;
   }
 }
+
+function updateScroll(id: string) {
+  var element = document.getElementById(id);
+  if (element) element.scrollTop = element.scrollHeight;
+}
 </script>
 <template>
   <div class="chatBox">
@@ -135,6 +151,7 @@ function channelMessages(channel: any) {
         <v-virtual-scroll
           :items="channelMessages(selectedChannel)"
           height="500"
+          id="scrollMessages"
         >
           <template v-slot:default="{ item }">
             <div class="messageSentOrReceived">
@@ -168,106 +185,14 @@ function channelMessages(channel: any) {
       </div>
       <div class="messageWriteBox">
         <v-text-field label="Write..."></v-text-field>
-        <v-btn icon="mdi-send" class="sendMessageButton"></v-btn>
+        <v-btn
+          icon="mdi-send"
+          class="sendMessageButton"
+          @click="updateScroll('scrollMessages')"
+        ></v-btn>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-.sendMessageButton {
-  margin-left: 1em;
-  transform: translateY(-0.5em);
-}
-
-.chatBox {
-  display: flex;
-  flex-direction: row;
-  // padding: 1em;
-}
-
-.chatBox > .chatBar {
-  display: flex;
-  flex-direction: column;
-  min-width: 20em;
-  min-height: 47em;
-  padding: 0.5em;
-  border-left: solid 0.2em rgb(1, 55, 40);
-  border-top: solid 0.2em rgb(1, 55, 40);
-  border-right: solid 0.2em rgb(1, 55, 40);
-}
-
-.chatBox > .chatMessagesBox {
-  display: flex;
-  flex-direction: column;
-  min-width: 50em;
-  border-top: solid 0.2em rgb(1, 55, 40);
-  border-right: solid 0.2em rgb(1, 55, 40);
-  padding: 1em;
-}
-
-.channelHeader {
-  background-color: rgb(1, 55, 40);
-  margin-bottom: 1em;
-  border-radius: 1em;
-}
-
-.messageScroll {
-  border: solid 0.1em rgb(1, 55, 40);
-  padding: 0.5em;
-  margin-bottom: 1em;
-  border-radius: 1em;
-}
-
-.chatBox > .chatMessagesBox > .messageWriteBox {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 1em;
-}
-
-.messageChip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 0.5em 0;
-}
-
-.messageSentByCurrentUser {
-  float: right;
-}
-
-.messageSentOrReceived {
-  width: 100%;
-  overflow: hidden;
-}
-
-.chatBox > .chatMessagesBox {
-  display: flex;
-  flex-direction: column;
-}
-
-.chatBox > .chatBar > .chatTopBar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding-bottom: 1em;
-}
-
-.chatBox > .chatBar > .chatTopBar > h3 {
-  display: flex;
-  align-items: center; /* Vertical alignment */
-  justify-content: center;
-}
-
-.chatBox > .chatBar > .chatConversations > .contactsScroller {
-  // background-color: rgb(1, 55, 40);
-  border-radius: 1em;
-  padding: 1em 0;
-}
-
-.chatBox > .chatBar > .chatConversations > .contactsScroller > .contactElement {
-  background-color: black;
-  padding: 1em;
-}
-</style>
+<style scoped lang="scss"></style>
