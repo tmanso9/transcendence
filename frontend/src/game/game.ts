@@ -78,21 +78,11 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
     const ball = new Ball(500, 350, 15, 5, 5, 'white');
     const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
     window.addEventListener("keydown", keyDownHandler);
-    socket.on("ball", (data: {x:number, y:number}) => {
-      ball.x = data.x;
-      ball.y = data.y;
-    });
-    socket.on('paddleUp2', (data: {x:number, y:number}) => {
-      pR.y = data.y;
-    });
-    socket.on('paddleDown2', (data: {x:number, y:number}) => {
-      pR.y = data.y;
-    });
-    socket.on('paddleUp1', (data: {x:number, y:number}) => {
-      pL.y = data.y;
-    });
-    socket.on('paddleDown1', (data: {x:number, y:number}) => {
-      pL.y = data.y;
+    socket.on('positions', (data: any) => {
+      pL.y = data.paddle1.y;
+      pR.y = data.paddle2.y;
+      ball.x = data.ball.x;
+      ball.y = data.ball.y;
     });
     function drawFrame() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
