@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import {ref, onMounted, nextTick} from 'vue'
+import {ref, onMounted, nextTick, onUnmounted} from 'vue'
 import {Socket, io} from "socket.io-client";
 import {game} from "@/game/game";
 
 const canvas = ref(null)
 const s = new io("http://localhost:3000/");
+
 onMounted(async () => {
   await  nextTick()
   s.on("connect", () => {
@@ -12,6 +13,10 @@ onMounted(async () => {
   });
   s.emit('reset', 'reset')
   game(canvas.value as any, s);
+})
+
+onUnmounted(() => {
+  s.disconnect()
 })
 
 function play() {

@@ -103,15 +103,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
         requestAnimationFrame(drawFrame)
     }
     function keyDownHandler(e) {
-        if (e.key == "Up" || e.key == "ArrowUp") {
-          socket.emit('moveUp', 2);
-        } else if (e.key == "Down" || e.key == "ArrowDown") {
-          socket.emit('moveDown', 2);
-        } else if (e.key == "w"){
-          socket.emit('moveUp', 1);
-        } else if (e.key == "s"){
-          socket.emit('moveDown', 1);
-        }
+      socket.emit('movePaddle', e.key);
     }
     drawFrame();
 
