@@ -1,52 +1,50 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import ChatWrapper from '@/components/ChatWrapper.vue'
-import { ref } from 'vue'
+import { RouterLink, RouterView } from "vue-router";
+import ChatWrapper from "@/components/ChatWrapper.vue";
+import LoginWrapper from "./components/LoginWrapper.vue";
+import NavBar from "./components/NavBar.vue";
+import { ref } from "vue";
+import { useUserStore } from "./stores/user";
 
-const showChat = ref(false)
-const chatText = ref('Show chat')
+const showLogin = ref(false)
+const showChat = ref(false);
+const chatText = ref("Show chat");
+const user = useUserStore();
 
 const toggleChat = () => {
-  showChat.value = !showChat.value
-  chatText.value = showChat.value ? 'Hide chat' : 'Show chat'
-}
+  showChat.value = !showChat.value;
+  chatText.value = showChat.value ? "Hide chat" : "Show chat";
+};
+
+const toggleLogin = () => {
+  showLogin.value = !showLogin.value;
+};
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <nav class="wrapper__nav">
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/play">Play</RouterLink>
-        <RouterLink to="/ranking">Ranking</RouterLink>
-        <RouterLink to="/me">Account</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+  <v-app>
+    <nav-bar :user="user" :showLogin="showLogin" @login="toggleLogin" class="navbar" />
+	<div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
+	  <login-wrapper @login="showLogin = false" />
+	</div>
+	<v-main class="px-5 mt-4 h-75">
+		<RouterView />
+		<v-spacer class="h-10"></v-spacer>
+		<chat-wrapper v-if="showChat" />
+	</v-main>
+	<v-footer height="1" class="pa-0">
+		<v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
+	</v-footer>
+  </v-app>
 
-  <RouterView />
-  <v-btn> Button </v-btn>
-  <button class="chat" @click="toggleChat">{{ chatText }}</button>
-  <chat-wrapper v-if="showChat" />
 </template>
 
-<style scoped lang="scss">
-.wrapper {
-  &__nav {
-    display: flex;
-    justify-content: space-around;
-    width: 80%;
-    margin: 20px auto;
-    & a {
-      text-decoration: none;
-    }
-  }
-}
-
-.chat {
-  cursor: pointer;
-  margin: 0 auto;
-  display: block;
+<style lang="scss">
+.loginWrapper {
+  width: 100vw;
+  height: 100vh;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
 }
 </style>
