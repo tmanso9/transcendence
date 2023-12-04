@@ -48,8 +48,6 @@ export class AuthController {
 			secure: false,
 		});
 
-		console.log(access_token);
-
 		// Return logged_user to frontend
 		return logged_user;
 	}

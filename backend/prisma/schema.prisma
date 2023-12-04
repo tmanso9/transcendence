@@ -18,6 +18,12 @@ model User {
   password String // hashed password
   username String @unique // username
   status String // user status
+  avatar String // user avatar
+
+  points Int @default(0)  // Total points of the user
+  wins Int @default(0)  // Number of wins
+  losses Int @default(0)  // Number of losses
+
   friends User[]  @relation("Friends") // array of friends
   friendOf User[]  @relation("Friends") // array of friends
 }

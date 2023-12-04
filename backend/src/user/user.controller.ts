@@ -7,6 +7,11 @@ import { getUser } from '../auth/decorator';
 export class UserController {
 	constructor(private userService: UserService) {}
 
+	@Get()
+	async getUsers() {
+		return this.userService.getUsers();
+	}
+
 	@UseGuards(JwtGuard)
 	@Get('me')
 	getMe(@getUser() user: any) {

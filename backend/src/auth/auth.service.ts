@@ -33,6 +33,7 @@ export class AuthService {
 					email: dto.email,
 					password: hashed,
 					username: dto.username,
+					avatar: '#',
 					status: 'offline'
 				},
 			});
@@ -86,7 +87,6 @@ export class AuthService {
 
 	/***** GOOGLE *****/
 	async googleLogin(data: any) {
-		console.log(data);
 		// Check if the user already exists in the database
 		let user = await this.prisma.user.findUnique({
 			where: { email: data.email }
@@ -111,7 +111,8 @@ export class AuthService {
 						email: data.email,
 						password: '',
 						username: user_name,
-						status: 'online'
+						avatar: data.picture,
+						status: 'online',
 					}
 				});
 			} catch (error) {
@@ -131,6 +132,7 @@ export class AuthService {
 			access_token,
 			email: user.email,
 			username: user.username,
+			avatar: user.avatar
 		};
 	}
 
