@@ -17,7 +17,7 @@
       <v-btn> Play </v-btn>
     </RouterLink>
     <RouterLink to="/ranking">
-      <v-btn> Ranking </v-btn>
+      <v-btn> Leaderboard </v-btn>
     </RouterLink>
     <RouterLink v-if="user.username.length" :to="`/users/${user.username}`">
       <v-btn> Account </v-btn>
