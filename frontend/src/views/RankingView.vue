@@ -35,7 +35,7 @@ const loggedUser = useUserStore();
 
 async function getUsers() {
   try {
-    const response = await fetch("mock-data/ranking.json");
+    const response = await fetch("http://localhost:3000/users");
     if (!response.ok) throw new Error();
     const data = await response.json();
     users.value = data;
