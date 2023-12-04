@@ -9,9 +9,8 @@ const s = new io("http://localhost:3000/");
 onMounted(async () => {
   await  nextTick()
   s.on("connect", () => {
-    console.log("connected", s);
+    s.emit('reset', 'reset')
   });
-  s.emit('reset', 'reset')
   game(canvas.value as any, s);
 })
 
@@ -39,12 +38,9 @@ function test() {
   <canvas width="1000" height="700" id="game-canvas" ref="canvas"></canvas>
     <h4>Move left paddle up and down with the arrow keys</h4>
   <div>
-    <v-btn variant="outlined" color="white" @click="play">Play</v-btn >
-    <v-btn variant="outlined" color="white" @click="pause">Pause</v-btn >
-    <v-btn variant="outlined" color="white" @click="reset">Reset</v-btn >
-  </div>
-  <div>
-    <v-btn variant="outlined" color="white" @click="test">tetinhas</v-btn >
+    <v-btn variant="outlined" color="white" @click="play" style="margin: 10px">Play</v-btn >
+    <v-btn variant="outlined" color="white" @click="pause" style="margin: 10px">Pause</v-btn >
+    <v-btn variant="outlined" color="white" @click="reset" style="margin: 10px" >Reset</v-btn >
   </div>
 </template>
 

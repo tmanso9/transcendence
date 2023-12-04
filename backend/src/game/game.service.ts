@@ -92,7 +92,10 @@ export class GameService {
     private vRight = new rectangle(990, 0, 10, 700, '#ffffff', 'vertical');
     private elements = [this.hTop, this.hBottom, this.vLeft, this.vRight, this.paddle1, this.paddle2];
     public map = new Map<string, paddle>();
+    public running = false;
 
+    constructor() {
+    }
     checkCollision() {
       this.ball.checkCollision(this.elements);
     }
