@@ -1,7 +1,5 @@
 <script setup lang="ts">
-const props = defineProps({
-  updateScroll: () => {},
-});
+defineEmits(["scrollMessages"]);
 </script>
 <template>
   <div class="messageWriteBox">
@@ -9,11 +7,7 @@ const props = defineProps({
     <v-btn
       icon="mdi-send"
       class="sendMessageButton"
-      @click="
-        () => {
-          updateScroll('scrollMessages');
-        }
-      "
+      @click="$emit('scrollMessages')"
     ></v-btn>
   </div>
 </template>

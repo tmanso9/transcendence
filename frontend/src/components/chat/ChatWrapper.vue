@@ -2,7 +2,7 @@
 import { createElementBlock, ref } from "vue";
 import "./chat.scss";
 import { chatAppStore } from "@/store/chat";
-import MessageInput from "./messageInput.vue";
+import MessageInput from "./MessageInput.vue";
 
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 const store = chatAppStore();
@@ -96,7 +96,9 @@ function updateScroll(id: string) {
           </template>
         </v-virtual-scroll>
       </div>
-      <message-input update-scroll="updateScroll"></messageInput>
+      <message-input
+        @scrollMessages="updateScroll('scrollMessages')"
+      ></message-input>
     </div>
   </div>
 </template>
