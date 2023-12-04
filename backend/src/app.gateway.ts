@@ -1,9 +1,9 @@
 import {Server} from 'socket.io';
 import {SubscribeMessage, WebSocketGateway, WebSocketServer} from '@nestjs/websockets';
-@WebSocketGateway({cors: {origin: 'http://localhost:3001'}})
+// @WebSocketGateway({cors: {origin: 'http://localhost:3001'}})
 export class appGateway {
-    @WebSocketServer()
-    server: Server;
+    // @WebSocketServer()
+    // server: Server;
 
     @SubscribeMessage('message')
     handleMessage(client: any, payload: any): string {
@@ -11,4 +11,3 @@ export class appGateway {
         return 'Hello world!';
     }
 }
-

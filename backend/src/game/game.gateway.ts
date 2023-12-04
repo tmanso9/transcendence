@@ -64,6 +64,5 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
         if (this.gameService.map.size == 2) {
             this.startGame(null, null);
         }
-        console.log(client.id)
     }
 }
