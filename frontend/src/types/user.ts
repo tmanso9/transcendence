@@ -4,4 +4,5 @@ export interface User {
   points?: number
   wins?: number
   losses?: number
+  position?: number
 }

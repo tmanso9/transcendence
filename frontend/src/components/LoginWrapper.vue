@@ -6,10 +6,10 @@
 
 	<div class="wrapper mt-4 d-flex flex-column align-center">
 		<a href="/auth/42" @click.prevent="login('logging in with 42')" class="my-2">
-		  <v-btn width="100">42</v-btn>
+		  <v-btn width="200">Login with 42</v-btn>
 		</a>
 		<a href="/auth/google" @click.prevent="login('logging in with google')" class="my-2">
-		  <v-btn width="100" color="red">Google</v-btn>
+		  <v-btn width="200" color="red">Login with Google</v-btn>
 		</a>
 		<v-form @submit.prevent="login('logging in with email')" class="my-4 d-flex flex-column align-center">
 			<v-text-field size="30" v-model="email" label="email" />
