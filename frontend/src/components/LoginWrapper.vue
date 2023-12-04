@@ -1,34 +1,40 @@
 <template>
-  <div class="login">
-    <div class="login__first-line">
-      <span @click="emit('login')">x</span>
+  <div class="login border rounded-lg">
+    <div class="ml-auto mr-2">
+		<v-icon @click="emit('login')">mdi-close</v-icon>
     </div>
 
-    <a class="login__forty-two" href="/auth/42" @click.prevent="login('logging in with 42')">42</a>
-    <a class="login__google" href="/auth/google" @click.prevent="login('logging in with google')"
-      >Google</a
-    >
-    <form class="login__email" @submit.prevent="login('logging in with email')">
-      <label for="email">Email: </label><input type="email" name="email" id="email" /><br />
-      <label for="password">Password: </label
-      ><input type="password" name="password" id="password" /><br />
-      <button>Log in</button>
-    </form>
+	<div class="wrapper mt-4 d-flex flex-column align-center">
+		<a href="/auth/42" @click.prevent="login('logging in with 42')" class="my-2">
+		  <v-btn width="100">42</v-btn>
+		</a>
+		<a href="/auth/google" @click.prevent="login('logging in with google')" class="my-2">
+		  <v-btn width="100" color="red">Google</v-btn>
+		</a>
+		<v-form @submit.prevent="login('logging in with email')" class="my-4 d-flex flex-column align-center">
+			<v-text-field size="30" v-model="email" label="email" />
+			<v-text-field size="30" v-model="password" label="password" />
+			<v-btn type="submit" class="">log in</v-btn>
+		</v-form>
+	</div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from '@/stores/user'
-import { defineEmits } from 'vue'
+import { useUserStore } from "@/stores/user";
+import { ref } from "vue";
+import { defineEmits } from "vue";
 
-const emit = defineEmits(['login'])
-const user = useUserStore()
+const emit = defineEmits(["login"]);
+const user = useUserStore();
+const email = ref('')
+const password = ref('')
 
 const login = (msg: String) => {
-  console.log(msg)
-  user.login()
-  emit('login')
-}
+  console.log(msg);
+  user.login();
+  emit("login");
+};
 </script>
 
 <style scoped lang="scss">
@@ -43,45 +49,5 @@ const login = (msg: String) => {
   position: relative;
   margin-inline: auto;
   top: 75px;
-  &__first-line {
-    margin-left: 100%;
-    margin-top: -12px;
-    border: 1px solid white;
-    border-radius: 80%;
-    padding-inline: 4px;
-    padding-block: 1px;
-  }
-  &__email {
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    justify-items: baseline;
-    margin-top: 25px;
-  }
-  &__email button {
-    cursor: pointer;
-    border: 1px solid white;
-    padding-inline: 10px;
-    padding-block: 3px;
-    border-radius: 5px;
-  }
-  &__email label {
-    background-color: transparent;
-  }
-  &__forty-two,
-  &__google {
-    display: block;
-    width: fit-content;
-    text-decoration: none;
-    border: 1px solid white;
-    padding-inline: 10px;
-    padding-block: 3px;
-    border-radius: 5px;
-    margin-top: 10px;
-  }
-  &__google {
-    background-color: salmon;
-    color: black;
-  }
 }
 </style>
