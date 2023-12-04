@@ -1,66 +1,11 @@
 <script setup lang="ts">
 import { createElementBlock, ref } from "vue";
 import "./chat.scss";
+import { chatAppStore } from "@/store/chat";
+import MessageInput from "./messageInput.vue";
+
 // Fake data - TODO(Ask backend for this data) -------------------------------------
-
-const currentUser = ref("rui");
-
-const allChannelsUserIsIn = ref([
-  {
-    id: 0,
-    creator: "joao",
-    type: "public",
-    password: "",
-    avatar: "mdi-account-cowboy-hat-outline",
-    name: "First Channel",
-    members: ["joao", "rui", "roberto", "francisco"],
-    messages: [
-      { sender: "rui", content: "ola a todos" },
-      { sender: "joao", content: "ola rui" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-      { sender: "roberto", content: "ola" },
-    ],
-  },
-  {
-    id: 1,
-    creator: "joao",
-    type: "private",
-    password: "",
-    avatar: "mdi-account-cowboy-hat-outline",
-    name: "Second Channel",
-    members: ["joao", "rui", "anastacia"],
-    messages: [
-      { sender: "joao", content: "este é o segundo channel" },
-      { sender: "rui", content: "já tinhas criado um joao" },
-      { sender: "anastacia", content: "este é o meu primeiro canal" },
-      { sender: "joao", content: "mas este é private" },
-    ],
-  },
-  {
-    id: 2,
-    creator: "rui",
-    type: "personal",
-    password: "",
-    avatar: "mdi-account-cowboy-hat-outline",
-    name: "joao",
-    members: ["joao", "rui"],
-    messages: [
-      { sender: "rui", content: "primeira mensagem privada" },
-      { sender: "joao", content: "ola rui" },
-    ],
-  },
-]);
-
-const userFriends = ref(["joao", "anastacia"]);
+const store = chatAppStore();
 
 // --------------------------------------------------------------------------------
 
@@ -76,44 +21,12 @@ function selectChannel(channel: string) {
   selectedChannel.value = channel;
 }
 
-function createNewChannel(
-  creator: string,
-  type: string,
-  password: string,
-  avatar: string,
-  name: string,
-  members: string[]
-) {
-  if (
-    (type != "personal" && type != "public" && type != "private") ||
-    (type == "personal" && members.length > 1)
-  )
-    return;
-  const id = allChannelsUserIsIn.value.length;
-  allChannelsUserIsIn.value.push({
-    id: allChannelsUserIsIn.value.length,
-    creator: creator,
-    type: type,
-    password: password,
-    avatar: avatar,
-    name: name,
-    members: members,
-    messages: [],
-  });
-}
-
-function channelMessages(channel: any) {
-  for (let i = 0; i < allChannelsUserIsIn.value.length; i++) {
-    if (allChannelsUserIsIn.value[i].name == channel)
-      return allChannelsUserIsIn.value[i].messages;
-  }
-}
-
 function updateScroll(id: string) {
   var element = document.getElementById(id);
   if (element) element.scrollTop = element.scrollHeight;
 }
 </script>
+
 <template>
   <div class="chatBox">
     <div class="chatBar">
@@ -123,7 +36,7 @@ function updateScroll(id: string) {
       </div>
       <div class="chatConversations">
         <v-virtual-scroll
-          :items="allChannelsUserIsIn"
+          :items="store.allChannelsUserIsIn"
           height="400"
           class="contactsScroller"
         >
@@ -149,14 +62,14 @@ function updateScroll(id: string) {
       </div>
       <div class="messageScroll">
         <v-virtual-scroll
-          :items="channelMessages(selectedChannel)"
+          :items="store.channelMessages(selectedChannel)"
           height="500"
           id="scrollMessages"
         >
           <template v-slot:default="{ item }">
             <div class="messageSentOrReceived">
               <div
-                v-if="item.sender == currentUser"
+                v-if="item.sender == store.currentUser"
                 class="messageChip messageSentByCurrentUser"
               >
                 <v-chip size="large" append-icon="">
@@ -183,14 +96,7 @@ function updateScroll(id: string) {
           </template>
         </v-virtual-scroll>
       </div>
-      <div class="messageWriteBox">
-        <v-text-field label="Write..."></v-text-field>
-        <v-btn
-          icon="mdi-send"
-          class="sendMessageButton"
-          @click="updateScroll('scrollMessages')"
-        ></v-btn>
-      </div>
+      <message-input update-scroll="updateScroll"></messageInput>
     </div>
   </div>
 </template>
