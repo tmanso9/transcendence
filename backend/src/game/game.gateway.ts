@@ -23,27 +23,13 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
 
     @SubscribeMessage('play')
     startGame(client: any, payload: any) {
-        if (this.intervalId == null) {
-            console.log("starting game");
-            this.intervalId = setInterval(() => {
-                for (let [key, value] of this.games) {
-                    console.log(key);
-                    console.log(value.getPositions());
-                    this.server.to(key).emit('positions', value.getPositions() as any);
-                    value.moveBall();
-                }
-                // this.server.to('room1').emit('positions', this.gameService.getPositions() as any);
-                // this.gameService.moveBall();
-            }, 1000 / 60);
-        }
+        const room = this.rooms.get(client.id);
+        this.games.get(room).playG(this.server, room);
     }
 
     @SubscribeMessage('pause')
     pauseGame(client: any, payload: any) {
-        if (this.intervalId != null) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
+        this.games.get(this.rooms.get(client.id)).pauseG()
     }
 
     @SubscribeMessage('reset')
@@ -65,8 +51,8 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
     handleDisconnect(client: any): any {
         const room = this.rooms.get(client.id);
         const game = this.games.get(room);
+        this.pauseGame(client, null);
         game.map.delete(client.id);
-        this.pauseGame(null, null);
     }
 
     handleConnection(client: any, ...args: any[]): any {
@@ -81,6 +67,8 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
                 client.join('room' + this.games.size);
                 this.rooms.set(client.id, 'room' + this.games.size);
                 lastGame.registerPlayer(client.id);
+                if (lastGame.map.size == 2)
+                    lastGame.playG(this.server, 'room' + this.games.size)
             } else {
                 client.join('room' + (this.games.size + 1));
                 this.rooms.set(client.id, 'room' + (this.games.size + 1));
@@ -89,16 +77,4 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
             }
         }
     }
-
-    //     if (this.gameService.map.size >= 2) {
-    //         client.join('room2')
-    //         this.gameService.registerPlayer(client.id);
-    //         return;
-    //     }
-    //     this.gameService.registerPlayer(client.id);
-    //     client.join('room1');
-    //     if (this.gameService.map.size == 2) {
-    //         this.startGame(null, null);
-    //     }
-    // }
 }

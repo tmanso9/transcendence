@@ -83,6 +83,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
       pR.y = data.paddle2.y;
       ball.x = data.ball.x;
       ball.y = data.ball.y;
+      console.log("tetinhas");
 
     });
     function drawFrame() {

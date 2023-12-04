@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import {clearInterval} from "timers";
 
 class baseObject {
   constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {}
@@ -92,7 +93,7 @@ export class GameService {
     private vRight = new rectangle(990, 0, 10, 700, '#ffffff', 'vertical');
     private elements = [this.hTop, this.hBottom, this.vLeft, this.vRight, this.paddle1, this.paddle2];
     public map = new Map<string, paddle>();
-    public running = false;
+    private intervalId = null;
 
     constructor() {
     }
@@ -138,6 +139,22 @@ export class GameService {
     getPositions() {
       return {ball: this.getBallPosition(), paddle1: this.getPaddlePosition(1), paddle2: this.getPaddlePosition(2)};
     }
+
+    playG(server, room) {
+      if (this.intervalId == null) {
+        this.intervalId = setInterval( () => {
+          server.to(room).emit('positions', this.getPositions() as any);
+          this.moveBall();
+        }, 1000 / 60);
+      }
+    }
+
+  pauseG() {
+    if (this.intervalId != null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
 
 
     reset() {
