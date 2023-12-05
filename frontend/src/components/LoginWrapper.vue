@@ -7,14 +7,13 @@
     <div class="wrapper mt-4 d-flex flex-column align-center">
       <a
         href="/auth/42"
-        @click.prevent="login('logging in with 42')"
+        @click.prevent="login('42')"
         class="my-2"
       >
         <v-btn width="200">Login with 42</v-btn>
       </a>
       <a
         href="http://localhost:3000/auth/google"
-        @click.prevent="login('google')"
         class="my-2"
       >
         <v-btn width="200" color="red">Login with Google</v-btn>
@@ -46,6 +45,9 @@ const login = async (path: String) => {
   console.log(fullPath);
   try {
     const result = await fetch(fullPath, {
+		headers: {
+			"Content-Type": "application/json",
+		},
     //   mode: 'no-cors',
       redirect: "follow",
     });

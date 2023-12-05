@@ -37,7 +37,7 @@ export class AuthController {
 	@UseGuards(GoogleGuard)
 	@Get('google/redirect')
 	async googleLogin(@getUser() user: any, @Res({passthrough: true}) response: Response) {
-		const logged_user = await this.authService.googleLogin(user);
+				const logged_user = await this.authService.googleLogin(user);
 		const access_token = logged_user.access_token;
 		delete logged_user.access_token;
 
@@ -48,7 +48,11 @@ export class AuthController {
 			secure: false,
 		});
 
+		response.redirect('http://localhost:3001');
+
+		console.log('oi')
+
 		// Return logged_user to frontend
-		return logged_user;
+		// return logged_user;
 	}
 }

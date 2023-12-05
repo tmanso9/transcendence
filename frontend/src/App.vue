@@ -3,13 +3,36 @@ import { RouterLink, RouterView } from "vue-router";
 import ChatWrapper from "@/components/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
 import NavBar from "./components/NavBar.vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useUserStore } from "./stores/user";
+import { inject } from "vue";
 
 const showLogin = ref(false)
 const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
+
+const cookies = inject('$cookies')
+
+const fetchUser = async () => {
+	try {
+		const result = await fetch('http://localhost:3000/users/me', {
+			credentials: 'include'
+		})
+		if (!result.ok) throw new Error('Could not fetch me')
+		const data = await result.json()
+		user.username = data.username
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+onMounted(() => {
+	const jwt = cookies.get('access_token')
+	if (jwt !== null) {
+		fetchUser()
+	}
+})
 
 const toggleChat = () => {
   showChat.value = !showChat.value;
