@@ -4,8 +4,11 @@
 }
 
 .chatBox {
+  position: absolute;
   display: flex;
   flex-direction: row;
+  transform: translateY(-15em);
+  background-color: black;
   // padding: 1em;
 }
 
@@ -18,6 +21,7 @@
   border-left: solid 0.2em rgb(1, 55, 40);
   border-top: solid 0.2em rgb(1, 55, 40);
   border-right: solid 0.2em rgb(1, 55, 40);
+  border-radius: 1em 0 0 0;
 }
 
 .chatBox > .chatMessagesBox {
@@ -27,6 +31,7 @@
   border-top: solid 0.2em rgb(1, 55, 40);
   border-right: solid 0.2em rgb(1, 55, 40);
   padding: 1em;
+  border-radius: 0 1em 0 0;
 }
 
 .channelHeader {

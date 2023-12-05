@@ -6,7 +6,7 @@ import NavBar from "./components/NavBar.vue";
 import { ref } from "vue";
 import { useUserStore } from "./stores/user";
 
-const showLogin = ref(false)
+const showLogin = ref(false);
 const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
@@ -23,20 +23,24 @@ const toggleLogin = () => {
 
 <template>
   <v-app>
-    <nav-bar :user="user" :showLogin="showLogin" @login="toggleLogin" class="navbar" />
-	<div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
-	  <login-wrapper @login="showLogin = false" />
-	</div>
-	<v-main class="px-5 mt-4 h-75">
-		<RouterView />
-		<v-spacer class="h-10"></v-spacer>
-		<chat-wrapper v-if="showChat" />
-	</v-main>
-	<v-footer height="1" class="pa-0">
-		<v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
-	</v-footer>
+    <nav-bar
+      :user="user"
+      :showLogin="showLogin"
+      @login="toggleLogin"
+      class="navbar"
+    />
+    <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
+      <login-wrapper @login="showLogin = false" />
+    </div>
+    <v-main class="px-5 mt-4 h-75">
+      <RouterView />
+      <v-spacer class="h-10"></v-spacer>
+      <chat-wrapper v-if="showChat" />
+    </v-main>
+    <v-footer height="1" class="pa-0">
+      <v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
+    </v-footer>
   </v-app>
-
 </template>
 
 <style lang="scss">

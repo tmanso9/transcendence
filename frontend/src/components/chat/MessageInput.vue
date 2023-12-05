@@ -1,6 +1,4 @@
-<script setup lang="ts">
-defineEmits(["scrollMessages"]);
-</script>
+<script setup lang="ts"></script>
 <template>
   <div class="messageWriteBox">
     <v-text-field label="Write..."></v-text-field>
