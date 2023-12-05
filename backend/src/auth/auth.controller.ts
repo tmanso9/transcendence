@@ -3,7 +3,7 @@ import { Response } from "express";
 
 import { AuthService } from "./auth.service";
 import { AuthDTO } from "./dto";
-import { GoogleGuard } from "./guards";
+import { GoogleGuard, Guard42 } from "./guards";
 import { getUser } from "./decorator";
 import { request } from "http";
 
@@ -53,4 +53,17 @@ export class AuthController {
 		
 		response.redirect(url)
 	}
+
+	/***** 42 LOGIN *****/
+	@UseGuards(Guard42)
+    @Get('forty-two')
+    async login42(){}
+
+    @UseGuards(Guard42)
+    @Get('callback')
+    async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response) {
+        const logged_user = await this.authService.login42(user);
+        response.cookie('access_token', user.access_token);
+        return logged_user;
+    }
 }
