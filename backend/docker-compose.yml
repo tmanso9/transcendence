@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:latest
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    ports:
+      - 5432:5432
+  test-postgres:
+    image: postgres:latest
+    env_file:
+      - .env
+    networks:
+      - transcendence
+    ports:
+      - 5433:5432
+
+networks:
+  transcendence:
+    

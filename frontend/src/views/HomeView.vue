@@ -1,15 +1,13 @@
 <template>
   <main>
+    <p v-if="user.name">Hi, {{ user.name }}!</p>
+    <p v-else>Login for all the pong fun</p>
     <p>This is the home page</p>
-    <p>
-      You can try logging in <a href="/auth/login" @click.prevent="login">here</a> (check the
-      console for now)
-    </p>
   </main>
 </template>
 
 <script lang="ts" setup>
-const login = () => {
-  console.log('Login attempt')
-}
+import { useUserStore } from '@/stores/user'
+
+const user = useUserStore()
 </script>
