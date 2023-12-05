@@ -7,10 +7,10 @@
 
 .chatBox {
   position: absolute;
-  bottom: 6em;
+  bottom: 7em;
   display: flex;
   flex-direction: row;
-  background-color: rgb(24, 24, 24);
+  background-color: map-get($color, dark);
   border-radius: 1em 1em 0 0;
 }
 
@@ -107,9 +107,9 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-	background-color: map-get($color, primary);
+  background-color: map-get($color, primary);
   border-radius: 0.8em 0.8em 0 0;
-	padding: 0 1em;
+  padding: 0 1em;
 }
 
 .channelHeader-profile {
@@ -124,4 +124,40 @@
 
 .channelSettingsPopUp {
   min-width: 30em;
+}
+
+.createChannelPopUp {
+  position: absolute;
+  padding: 1em;
+  background-color: map-get($color, dark);
+  width: 98%;
+  bottom: 0;
+  left: 1%;
+  border-radius: 1em 1em 0 0;
+  border-top: solid 0.1em map-get($color, primary);
+  height: 90%;
+  justify-content: center;
+}
+
+.createChannelPopUp-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.createChannelPopUp-options {
+  margin: 1em 0;
+  border: solid 0.1em map-get($color, light);
+  border-radius: 1em;
+  padding-top: 0.5em;
+}
+
+.createChannelPopUp-friends {
+  border: solid 0.1em map-get($color, light);
+  border-radius: 1em;
+  padding-top: 0.5em;
+}
+
+.newChannelHeader {
+  margin-bottom: 1em;
 }

@@ -1,80 +1,143 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { chatAppStore } from "@/store/chat";
+import { count } from "console";
 
 const store = chatAppStore();
-
-const dialog = ref(false);
+const newChannelPopUp = ref(false);
+const createChannelFinal = ref(false);
 </script>
 <template>
-  <v-row justify="end">
-    <v-dialog v-model="dialog" persistent width="1024">
-      <template v-slot:activator="{ props }">
-        <v-btn
-          icon="mdi-chat-plus"
-          color="primary"
-          v-bind="props"
-          size="small"
-        ></v-btn>
+  <div v-if="!newChannelPopUp" class="createChannelPopUp">
+    <div class="createChannelPopUp-header">
+      <span class="text-h6">Create Channel</span>
+      <v-icon
+        icon="mdi-close-circle"
+        color="primary"
+        @click="
+          () => {
+            store.createChannelPopUp = false;
+          }
+        "
+      ></v-icon>
+    </div>
+    <v-virtual-scroll
+      :items="[
+        { name: 'New Public Channel', avatar: 'mdi-account-group' },
+        { name: 'New Private Channel', avatar: 'mdi-account-multiple-plus' },
+      ]"
+      height="100"
+      class="createChannelPopUp-options"
+    >
+      <template v-slot:default="{ item }">
+        <v-list-item
+          :key="item.name"
+          @click="
+            () => {
+              newChannelPopUp = true;
+            }
+          "
+        >
+          <template v-slot:prepend>
+            <v-icon :icon="item.avatar" color="primary"></v-icon>
+          </template>
+          <v-list-item-title v-text="item.name"></v-list-item-title>
+        </v-list-item>
       </template>
-      <v-card>
-        <v-card-title>
-          <span class="text-h5">Create Channel</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="6" md="4">
-                <v-text-field
-                  label="Channel Name*"
-                  color="primary"
-                  required
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="Avatar (Optional)"
-                  color="primary"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field
-                  label="Password (Optional)"
-                  type="password"
-                  color="primary"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-select
-                  :items="['Public', 'Private']"
-                  label="Type*"
-                  color="primary"
-                  required
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-autocomplete
-                  :items="store.friends"
-                  label="Members"
-									color="primary"
-                  multiple
-                ></v-autocomplete>
-              </v-col>
-            </v-row>
-          </v-container>
-          <small>*indicates required field</small>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="dialog = false">
-            Close
-          </v-btn>
-          <v-btn color="blue-darken-1" variant="text" @click="dialog = false">
-            Save
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-row>
+    </v-virtual-scroll>
+    <v-virtual-scroll
+      :items="store.friends"
+      height="150"
+      class="createChannelPopUp-friends"
+    >
+      <template v-slot:default="{ item }">
+        <v-list-item
+          :key="item"
+          @click="
+            () => {
+              // TODO
+              // - create personal channel with user
+              // - select channel
+              store.createChannelPopUp = false;
+            }
+          "
+        >
+          <template v-slot:prepend>
+            <v-icon icon="mdi-account" color="primary"></v-icon>
+          </template>
+          <v-list-item-title v-text="item"></v-list-item-title>
+        </v-list-item>
+      </template>
+    </v-virtual-scroll>
+  </div>
+  <div v-if="newChannelPopUp" class="createChannelPopUp">
+    <div class="createChannelPopUp-header newChannelHeader">
+      <span class="text-h6">Participants</span>
+      <v-icon
+        icon="mdi-close-circle"
+        color="primary"
+        @click="
+          () => {
+            for (let i = 0; i < store.friendsWithTick.length; i++) {
+              store.friendsWithTick[i].added = false;
+            }
+            newChannelPopUp = false;
+          }
+        "
+      ></v-icon>
+    </div>
+    <v-virtual-scroll
+      :items="store.friendsWithTick"
+      height="300"
+      class="createChannelPopUp-friends"
+    >
+      <template v-slot:default="{ item }">
+        <v-list-item
+          :key="item.name"
+          @click="
+            () => {
+              const index = store.friendsWithTick
+                .map((n) => n.name)
+                .indexOf(item.name, 0);
+              if (index > -1) {
+                store.friendsWithTick[index].added =
+                  !store.friendsWithTick[index].added;
+              }
+            }
+          "
+        >
+          <template v-slot:prepend>
+            <v-icon icon="mdi-account" color="primary"></v-icon>
+          </template>
+          <v-list-item-title v-text="item.name"></v-list-item-title>
+          <v-icon
+            v-if="item.added"
+            icon="mdi-check-bold"
+            color="primary"
+            size="x-small"
+          ></v-icon>
+        </v-list-item>
+      </template>
+    </v-virtual-scroll>
+    <v-btn
+      style="float: right; margin-top: 1em"
+      color="primary"
+      @click="
+        () => {
+          createChannelFinal = true;
+        }
+      "
+      >Next</v-btn
+    >
+  </div>
+  <div v-if="createChannelFinal" class="createChannelPopUp">
+    <div class="createChannelPopUp-header newChannelHeader">
+      <span class="text-h6">Participants</span>
+      <v-icon icon="mdi-close-circle" color="primary" @click=""></v-icon>
+    </div>
+    <v-btn style="float: right; margin-top: 1em" color="primary" @click=""
+      >Create</v-btn
+    >
+  </div>
 </template>
 <style scoped lang="scss"></style>

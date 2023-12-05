@@ -7,6 +7,13 @@ export const chatAppStore = defineStore("chat", () => {
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
 
+  const friendsWithTick = ref([
+    { name: "joao", added: false },
+    { name: "gonçalo", added: false },
+    { name: "joana", added: false },
+    { name: "roberto", added: false },
+  ]);
+
   const publicChannelsUserIsNotIn = ref([
     {
       id: 0,
@@ -45,36 +52,6 @@ export const chatAppStore = defineStore("chat", () => {
         { sender: "joana", content: "mi" },
         { sender: "Pedro", content: "fa" },
       ],
-    },
-    {
-      id: 5,
-      creator: "",
-      type: "personal",
-      password: "",
-      avatar: "mdi-account-cowboy-hat-outline",
-      name: "gonçalo",
-      members: ["gonçalo", "rui"],
-      messages: [],
-    },
-    {
-      id: 7,
-      creator: "",
-      type: "personal",
-      password: "",
-      avatar: "mdi-account-cowboy-hat-outline",
-      name: "joana",
-      members: ["joana", "rui"],
-      messages: [],
-    },
-    {
-      id: 8,
-      creator: "",
-      type: "personal",
-      password: "",
-      avatar: "mdi-account-cowboy-hat-outline",
-      name: "roberto",
-      members: ["roberto", "rui"],
-      messages: [],
     },
   ]);
 
@@ -138,6 +115,8 @@ export const chatAppStore = defineStore("chat", () => {
   const currentUser = ref("rui");
 
   const selectedChannel = ref("");
+
+  const createChannelPopUp = ref(false);
 
   // Functions
 
@@ -212,6 +191,8 @@ export const chatAppStore = defineStore("chat", () => {
     userFriends,
     currentUser,
     selectedChannel,
+    createChannelPopUp,
+    friendsWithTick,
     createNewChannel,
     channelMessages,
     selectChannel,

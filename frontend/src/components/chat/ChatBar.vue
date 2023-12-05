@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import CreateChannel from "./CreateChannel.vue";
 import { chatAppStore } from "@/store/chat";
 
@@ -8,7 +9,17 @@ const store = chatAppStore();
   <div class="chatBar">
     <div class="chatTopBar">
       <h3>Chat</h3>
-      <create-channel></create-channel>
+      <v-icon
+			v-if="!store.createChannelPopUp"
+        @click="
+          () => {
+            store.createChannelPopUp = true;
+          }
+        "
+        icon="mdi-chat-plus"
+        color="primary"
+        size="large"
+      ></v-icon>
     </div>
     <div class="chatConversations">
       <v-virtual-scroll
@@ -69,6 +80,7 @@ const store = chatAppStore();
         </template>
       </v-virtual-scroll>
     </div>
+    <create-channel v-if="store.createChannelPopUp"></create-channel>
   </div>
 </template>
 <style scoped lang="scss"></style>

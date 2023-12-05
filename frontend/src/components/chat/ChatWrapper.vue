@@ -6,6 +6,7 @@ import MessageInput from "./MessageInput.vue";
 import ChatBar from "./ChatBar.vue";
 import ChannelHeader from "./ChannelHeader.vue";
 import MessagesScroll from "./MessagesScroll.vue";
+import CreateChannel from "./CreateChannel.vue";
 
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 const store = chatAppStore();
