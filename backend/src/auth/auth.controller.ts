@@ -13,18 +13,31 @@ export class AuthController {
 
 	/***** EMAIL *****/
 	@Post('signup')
-	signup(@Body() dto: AuthDTO) {
-		return this.authService.signup(dto);
+	async signup(@Body() dto: AuthDTO, @Res({passthrough: true}) response: Response) {
+		await this.authService.signup(dto);
+
+		const user = await this.login(dto, response)
+		response.cookie('access_token', user.access_token, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
+		
+		return user
 	}
 
 	@Post('login')
 	async login(@Body() dto: AuthDTO, @Res({passthrough: true}) response: Response) {
 		const user = await this.authService.login(dto);
 		const access_token = user.access_token;
-		delete user.access_token;
+		// delete user.access_token;
 
 		// Set cookie
-		response.cookie("access_token", access_token);
+		response.cookie('access_token', user.access_token, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
 
 		// Return user to frontend
 		return user;
@@ -38,7 +51,7 @@ export class AuthController {
 	@UseGuards(GoogleGuard)
 	@Get('google/redirect')
 	async googleLogin(@getUser() user: any, @Res({passthrough: true}) response: Response) {
-				const logged_user = await this.authService.googleLogin(user);
+		const logged_user = await this.authService.googleLogin(user);
 		const access_token = logged_user.access_token;
 		delete logged_user.access_token;
 

@@ -41,6 +41,10 @@ const toggleChat = () => {
 
 const toggleLogin = () => {
   showLogin.value = !showLogin.value;
+  const jwt = cookies.get("access_token");
+  if (jwt !== null) {
+    fetchUser();
+  }
 };
 </script>
 
@@ -48,7 +52,7 @@ const toggleLogin = () => {
   <v-app>
     <nav-bar :user="user" :showLogin="showLogin" @login="toggleLogin" class="navbar" />
 	<div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
-	  <login-wrapper @login="showLogin = false" />
+	  <login-wrapper @login="toggleLogin" />
 	</div>
 	<v-main class="px-5 mt-4 h-75">
 		<RouterView />
