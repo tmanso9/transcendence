@@ -40,21 +40,31 @@ const store = chatAppStore();
         class="contactsScroller"
       >
         <template v-slot:default="{ item }">
-          <v-list-item
-            :key="item.id"
-            @click="store.selectChannel(item.name)"
-            class="contactElement"
-          >
-            <template v-slot:prepend>
-              <v-icon :icon="item.avatar" color="primary"></v-icon>
-              <v-icon
+          <v-list-item :key="item.id" class="contactElement">
+            <div class="contactElement-publicChan">
+              <div class="contactElement-publicChan-pofile">
+                <v-icon
+                  :icon="item.avatar"
+                  color="secondary"
+                  class="contactElement-publicChan-pofile-avatar"
+                ></v-icon>
+                <v-list-item-title v-text="item.name"></v-list-item-title>
+              </div>
+              <v-btn
                 v-if="item.password == 'yes'"
-                icon="mdi-lock"
-                size="x-small"
-                color="primary"
-              ></v-icon>
-            </template>
-            <v-list-item-title v-text="item.name"></v-list-item-title>
+                append-icon="mdi-lock"
+                size="small"
+                color="secondary"
+                >Join</v-btn
+              >
+              <v-btn
+                v-else-if="item.type == 'personal'"
+                size="small"
+                color="secondary"
+                >Talk</v-btn
+              >
+              <v-btn v-else size="small" color="secondary">Join</v-btn>
+            </div>
           </v-list-item>
         </template>
       </v-virtual-scroll>

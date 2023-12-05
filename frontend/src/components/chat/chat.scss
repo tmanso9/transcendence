@@ -77,22 +77,36 @@
   flex-direction: column;
 }
 
-
 .chatBox > .chatBar > .chatTopBar > h3 {
-	display: flex;
+  display: flex;
   align-items: center; /* Vertical alignment */
   justify-content: center;
 }
 
 .chatBox > .chatBar > .chatConversations > .contactsScroller {
-	border-radius: 1em;
+  border-radius: 1em;
 }
 
 .chatTopBar {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: center;
-	padding: 1em 1em 1em 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em 1em 1em 1em;
 }
 
+.contactElement-publicChan {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.contactElement-publicChan-pofile {
+  display: flex;
+  flex-direction: row;
+
+}
+
+.contactElement-publicChan-pofile-avatar {
+	margin-right: 1em;
+}
