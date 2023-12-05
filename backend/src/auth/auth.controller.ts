@@ -33,11 +33,11 @@ export class AuthController {
 	/***** GOOGLE LOGIN *****/
 	@UseGuards(GoogleGuard)
 	@Get('google')
-	async auth(@Req() request: Request, @Session() session: any) {}
+	async auth() {}
 
 	@UseGuards(GoogleGuard)
 	@Get('google/redirect')
-	async googleLogin(@getUser() user: any, @Res({passthrough: true}) response: Response, @Session() session: any) {
+	async googleLogin(@getUser() user: any, @Res({passthrough: true}) response: Response) {
 		const logged_user = await this.authService.googleLogin(user);
 		const access_token = logged_user.access_token;
 		delete logged_user.access_token;

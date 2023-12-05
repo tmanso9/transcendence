@@ -14,7 +14,6 @@
       </a>
       <a
         href="http://localhost:3000/auth/google"
-        @click.prevent="login('google')"
         class="my-2"
       >
         <v-btn width="200" color="red">Login with Google</v-btn>
