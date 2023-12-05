@@ -1,6 +1,6 @@
 <template>
   <v-app-bar class="">
-	<a href="https://profile.intra.42.fr/" target="_blank">
+	<a href="/">
 		<v-img
 		  src="../assets/42.svg"
 		  width="32"
@@ -26,13 +26,15 @@
       <v-btn> About </v-btn>
     </RouterLink>
 	<v-spacer></v-spacer>
-	<div v-if="user.username" >
-		<span>hi, {{ user.username }}</span>
-		<v-btn class="login" @click="logOut()">
-		  Logout
-		</v-btn>
+	<div class="mr-10">
+		<div v-if="user.username" >
+			<span class="mr-3">hi, {{ user.username }}!</span>
+			<v-btn class="login" @click="logOut()">
+			  Logout
+			</v-btn>
+		</div>
+		<v-btn class="login" v-else @click="toggleLogin">Login</v-btn>
 	</div>
-    <v-btn class="login" v-else @click="toggleLogin">Login</v-btn>
   </v-app-bar>
 </template>
 

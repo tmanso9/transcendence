@@ -63,7 +63,10 @@ export class AuthController {
     @Get('callback')
     async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response) {
         const logged_user = await this.authService.login42(user);
-        response.cookie('access_token', user.access_token);
-        return logged_user;
+        response.cookie('access_token', logged_user.accessToken);
+		
+		const url = `http://localhost:3001/users/${logged_user.username}`;
+
+		response.redirect(url)
     }
 }
