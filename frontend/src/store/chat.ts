@@ -63,6 +63,8 @@ export const chatAppStore = defineStore("chat", () => {
 
   const currentUser = ref("rui");
 
+  const selectedChannel = ref("");
+
   // Functions
 
   function createNewChannel(
@@ -98,11 +100,17 @@ export const chatAppStore = defineStore("chat", () => {
     }
   }
 
+  function selectChannel(channel: string) {
+    selectedChannel.value = channel;
+  }
+
   return {
     allChannelsUserIsIn,
     userFriends,
     currentUser,
+    selectedChannel,
     createNewChannel,
     channelMessages,
+    selectChannel,
   };
 });
