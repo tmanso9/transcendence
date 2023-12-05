@@ -20,7 +20,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from "vue";
 import type { User } from "@/types";
-import LeaderboardCard from "@/components/LeaderboardCard.vue";
 import { useUserStore } from "@/stores/user";
 
 const headers = [
@@ -35,7 +34,7 @@ const loggedUser = useUserStore();
 
 async function getUsers() {
   try {
-    const response = await fetch("mock-data/ranking.json");
+    const response = await fetch("http://localhost:3000/users");
     if (!response.ok) throw new Error();
     const data = await response.json();
     users.value = data;
