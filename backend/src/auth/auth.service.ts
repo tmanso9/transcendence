@@ -136,6 +136,27 @@ export class AuthService {
 		};
 	}
 
+	/***** 42 *****/
+
+	async login42(user)
+    {
+        const profile = await this.prisma.user.upsert({
+            create: {
+                email: user.email,
+                password: '',
+                username: user.username,
+                status: 'online',
+                avatar: user.avatar,
+            },
+            update: {
+                status: 'online',
+            },
+            where : {
+                email: user.email,
+            }
+        })
+        return profile;
+    }
 
 	/*** USING RANDOM NAME GENERATOR API ***/
 	private async getRandomName(): Promise<string> {
