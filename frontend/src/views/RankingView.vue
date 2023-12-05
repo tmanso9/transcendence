@@ -20,7 +20,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref, watch } from "vue";
 import type { User } from "@/types";
-import LeaderboardCard from "@/components/LeaderboardCard.vue";
 import { useUserStore } from "@/stores/user";
 
 const headers = [
