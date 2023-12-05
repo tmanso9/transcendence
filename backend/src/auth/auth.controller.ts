@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res, UseGuards, Session } from "@nestjs/common";
 import { Response } from "express";
 
 import { AuthService } from "./auth.service";
 import { AuthDTO } from "./dto";
 import { GoogleGuard } from "./guards";
 import { getUser } from "./decorator";
+import { request } from "http";
 
 @Controller('auth')
 export class AuthController {
@@ -48,11 +49,8 @@ export class AuthController {
 			secure: false,
 		});
 
-		response.redirect('http://localhost:3001');
-
-		console.log('oi')
-
-		// Return logged_user to frontend
-		// return logged_user;
+		const url = `http://localhost:3001/users/${logged_user.username}`;
+		
+		response.redirect(url)
 	}
 }
