@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import ChatWrapper from "@/components/ChatWrapper.vue";
+import ChatWrapper from "@/components/chat/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
 import NavBar from "./components/NavBar.vue";
 import { ref } from "vue";
