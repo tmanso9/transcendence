@@ -7,7 +7,7 @@ const store = chatAppStore();
   <div class="messageScroll">
     <v-virtual-scroll
       :items="store.channelMessages(store.selectedChannel)"
-      height="500"
+      height="300"
       id="scrollMessages"
     >
       <template v-slot:default="{ item }">
@@ -22,7 +22,7 @@ const store = chatAppStore();
             <v-chip
               size="x-small"
               prepend-icon=""
-              color="green"
+              color="primary"
               class="messageSentByCurrentUser"
             >
               {{ item.sender }}
@@ -32,7 +32,7 @@ const store = chatAppStore();
             <v-chip size="large" prepend-icon="">
               {{ item.content }}
             </v-chip>
-            <v-chip size="x-small" prepend-icon="" color="green">
+            <v-chip size="x-small" prepend-icon="" color="primary">
               {{ item.sender }}
             </v-chip>
           </div>

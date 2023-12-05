@@ -1,3 +1,5 @@
+@import "../../styles/settings.scss";
+
 .sendMessageButton {
   margin-left: 1em;
   transform: translateY(-0.5em);
@@ -5,43 +7,43 @@
 
 .chatBox {
   position: absolute;
+  bottom: 6em;
   display: flex;
   flex-direction: row;
-  transform: translateY(-15em);
-  background-color: black;
-  // padding: 1em;
+  background-color: rgb(24, 24, 24);
+  border-radius: 1em 1em 0 0;
 }
 
 .chatBox > .chatBar {
   display: flex;
   flex-direction: column;
   min-width: 20em;
-  min-height: 47em;
-  padding: 0.5em;
-  border-left: solid 0.2em rgb(1, 55, 40);
-  border-top: solid 0.2em rgb(1, 55, 40);
-  border-right: solid 0.2em rgb(1, 55, 40);
+  padding: 0 0.5em;
   border-radius: 1em 0 0 0;
+  border-left: solid 0.2em map-get($color, primary);
+  border-top: solid 0.2em map-get($color, primary);
+  border-right: solid 0.2em map-get($color, primary);
+  padding-bottom: 2em;
 }
 
 .chatBox > .chatMessagesBox {
   display: flex;
   flex-direction: column;
   min-width: 50em;
-  border-top: solid 0.2em rgb(1, 55, 40);
-  border-right: solid 0.2em rgb(1, 55, 40);
-  padding: 1em;
   border-radius: 0 1em 0 0;
+  border-top: solid 0.2em map-get($color, primary);
+  border-right: solid 0.2em map-get($color, primary);
+  padding: 1em;
 }
 
 .channelHeader {
-  background-color: rgb(1, 55, 40);
+  background-color: map-get($color, primary);
   margin-bottom: 1em;
   border-radius: 1em;
 }
 
 .messageScroll {
-  border: solid 0.1em rgb(1, 55, 40);
+  border: solid 0.1em map-get($color, primary);
   padding: 0.5em;
   margin-bottom: 1em;
   border-radius: 1em;
@@ -75,26 +77,22 @@
   flex-direction: column;
 }
 
-.chatBox > .chatBar > .chatTopBar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding-bottom: 1em;
-}
 
 .chatBox > .chatBar > .chatTopBar > h3 {
-  display: flex;
+	display: flex;
   align-items: center; /* Vertical alignment */
   justify-content: center;
 }
 
 .chatBox > .chatBar > .chatConversations > .contactsScroller {
-  // background-color: rgb(1, 55, 40);
-  border-radius: 1em;
-  padding: 1em 0;
+	border-radius: 1em;
 }
 
-.chatBox > .chatBar > .chatConversations > .contactsScroller > .contactElement {
-  background-color: black;
-  padding: 1em;
+.chatTopBar {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em 1em 1em 1em;
 }
+
