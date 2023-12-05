@@ -17,9 +17,9 @@
 .chatBox > .chatBar {
   display: flex;
   flex-direction: column;
-  min-width: 20em;
+  width: 23em;
   padding: 0 0.5em;
-  border-radius: 1em 0 0 0;
+  border-radius: 1em 1em 0 0;
   border-left: solid 0.2em map-get($color, primary);
   border-top: solid 0.2em map-get($color, primary);
   border-right: solid 0.2em map-get($color, primary);
@@ -29,31 +29,23 @@
 .chatBox > .chatMessagesBox {
   display: flex;
   flex-direction: column;
-  min-width: 50em;
-  border-radius: 0 1em 0 0;
+  width: 23em;
+  border-radius: 1em 1em 0 0;
   border-top: solid 0.2em map-get($color, primary);
   border-right: solid 0.2em map-get($color, primary);
-  padding: 1em;
-}
-
-.channelHeader {
-  background-color: map-get($color, primary);
-  margin-bottom: 1em;
-  border-radius: 1em;
+  border-left: solid 0.2em map-get($color, primary);
 }
 
 .messageScroll {
-  border: solid 0.1em map-get($color, primary);
-  padding: 0.5em;
-  margin-bottom: 1em;
-  border-radius: 1em;
+  padding: 0 1em;
 }
 
 .chatBox > .chatMessagesBox > .messageWriteBox {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 1em;
+  background-color: black;
+  padding: 0.5em 1em 0.5em 1em;
 }
 
 .messageChip {
@@ -104,9 +96,32 @@
 .contactElement-publicChan-pofile {
   display: flex;
   flex-direction: row;
-
 }
 
 .contactElement-publicChan-pofile-avatar {
-	margin-right: 1em;
+  margin-right: 1em;
+}
+
+.channelHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+	background-color: map-get($color, primary);
+  border-radius: 0.8em 0.8em 0 0;
+	padding: 0 1em;
+}
+
+.channelHeader-profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.channelHeader-profile-avatar {
+  margin-right: 1em;
+}
+
+.channelSettingsPopUp {
+  min-width: 30em;
 }

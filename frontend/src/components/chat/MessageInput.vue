@@ -1,13 +1,18 @@
 <script setup lang="ts"></script>
 <template>
   <div class="messageWriteBox">
-    <v-text-field label="Write..." color="primary"></v-text-field>
-    <v-btn
+    <v-text-field
+      label="Write..."
+      color="primary"
+      variant="underlined"
+    ></v-text-field>
+    <v-icon
       icon="mdi-send"
-      class="sendMessageButton"
       @click="$emit('scrollMessages')"
       color="primary"
-    ></v-btn>
+      size="large"
+      class="sendMessageButton"
+    ></v-icon>
   </div>
 </template>
 <style scoped lang="scss"></style>

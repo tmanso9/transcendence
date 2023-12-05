@@ -7,7 +7,7 @@ const store = chatAppStore();
   <div class="messageScroll">
     <v-virtual-scroll
       :items="store.channelMessages(store.selectedChannel)"
-      height="300"
+      height="410"
       id="scrollMessages"
     >
       <template v-slot:default="{ item }">

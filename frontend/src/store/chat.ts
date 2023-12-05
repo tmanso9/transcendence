@@ -178,6 +178,13 @@ export const chatAppStore = defineStore("chat", () => {
     selectedChannel.value = channel;
   }
 
+  function getChannelInfo(channel: string) {
+    const index = allChannelsUserIsIn.value
+      .map((n) => n.name)
+      .indexOf(channel, 0);
+    if (index > -1) return allChannelsUserIsIn.value[index];
+  }
+
   // function friendsThatHaveNotTalked() {
   //   let friendsNotTalk = ref<string[]>();
   //   for (let i = 0; i < friends.value.length; i++) {
@@ -208,5 +215,6 @@ export const chatAppStore = defineStore("chat", () => {
     createNewChannel,
     channelMessages,
     selectChannel,
+    getChannelInfo,
   };
 });

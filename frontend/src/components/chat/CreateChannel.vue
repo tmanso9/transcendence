@@ -25,21 +25,30 @@ const dialog = ref(false);
           <v-container>
             <v-row>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field label="Channel Name*" required></v-text-field>
+                <v-text-field
+                  label="Channel Name*"
+                  color="primary"
+                  required
+                ></v-text-field>
               </v-col>
               <v-col cols="12">
-                <v-text-field label="Avatar (Optional)"></v-text-field>
+                <v-text-field
+                  label="Avatar (Optional)"
+                  color="primary"
+                ></v-text-field>
               </v-col>
               <v-col cols="12">
                 <v-text-field
                   label="Password (Optional)"
                   type="password"
+                  color="primary"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
                   :items="['Public', 'Private']"
                   label="Type*"
+                  color="primary"
                   required
                 ></v-select>
               </v-col>
@@ -47,6 +56,7 @@ const dialog = ref(false);
                 <v-autocomplete
                   :items="store.friends"
                   label="Members"
+									color="primary"
                   multiple
                 ></v-autocomplete>
               </v-col>

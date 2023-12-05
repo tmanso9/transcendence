@@ -26,7 +26,7 @@ function updateScroll(id: string) {
 
 <template>
   <div class="chatBox">
-    <chat-bar></chat-bar>
+    <chat-bar v-if="store.selectedChannel == ''"></chat-bar>
     <div class="chatMessagesBox" v-if="store.selectedChannel">
       <channel-header
         :selected-channel="store.selectedChannel"
