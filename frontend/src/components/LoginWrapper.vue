@@ -1,5 +1,5 @@
 <template>
-  <div class="login border rounded-lg" @click="fetchError=''">
+  <div class="signin border rounded-lg" @click="fetchError = ''">
     <div class="ml-auto mr-2">
       <v-icon @click="emit('login')">mdi-close</v-icon>
     </div>
@@ -32,7 +32,7 @@
       </div>
 
       <v-form
-        @submit.prevent="signin(action)"
+        @submit.prevent="login()"
         class="my-4 d-flex flex-column align-center"
       >
         <v-text-field size="30" v-model="email" label="email" type="email" />
@@ -43,70 +43,51 @@
           type="password"
         />
         <div>
-          <v-btn type="submit" class="mx-2" @click="action = 'login'"
-            >log in</v-btn
-          >
+          <v-btn type="submit" class="mx-2">log in</v-btn>
         </div>
       </v-form>
     </div>
-	<p class="my-2">Don't have an account? <span @click="emit('showSignUp')" class="signup">Sign up</span></p>
+    <p class="my-2">
+      Don't have an account?
+      <span @click="emit('showSignUp')" class="signup">Sign up</span>
+    </p>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/stores/user";
 import { ref } from "vue";
 import { defineEmits } from "vue";
+import { signin, encodeFormData } from "@/utils";
 
 const emit = defineEmits(["login", "showSignUp"]);
-const user = useUserStore();
 const email = ref("o@b.com");
 const password = ref("12345");
 const authUrl = "http://localhost:3000/auth/";
-const action = ref("login");
 const fetchError = ref("");
 
-const signin = async (path: String) => {
+const login = async () => {
   fetchError.value = "";
-  let formData: String[] = [];
-  formData.push(
-    encodeURIComponent("email") + "=" + encodeURIComponent(email.value)
-  );
-  formData.push(
-    encodeURIComponent("password") + "=" + encodeURIComponent(password.value)
-  );
+  const values = [email, password];
+  const propertyNames = ["email", "password"];
 
-  console.log(path);
-  const urlEncoded = formData.join("&");
+  const urlEncoded = encodeFormData(values, propertyNames);
   try {
-    const result = await fetch(authUrl + path, {
-      method: "post",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: urlEncoded,
-      credentials: "include",
-    });
-    if (!result.ok) {
-      const err = await result.text();
-      throw new Error(err);
-    }
-    const data = await result.json();
+    const data = await signin(urlEncoded, new URL(authUrl + "login"));
     console.log("success");
     console.log(data);
     emit("login");
   } catch (error) {
     if (error instanceof Error) {
-      const message = error.message;
-      fetchError.value = JSON.parse(message).message;
+      const message = JSON.parse(error.message).message;
+      fetchError.value = message instanceof Array ? message[0] : message;
       console.error(message);
     }
   }
 };
 </script>
 
-<style scoped lang="scss">
-.login {
+<style lang="scss">
+.signin {
   z-index: 10;
   width: min(60%, 400px);
   background-color: rgb(20, 19, 19);
@@ -120,7 +101,7 @@ const signin = async (path: String) => {
 }
 
 .signup {
-	cursor: pointer;
-	text-decoration: underline;
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style>
