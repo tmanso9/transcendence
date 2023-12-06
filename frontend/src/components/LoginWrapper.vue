@@ -34,13 +34,12 @@
       <v-form
         @submit.prevent="login()"
         class="my-4 d-flex flex-column align-center"
+		ref="form"
       >
-        <v-text-field size="30" v-model="email" label="email" type="email" />
-        <v-text-field
-          size="30"
-          v-model="password"
-          label="password"
-          type="password"
+        <signin-form-elements
+          :isSignUp="false"
+          @update-email="(val) => (email = val)"
+          @update-password="(val) => (password = val)"
         />
         <div>
           <v-btn type="submit" class="mx-2">log in</v-btn>
@@ -55,17 +54,27 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { defineEmits } from "vue";
 import { signin, encodeFormData } from "@/utils";
+import SigninFormElements from "./SigninFormElements.vue";
 
 const emit = defineEmits(["login", "showSignUp"]);
 const email = ref("");
 const password = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
+const form = ref(null);
+
+onMounted(() => {
+  if (form.value) form.value.focus();
+});
 
 const login = async () => {
+  //frontend validation
+  const isValid = await form.value.validate();
+  if (!isValid.valid) return;
+
   fetchError.value = "";
   const values = [email, password];
   const propertyNames = ["email", "password"];
