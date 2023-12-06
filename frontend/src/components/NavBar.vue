@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar class="">
+  <v-app-bar>
 	<a href="/">
 		<v-img
 		  src="../assets/42.svg"

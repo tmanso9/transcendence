@@ -84,7 +84,7 @@ const toggleSignUp = () => {
 .loginWrapper {
   width: 100vw;
   height: 100vh;
-  z-index: 2;
+  z-index: 1010;
   background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
 }
