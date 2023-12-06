@@ -2,12 +2,14 @@
 import { RouterLink, RouterView } from "vue-router";
 import ChatWrapper from "@/components/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
+import SignupWrapper from "./components/SignupWrapper.vue";
 import NavBar from "./components/NavBar.vue";
 import { onMounted, ref } from "vue";
 import { useUserStore } from "./stores/user";
 import { inject } from "vue";
 
 const showLogin = ref(false)
+const showSignup = ref(false)
 const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
@@ -41,6 +43,15 @@ const toggleChat = () => {
 
 const toggleLogin = () => {
   showLogin.value = !showLogin.value;
+  showSignup.value = false
+  const jwt = cookies.get("access_token");
+  if (jwt !== null) {
+    fetchUser();
+  }
+};
+
+const toggleSignUp = () => {
+  showSignup.value = !showSignup.value;
   const jwt = cookies.get("access_token");
   if (jwt !== null) {
     fetchUser();
@@ -52,7 +63,10 @@ const toggleLogin = () => {
   <v-app>
     <nav-bar :user="user" :showLogin="showLogin" @login="toggleLogin" class="navbar" />
 	<div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
-	  <login-wrapper @login="toggleLogin" />
+	  <login-wrapper @login="toggleLogin" @showSignUp="showSignup = true; showLogin = false"/>
+	</div>
+	<div class="loginWrapper" v-if="showSignup" @click.self="showSignup = false">
+	  <signup-wrapper @signup="toggleSignUp" />
 	</div>
 	<v-main class="px-5 mt-4 h-75">
 		<RouterView />

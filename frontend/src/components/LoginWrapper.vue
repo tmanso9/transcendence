@@ -46,12 +46,10 @@
           <v-btn type="submit" class="mx-2" @click="action = 'login'"
             >log in</v-btn
           >
-          <v-btn type="submit" class="mx-2" @click="action = 'signup'"
-            >sign up</v-btn
-          >
         </div>
       </v-form>
     </div>
+	<p class="my-2">Don't have an account? <span @click="emit('showSignUp')" class="signup">Sign up</span></p>
   </div>
 </template>
 
@@ -60,7 +58,7 @@ import { useUserStore } from "@/stores/user";
 import { ref } from "vue";
 import { defineEmits } from "vue";
 
-const emit = defineEmits(["login"]);
+const emit = defineEmits(["login", "showSignUp"]);
 const user = useUserStore();
 const email = ref("o@b.com");
 const password = ref("12345");
@@ -119,5 +117,10 @@ const signin = async (path: String) => {
   position: relative;
   margin-inline: auto;
   top: 75px;
+}
+
+.signup {
+	cursor: pointer;
+	text-decoration: underline;
 }
 </style>
