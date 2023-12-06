@@ -41,9 +41,9 @@ import { defineEmits } from "vue";
 import { signin, encodeFormData } from "@/utils";
 
 const emit = defineEmits(["signup", "showSignUp"]);
-const email = ref("o@b.com");
-const password = ref("12345");
-const username = ref("example");
+const email = ref("");
+const password = ref("");
+const username = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
 
