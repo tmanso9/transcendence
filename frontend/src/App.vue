@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import ChatWrapper from "@/components/ChatWrapper.vue";
+import ChatWrapper from "@/components/chat/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
 import NavBar from "./components/NavBar.vue";
@@ -77,7 +77,6 @@ const toggleSignUp = () => {
 		<v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
 	</v-footer>
   </v-app>
-
 </template>
 
 <style lang="scss">

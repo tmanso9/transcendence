@@ -8,3 +8,10 @@
 // @use 'vuetify/settings' with (
 //   $color-pack: false
 // );
+$color: (
+  "primary": #1867c0,
+  "secondary": #5cbbf6,
+  "light": rgb(85, 84, 84),
+  "dark": rgb(27, 27, 27),
+  "darker": rgb(11, 11, 11),
+);
