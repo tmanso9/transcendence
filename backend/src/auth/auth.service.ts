@@ -155,7 +155,10 @@ export class AuthService {
                 email: user.email,
             }
         })
-        return profile;
+
+		const accessToken = await this.signToken(profile.id, profile.email);
+
+     	return { ...profile, accessToken };
     }
 
 	/*** USING RANDOM NAME GENERATOR API ***/

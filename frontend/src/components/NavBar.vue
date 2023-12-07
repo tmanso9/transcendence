@@ -1,9 +1,9 @@
 <template>
-  <v-app-bar class="">
-	<a href="https://profile.intra.42.fr/" target="_blank">
+  <v-app-bar>
+	<a href="/">
 		<v-img
 		  src="../assets/42.svg"
-		  max-width="32"
+		  width="32"
 		  aspect-ratio="1"
 		  contain
 		  class="mx-4 navbar__ft_logo"
@@ -25,24 +25,38 @@
     <RouterLink to="/about">
       <v-btn> About </v-btn>
     </RouterLink>
-    <v-btn class="login" v-if="user.username" @click="user.logout()">
-      Logout
-    </v-btn>
-    <v-btn class="login" v-else @click="toggleLogin">Login</v-btn>
 	<v-spacer></v-spacer>
+	<div class="mr-10">
+		<div v-if="user.username" >
+			<span class="mr-3">hi, {{ user.username }}!</span>
+			<v-btn class="login" @click="logOut()">
+			  Logout
+			</v-btn>
+		</div>
+		<v-btn class="login" v-else @click="toggleLogin">Login</v-btn>
+	</div>
   </v-app-bar>
 </template>
 
 <script lang="ts" setup>
+import { inject } from "vue";
 import { ref } from "vue";
 
-defineProps(["user"]);
+const props = defineProps(["user"]);
 const emit = defineEmits(["login"]);
 const showLogin = ref(false);
+
+const cookies = inject('$cookies')
 
 const toggleLogin = () => {
   emit("login");
 };
+
+//to be changed to use backend endpoint
+const logOut = () => {
+	cookies.remove('access_token')
+	props.user.logout()
+}
 </script>
 
 <style lang="scss">
