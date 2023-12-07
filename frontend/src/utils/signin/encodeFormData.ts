@@ -1,6 +1,6 @@
 import { Ref } from "vue";
 
-const encodeFormData = (values: Ref<string>[], propertyNames: string[]) => {
+export const encodeFormData = (values: Ref<string>[], propertyNames: string[]) => {
   const formData: String[] = [];
   values.forEach((value, index) => {
     formData.push(
@@ -13,4 +13,4 @@ const encodeFormData = (values: Ref<string>[], propertyNames: string[]) => {
   return formData.join("&");
 };
 
-export default encodeFormData
+// export default encodeFormData

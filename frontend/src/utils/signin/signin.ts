@@ -1,4 +1,4 @@
-const signin = async (urlEncoded: BodyInit, path: URL) => {
+export const signin = async (urlEncoded: BodyInit, path: URL) => {
   try {
     const result = await fetch(path, {
       method: "post",
@@ -19,5 +19,3 @@ const signin = async (urlEncoded: BodyInit, path: URL) => {
     }
   }
 };
-
-export default signin
