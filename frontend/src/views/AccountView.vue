@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import StatsWrapper from '@/components/StatsWrapper.vue'
+import StatsWrapper from '@/components/accountPage/StatsWrapper.vue'
 import { ref } from 'vue';
 import { onMounted, onBeforeMount } from 'vue';
 import { computed } from 'vue'
