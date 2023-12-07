@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import StatsWrapper from '@/components/StatsWrapper.vue'
+import { ref } from 'vue';
+import { onMounted, onBeforeMount } from 'vue';
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { fetchUser } from '@/utils'
 
 const route = useRoute()
 
@@ -10,13 +13,20 @@ const getUsername = computed(() => {
   return path.split('/')[2] || 'Please login'
 })
 
-//TODO: add fetch request and check for valid username
+const user = ref({})
+const isLoaded = ref(false)
+
+onBeforeMount(async () => {
+	user.value = await fetchUser(getUsername.value)
+	isLoaded.value = true
+})
+
 </script>
 
 <template>
   <div>
     <h2>{{ getUsername }}'s account</h2>
-    <stats-wrapper />
+    <stats-wrapper v-if="isLoaded" :user="user" />
   </div>
 </template>
 

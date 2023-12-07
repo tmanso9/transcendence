@@ -23,7 +23,7 @@ const fetchUser = async () => {
 		})
 		if (!result.ok) throw new Error('Could not fetch me')
 		const data = await result.json()
-		user.username = data.username
+		user.login(data)
 	} catch (error) {
 		console.error(error)
 	}
