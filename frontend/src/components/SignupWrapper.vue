@@ -42,7 +42,7 @@ const password = ref("");
 const username = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
-const form = ref(null);
+const form = ref<HTMLFormElement>();
 
 onMounted(() => {
   if (form.value) form.value.focus();
@@ -50,24 +50,26 @@ onMounted(() => {
 
 async function signup() {
   //frontend validation
-  const isValid = await form.value.validate();
-  if (!isValid.valid) return;
+  if (form.value) {
+    const isValid = await form.value.validate();
+    if (!isValid.valid) return;
 
-  fetchError.value = "";
-  const values = [email, password, username];
-  const propertyNames = ["email", "password", "username"];
+    fetchError.value = "";
+    const values = [email, password, username];
+    const propertyNames = ["email", "password", "username"];
 
-  const urlEncoded = encodeFormData(values, propertyNames);
-  try {
-    const data = await signin(urlEncoded, new URL(authUrl + "signup"));
-    console.log("success");
-    console.log(data);
-    emit("signup");
-  } catch (error) {
-    if (error instanceof Error) {
-      const message = JSON.parse(error.message).message;
-      fetchError.value = message instanceof Array ? message[0] : message;
-      console.error(message);
+    const urlEncoded = encodeFormData(values, propertyNames);
+    try {
+      const data = await signin(urlEncoded, new URL(authUrl + "signup"));
+      console.log("success");
+      console.log(data);
+      emit("signup");
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = JSON.parse(error.message).message;
+        fetchError.value = message instanceof Array ? message[0] : message;
+        console.error(message);
+      }
     }
   }
 }

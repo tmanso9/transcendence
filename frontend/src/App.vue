@@ -7,6 +7,7 @@ import NavBar from "./components/NavBar.vue";
 import { onMounted, ref } from "vue";
 import { useUserStore } from "./stores/user";
 import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 
 const showLogin = ref(false)
 const showSignup = ref(false)
@@ -14,7 +15,7 @@ const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
 
-const cookies = inject('$cookies')
+const cookies = inject<VueCookies>("$cookies");
 
 const fetchUser = async () => {
 	try {
@@ -30,11 +31,13 @@ const fetchUser = async () => {
 }
 
 onMounted(() => {
-	const jwt = cookies.get('access_token')
-	if (jwt !== null) {
-		fetchUser()
-	}
-})
+  if (cookies) {
+    const jwt = cookies.get("access_token");
+    if (jwt !== null) {
+      fetchUser();
+    }
+  }
+});
 
 const toggleChat = () => {
   showChat.value = !showChat.value;
@@ -43,18 +46,22 @@ const toggleChat = () => {
 
 const toggleLogin = () => {
   showLogin.value = !showLogin.value;
-  showSignup.value = false
-  const jwt = cookies.get("access_token");
-  if (jwt !== null) {
-    fetchUser();
+  showSignup.value = false;
+  if (cookies) {
+    const jwt = cookies.get("access_token");
+    if (jwt !== null) {
+      fetchUser();
+    }
   }
 };
 
 const toggleSignUp = () => {
   showSignup.value = !showSignup.value;
-  const jwt = cookies.get("access_token");
-  if (jwt !== null) {
-    fetchUser();
+  if (cookies) {
+    const jwt = cookies.get("access_token");
+    if (jwt !== null) {
+      fetchUser();
+    }
   }
 };
 </script>
