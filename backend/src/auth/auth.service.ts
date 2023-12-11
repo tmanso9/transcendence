@@ -187,4 +187,22 @@ export class AuthService {
 
 		return access_token;
 	}
+
+	async logout(accessToken: string) {
+		const decoded = this.jwt.decode(accessToken);
+		const blackToken = await this.prisma.blacklist.create({data: {
+			sub: decoded['sub'],
+			email: decoded['email'],
+			token: accessToken,
+			expiresIn: decoded['exp'],
+		}})
+		const user = this.prisma.user.update({
+			data:{
+				status: 'offline',
+			},
+			where: {
+				email: decoded['email'],
+			}})
+		return user;
+	}
 }
