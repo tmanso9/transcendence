@@ -1,19 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { send } from 'process';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UserService {
 	constructor(
 		private prisma: PrismaService,
-		private jwt: JwtService,
-		private config: ConfigService
 	) {}
 
+	// Returns all users as an arraw
 	async getUsers() {
 		const all_users = await this.prisma.user.findMany({
 			select: {
@@ -27,11 +21,13 @@ export class UserService {
 		return all_users;
 	}
 
+	// Returns User Info
 	getMe(user: any) {
 		return user;
 	}
 
-	async requestFriend(id: string, jwt: string) {
+	// Sends friend request
+	async requestFriend(id: string, sender_info: any) {
 		// Save friend
 		const friend = await this.prisma.user.findUnique({
 			where: { id },
@@ -42,8 +38,7 @@ export class UserService {
 		if (!friend)
 			throw new ForbiddenException('User does not exist');
 
-		// Decode JWT to check that sender != receiver. If same, throw.
-		const sender_info = await this.decodeJwtToken(jwt);
+		// Check that sender != receiver. If same, throw.
 		if (id == sender_info.sub)
 			throw new ForbiddenException('Sender is same as Receiver')
 		
@@ -79,7 +74,8 @@ export class UserService {
 		});
 	}
 
-	async respondFriend(id: string, action: string, jwt: string) {
+	// Responds to friend request (accept or reject)
+	async respondFriend(id: string, action: string, sender_info: any) {
 		// Check if action is either 'accept' or 'reject'. If not, throw
 		if (action != 'accept' && action != 'reject')
 			throw new ForbiddenException(`Invalid Action: ${action}`);
@@ -93,10 +89,9 @@ export class UserService {
 		if (!friend)
 			throw new ForbiddenException('User does not exist');
 
-		// Decode JWT to check that sender != receiver. If same, throw.
-		const sender_info = await this.decodeJwtToken(jwt);
+		// Check that sender != receiver. If same, throw.
 		if (id == sender_info.sub)
-			throw new ForbiddenException('Sender is same as Receiver')
+			throw new ForbiddenException('Sender is same as Receiver');
 		
 		// Check that sender and receiver are not already friends. If they are, throw.
 		let sender = await this.prisma.user.findUnique({
@@ -143,8 +138,41 @@ export class UserService {
 		});
 	}
 
-	// Decodes JWT and returns 
-	private decodeJwtToken(token: string): Promise<{ sub: string, email: string }> {
-		return this.jwt.decode(token);
+	// Removes friend
+	async removeFriend(id: string, sender_info: any) {
+		// Save target friend
+		let friend = await this.prisma.user.findUnique({
+			where: { id }
+		});
+
+		// Check if the friend exists. If it doesn't, throw.
+		if (!friend)
+			throw new ForbiddenException('User does not exist');
+
+		// Check that sender != receiver. If same, throw.
+		if (id == sender_info.sub)
+			throw new ForbiddenException('Sender is same as Receiver');
+
+		// Check that sender and receiver are friends. If not, throw.
+		let sender = await this.prisma.user.findUnique({
+			where: { id: sender_info.sub },
+			include: { friends: true, friendOf: true },
+		});
+
+		if (!sender)
+			throw new ForbiddenException('Something went wrong');
+		
+		if (!sender.friends.map(user => user.id).includes(id))
+			throw new ForbiddenException('Not Friends');
+
+		// Remove connection from DB.
+		await this.prisma.user.update({
+			where: { id: sender_info.sub },
+			data: {friends: {disconnect: [{ id: id }]}},
+		});
+		await this.prisma.user.update({
+			where: { id: id },
+			data: {friends: {disconnect: [{ id: sender_info.sub }]}},
+		});
 	}
 }
