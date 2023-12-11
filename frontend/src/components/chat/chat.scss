@@ -92,10 +92,10 @@
   flex-direction: row;
   justify-content: space-between;
 
-	&-pofile {
-		display: flex;
-		flex-direction: row;
-	}
+  &-pofile {
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 // .contactElement-publicChan-pofile {
@@ -112,7 +112,7 @@
   justify-content: space-between;
   background-color: map-get($color, primary);
   border-radius: 0.8em 0.8em 0 0;
-  padding: 0 1em;
+  padding: 1em 1em;
 }
 
 .channelHeader-profile {
@@ -123,10 +123,6 @@
 
 .channelHeader-profile-avatar {
   margin-right: 1em;
-}
-
-.channelSettingsPopUp {
-  min-width: 30em;
 }
 
 .createChannelPopUp {
@@ -163,4 +159,49 @@
 
 .newChannelHeader {
   margin-bottom: 1em;
+}
+
+.channelSettings {
+  position: absolute;
+  padding: 1em;
+  background-color: map-get($color, dark);
+  width: 98%;
+  bottom: 0;
+  left: 1%;
+  border-radius: 1em 1em 0 0;
+  border-top: solid 0.1em map-get($color, primary);
+  height: 98%;
+  z-index: 1;
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 2em;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+
+    &-profile {
+      justify-content: center;
+    }
+
+    &-info {
+      margin-top: 0.5em;
+    }
+
+    &-users {
+			margin-top: 2em;
+      padding: 0 1em;
+
+      &-user {
+        display: flex;
+        flex-direction: row;
+      }
+    }
+  }
 }
