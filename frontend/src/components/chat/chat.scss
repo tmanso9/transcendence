@@ -91,12 +91,15 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+	&-pofile {
+		display: flex;
+		flex-direction: row;
+	}
 }
 
-.contactElement-publicChan-pofile {
-  display: flex;
-  flex-direction: row;
-}
+// .contactElement-publicChan-pofile {
+// }
 
 .contactElement-publicChan-pofile-avatar {
   margin-right: 1em;
