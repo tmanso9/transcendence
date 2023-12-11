@@ -17,7 +17,7 @@
       :show-size="true"
       @update:model-value="selectFile"
       :rules="rules"
-      class="my-2"
+      :class="inputError ? 'my-3' : 'mt-3 mb-n3'"
       ref="fileInput"
     ></v-file-input>
     <v-btn color="info" type="submit">Upload</v-btn>
@@ -30,12 +30,14 @@ import { ref } from 'vue';
 const newPicture = ref<File>();
 const form = ref<HTMLFormElement>();
 const fileInput = ref<HTMLInputElement>();
+const inputError = ref(false)
 
 const selectFile = (files: File[]) => {
 	if (files !== null) {
 		newPicture.value = files[0];
 		// console.log(newPicture.value)
 		form.value && form.value.resetValidation()
+		inputError.value = false
 	}
 };
 
@@ -49,7 +51,10 @@ const rules = [
 const upload = async () => {
 	if (form.value) {
 		const isValid = await form.value.validate();
-		if (!isValid.valid) return;
+		if (!isValid.valid) {
+			inputError.value = true;
+			return;
+		}
 		console.log(newPicture.value);
 
 		//to be done after successful post to backend
