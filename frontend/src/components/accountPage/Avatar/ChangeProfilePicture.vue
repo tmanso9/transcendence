@@ -20,7 +20,7 @@
       :class="inputError ? 'change__image__input my-3' : 'change__image__input mt-3 mb-n3'"
       ref="fileInput"
     ></v-file-input>
-    <v-btn color="info" type="submit">Upload</v-btn>
+    <v-btn color="deep-purple-darken-3" type="submit">Upload</v-btn>
   </v-form>
 </template>
 

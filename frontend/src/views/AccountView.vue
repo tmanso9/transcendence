@@ -26,7 +26,7 @@ onBeforeMount(async () => {
 
 <template>
   <div v-if="user.username">
-    <h2 class="text-center mb-5">{{ getUsername }}'s account</h2>
+    <h2 class="text-center mb-5 pb-5">{{ getUsername }}'s account</h2>
     <account-wrapper v-if="isLoaded" :user="user" />
   </div>
   <h2 v-else-if="isLoaded" class="text-center text-red">The user {{ getUsername }} does not exist</h2>
