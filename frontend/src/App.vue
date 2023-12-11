@@ -18,25 +18,12 @@ const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 
 const fetchUser = async () => {
-	try {
-		const result = await fetch('http://localhost:3000/users/me', {
-			credentials: 'include'
-		})
-		if (!result.ok) throw new Error('Could not fetch me')
-		const data = await result.json()
-		user.login(data)
-	} catch (error) {
-		console.error(error)
-	}
-}
+  const jwt = cookies.get("access_token");
+  user.fetchUser(jwt)
+};
 
 onMounted(() => {
-  if (cookies) {
-    const jwt = cookies.get("access_token");
-    if (jwt !== null) {
-      fetchUser();
-    }
-  }
+  fetchUser()
 });
 
 const toggleChat = () => {
@@ -47,28 +34,18 @@ const toggleChat = () => {
 const toggleLogin = () => {
   showLogin.value = !showLogin.value;
   showSignup.value = false;
-  if (cookies) {
-    const jwt = cookies.get("access_token");
-    if (jwt !== null) {
-      fetchUser();
-    }
-  }
+  fetchUser()
 };
 
 const toggleSignUp = () => {
   showSignup.value = !showSignup.value;
-  if (cookies) {
-    const jwt = cookies.get("access_token");
-    if (jwt !== null) {
-      fetchUser();
-    }
-  }
+  fetchUser()
 };
 </script>
 
 <template>
   <v-app>
-    <nav-bar :user="user" :showLogin="showLogin" @login="toggleLogin" class="navbar" />
+    <nav-bar :user="user" :showLogin="showLogin" @login="toggleLogin" @logout="fetchUser" class="navbar" />
 	<div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
 	  <login-wrapper @login="toggleLogin" @showSignUp="showSignup = true; showLogin = false"/>
 	</div>

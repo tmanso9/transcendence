@@ -32,9 +32,10 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { defineEmits } from "vue";
-import { signin, encodeFormData } from "@/utils";
+import { encodeFormData } from "@/utils";
 import { onMounted } from "vue";
 import SigninFormElements from "./SigninFormElements.vue";
+import { useUserStore } from "@/stores/user";
 
 const emit = defineEmits(["signup", "showSignUp"]);
 const email = ref("");
@@ -43,6 +44,7 @@ const username = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
 const form = ref<HTMLFormElement>();
+const user = useUserStore()
 
 onMounted(() => {
   if (form.value) form.value.focus();
@@ -58,18 +60,16 @@ async function signup() {
     const values = [email, password, username];
     const propertyNames = ["email", "password", "username"];
 
-    const urlEncoded = encodeFormData(values, propertyNames);
-    try {
-      const data = await signin(urlEncoded, new URL(authUrl + "signup"));
-      console.log("success");
-      console.log(data);
-      emit("signup");
-    } catch (error) {
-      if (error instanceof Error) {
-        const message = JSON.parse(error.message).message;
-        fetchError.value = message instanceof Array ? message[0] : message;
-        console.error(message);
-      }
+  const urlEncoded = encodeFormData(values, propertyNames);
+  try {
+    const data = await user.signin(urlEncoded, new URL(authUrl + "signup"));
+    console.log(data);
+    emit("signup");
+  } catch (error) {
+    if (error instanceof Error) {
+      const message = JSON.parse(error.message).message;
+      fetchError.value = message instanceof Array ? message[0] : message;
+      console.error(message);
     }
   }
 }
