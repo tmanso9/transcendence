@@ -3,6 +3,9 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { DbController } from './db/db.controller';
+import { DbService } from './db/db.service';
+import { DbModule } from './db/db.module';
 
 @Module({
   imports: [
@@ -12,6 +15,7 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
     }),
     UserModule,
+    DbModule,
   ],
 })
 export class AppModule {}
