@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import StatsWrapper from '@/components/accountPage/StatsWrapper.vue'
+import AccountWrapper from '@/components/accountPage/AccountWrapper.vue'
 import { ref } from 'vue';
 import { onMounted, onBeforeMount } from 'vue';
 import { computed } from 'vue'
@@ -27,7 +27,7 @@ onBeforeMount(async () => {
 <template>
   <div v-if="user.username">
     <h2 class="text-center mb-5">{{ getUsername }}'s account</h2>
-    <stats-wrapper v-if="isLoaded" :user="user" />
+    <account-wrapper v-if="isLoaded" :user="user" />
   </div>
   <h2 v-else-if="isLoaded" class="text-center text-red">The user {{ getUsername }} does not exist</h2>
 </template>
