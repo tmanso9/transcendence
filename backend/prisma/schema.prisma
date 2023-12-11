@@ -45,3 +45,12 @@ model User {
   friends User[]  @relation("Friends") // array of friends
   friendOf User[]  @relation("Friends") // array of friends
 }
+
+model Blacklist {
+  id Int @id @default(autoincrement())
+  token String
+  sub Int
+  email String
+  expiresIn Int
+  createdAt DateTime @default(now())
+}

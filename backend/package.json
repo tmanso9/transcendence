@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "prisma:dev:deploy": "prisma migrate deploy",
+    "prisma:dev:deploy": "npx prisma migrate deploy",
     "db:compose:rm": "docker compose rm -sfv postgres",
     "db:compose:up": "docker compose up -d postgres",
     "db:compose:down": "docker compose down postgres",
@@ -46,6 +46,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
     "passport": "^0.6.0",
+    "passport-42": "^1.2.6",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.1.13",

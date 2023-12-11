@@ -136,6 +136,30 @@ export class AuthService {
 		};
 	}
 
+	/***** 42 *****/
+
+	async login42(user)
+    {
+        const profile = await this.prisma.user.upsert({
+            create: {
+                email: user.email,
+                password: '',
+                username: user.username,
+                status: 'online',
+                avatar: user.avatar,
+            },
+            update: {
+                status: 'online',
+            },
+            where : {
+                email: user.email,
+            }
+        })
+
+		const accessToken = await this.signToken(profile.id, profile.email);
+
+     	return { ...profile, accessToken };
+    }
 
 	/*** USING RANDOM NAME GENERATOR API ***/
 	private async getRandomName(): Promise<string> {
@@ -162,5 +186,23 @@ export class AuthService {
 		});
 
 		return access_token;
+	}
+
+	async logout(accessToken: string) {
+		const decoded = this.jwt.decode(accessToken);
+		const blackToken = await this.prisma.blacklist.create({data: {
+			sub: decoded['sub'],
+			email: decoded['email'],
+			token: accessToken,
+			expiresIn: decoded['exp'],
+		}})
+		const user = this.prisma.user.update({
+			data:{
+				status: 'offline',
+			},
+			where: {
+				email: decoded['email'],
+			}})
+		return user;
 	}
 }
