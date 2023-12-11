@@ -32,9 +32,10 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { defineEmits } from "vue";
-import { signin, encodeFormData } from "@/utils";
+import { encodeFormData } from "@/utils";
 import { onMounted } from "vue";
 import SigninFormElements from "./SigninFormElements.vue";
+import { useUserStore } from "@/stores/user";
 
 const emit = defineEmits(["signup", "showSignUp"]);
 const email = ref("");
@@ -43,6 +44,7 @@ const username = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
 const form = ref(null);
+const user = useUserStore()
 
 onMounted(() => {
   if (form.value) form.value.focus();
@@ -59,8 +61,7 @@ async function signup() {
 
   const urlEncoded = encodeFormData(values, propertyNames);
   try {
-    const data = await signin(urlEncoded, new URL(authUrl + "signup"));
-    console.log("success");
+    const data = await user.signin(urlEncoded, new URL(authUrl + "signup"));
     console.log(data);
     emit("signup");
   } catch (error) {
