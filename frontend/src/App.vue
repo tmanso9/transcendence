@@ -18,20 +18,7 @@ const cookies = inject('$cookies')
 
 const fetchUser = async () => {
   const jwt = cookies.get("access_token");
-  if (!jwt || !jwt.length) {
-	user.username = ''
-	return;
-  }
-  try {
-    const result = await fetch("http://localhost:3000/users/me", {
-      credentials: "include",
-    });
-    if (!result.ok) throw new Error("Could not fetch me");
-    const data = await result.json();
-    user.username = data.username;
-  } catch (error) {
-    console.error(error);
-  }
+  user.fetchUser(jwt)
 };
 
 onMounted(() => {

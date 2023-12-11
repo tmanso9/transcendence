@@ -30,7 +30,6 @@ export const useUserStore = defineStore("user", () => {
 
   const logout = async () => {
     try {
-      console.log("Making a request");
       const result = await fetch("http://localhost:3000/auth/logout", {
         credentials: "include",
       });
@@ -42,5 +41,28 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  return { username, isAdmin, points, signin, logout };
+  const fetchUser = async (jwt: string) => {
+    if (!jwt || !jwt.length) {
+      username.value = "";
+      return;
+    }
+    try {
+      const result = await fetch("http://localhost:3000/users/me", {
+        credentials: "include",
+      });
+      if (!result.ok) {
+		const data = await result.text()
+		throw new Error(data)
+	  }
+      const data = await result.json();
+      username.value = data.username;
+    } catch (error) {
+		if (error instanceof Error) {
+			const message = JSON.parse(error.message).message;
+			console.error(message);
+		}
+    }
+  };
+
+  return { username, isAdmin, points, signin, logout, fetchUser };
 });
