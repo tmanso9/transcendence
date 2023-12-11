@@ -5,7 +5,7 @@
     validate-on="submit"
     ref="form"
   >
-    <p class="pl-3 text-button mb-n3">Change profile picture</p>
+    <p class="pl-3 text-button mb-n3">Change avatar</p>
     <v-file-input
       accept="image/png, image/jpeg, image/bmp"
       placeholder="Chose image"
@@ -17,7 +17,7 @@
       :show-size="true"
       @update:model-value="selectFile"
       :rules="rules"
-      :class="inputError ? 'my-3' : 'mt-3 mb-n3'"
+      :class="inputError ? 'change__image__input my-3' : 'change__image__input mt-3 mb-n3'"
       ref="fileInput"
     ></v-file-input>
     <v-btn color="info" type="submit">Upload</v-btn>
@@ -69,7 +69,7 @@ const upload = async () => {
 
 <style scoped lang="scss">
 .change__image {
-  width: 300px;
+  width: 40%;
   margin: 0 auto;
 }
 </style>
