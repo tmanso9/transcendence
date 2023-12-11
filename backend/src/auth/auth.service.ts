@@ -34,7 +34,7 @@ export class AuthService {
 					password: hashed,
 					username: dto.username,
 					avatar: '#',
-					status: 'offline'
+					status: "OFFLINE"
 				},
 			});
 			delete user.password;
@@ -63,8 +63,8 @@ export class AuthService {
 			throw new ForbiddenException('User does not exist');
 
 		// Check if the user is already logged in
-		if (user.status !== 'offline')
-			throw new ForbiddenException('User already logged in');
+		// if (user.status !== "OFFLINE")
+		// 	throw new ForbiddenException('User already logged in');
 
 		// Check if the password if valid
 		const validPassword = await argon.verify(user.password, dto.password);
@@ -74,7 +74,7 @@ export class AuthService {
 		// Update user status
 		await this.prisma.user.update({
 			where: { email: dto.email },
-			data: { status: 'online' }
+			data: { status: "ONLINE" }
 		});
 
 		const access_token = await this.signToken(user.id, user.email);
@@ -112,7 +112,7 @@ export class AuthService {
 						password: '',
 						username: user_name,
 						avatar: data.picture,
-						status: 'online',
+						status: "ONLINE",
 					}
 				});
 			} catch (error) {
@@ -123,7 +123,7 @@ export class AuthService {
 		} else {
 			await this.prisma.user.update({
 				where: { email: data.email },
-				data: { status: 'online' }
+				data: { status: "ONLINE" }
 			});
 		}
 
@@ -174,7 +174,7 @@ export class AuthService {
 		return username;
 	}
 
-	async signToken(id: number, email: string): Promise<string> {
+	async signToken(id: string, email: string): Promise<string> {
 		const payload = {
 			sub: id,
 			email,
