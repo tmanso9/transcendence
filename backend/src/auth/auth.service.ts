@@ -145,11 +145,11 @@ export class AuthService {
                 email: user.email,
                 password: '',
                 username: user.username,
-                status: 'online',
+                status: 'ONLINE',
                 avatar: user.avatar,
             },
             update: {
-                status: 'online',
+                status: 'ONLINE',
             },
             where : {
                 email: user.email,
@@ -198,7 +198,7 @@ export class AuthService {
 		}})
 		const user = this.prisma.user.update({
 			data:{
-				status: 'offline',
+				status: 'OFFLINE',
 			},
 			where: {
 				email: decoded['email'],
