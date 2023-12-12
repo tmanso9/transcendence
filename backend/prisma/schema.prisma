@@ -10,14 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  OFFLINE
+  ONLINE
+  IN_GAME
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+}
+
+model Connections {
+  id String @id @default(uuid())
+  status ConnectionStatus @default(PENDING)
+  creator String
+  receiver String
+}
+
 model User {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
   createdAt DateTime @default(now())  // user creation time
   editedAt DateTime @updatedAt()  // last user edit
   email String @unique  // user email
   password String // hashed password
   username String @unique // username
-  status String // user status
+  status Status // user status
   avatar String // user avatar
 
   points Int @default(0)  // Total points of the user
@@ -29,9 +47,9 @@ model User {
 }
 
 model Blacklist {
-  id Int @id @default(autoincrement())
+  id String @id @default(uuid())
   token String @unique
-  sub Int
+  sub String
   email String
   expiresIn Int
   createdAt DateTime @default(now())
