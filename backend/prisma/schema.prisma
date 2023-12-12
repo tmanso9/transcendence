@@ -30,7 +30,7 @@ model User {
 
 model Blacklist {
   id Int @id @default(autoincrement())
-  token String
+  token String @unique
   sub Int
   email String
   expiresIn Int
