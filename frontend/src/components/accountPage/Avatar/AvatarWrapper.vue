@@ -1,6 +1,6 @@
 <template>
   <div class="avatar mx-auto d-flex flex-column align-center">
-    <div class="avatar__image d-flex align-center mx-auto">
+    <div class="avatar__image d-flex align-start mx-auto">
 		<v-avatar size="150px" class="avatar__image__component">
 			<v-img
 			:src="avatar"

@@ -1,6 +1,6 @@
 <template>
   <v-form
-    class="change__image d-flex flex-column ml-n5"
+    class="change__image d-flex flex-column ml-n5 mt-2"
     @submit.prevent="upload"
     validate-on="submit"
     ref="form"
@@ -8,10 +8,9 @@
     <p class="pl-3 text-overline text-medium-emphasis mb-n4">Change avatar</p>
     <v-file-input
       accept="image/png, image/jpeg, image/bmp"
-      placeholder="Chose image"
       :prepend-icon="''"
       prepend-inner-icon="mdi-camera"
-      label="Chose image"
+      label="Choose image"
       :chips="true"
       density="compact"
       :show-size="true"
@@ -71,8 +70,5 @@ const upload = async () => {
 .change__image {
   width: 35%;
   margin: 0 auto;
-  & label {
-	font-size: 2rem !important;
-  }
 }
 </style>
