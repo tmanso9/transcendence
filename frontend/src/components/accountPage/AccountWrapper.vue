@@ -1,6 +1,6 @@
 <template>
   <!-- <h3>User stats are here</h3> -->
-  <div class="d-flex ma-5 w-50 mx-auto">
+  <div class="d-flex ma-5 mx-auto">
     <avatar-wrapper :user="user" />
     <div class="d-flex flex-column w-25 justify-center">
       <v-btn class="my-2 mx-auto w-75 account__header__button">Send message</v-btn>

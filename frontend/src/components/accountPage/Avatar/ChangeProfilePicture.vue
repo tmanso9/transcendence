@@ -1,11 +1,11 @@
 <template>
   <v-form
-    class="change__image d-flex flex-column"
+    class="change__image d-flex flex-column ml-n5"
     @submit.prevent="upload"
     validate-on="submit"
     ref="form"
   >
-    <p class="pl-3 text-button mb-n3">Change avatar</p>
+    <p class="pl-3 text-overline text-medium-emphasis mb-n4">Change avatar</p>
     <v-file-input
       accept="image/png, image/jpeg, image/bmp"
       placeholder="Chose image"
@@ -69,7 +69,10 @@ const upload = async () => {
 
 <style scoped lang="scss">
 .change__image {
-  width: 40%;
+  width: 35%;
   margin: 0 auto;
+  & label {
+	font-size: 2rem !important;
+  }
 }
 </style>

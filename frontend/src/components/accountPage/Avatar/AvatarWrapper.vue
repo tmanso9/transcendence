@@ -1,15 +1,15 @@
 <template>
   <div class="avatar mx-auto d-flex flex-column align-center">
     <div class="avatar__image d-flex align-center mx-auto">
-      <change-profile-picture v-if="editAvatar" />
-      <v-avatar size="200px" class="avatar__image__component">
-        <v-img
-          :src="avatar"
-          @error="avatar = defaultPicture"
-          alt="user profile picture"
-          cover
-        />
-      </v-avatar>
+		<v-avatar size="150px" class="avatar__image__component">
+			<v-img
+			:src="avatar"
+			@error="avatar = defaultPicture"
+			alt="user profile picture"
+			cover
+			/>
+		</v-avatar>
+		<change-profile-picture v-if="editAvatar" />
     </div>
     <v-tooltip
       location="right"
