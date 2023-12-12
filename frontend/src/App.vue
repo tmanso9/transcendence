@@ -52,7 +52,7 @@ const toggleSignUp = () => {
 	<div class="loginWrapper" v-if="showSignup" @click.self="showSignup = false">
 	  <signup-wrapper @signup="toggleSignUp" />
 	</div>
-	<v-main class="px-5 mt-4 h-75">
+	<v-main class="px-5 mt-4 h-75 overflow-y-auto">
 		<RouterView />
 		<v-spacer class="h-10"></v-spacer>
 		<chat-wrapper v-if="showChat" />
