@@ -28,7 +28,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "pretest:e2e": "npm run db:test:restart",
-    "test:e2e": "dotenv -e .env.test -- jest --watch --config ./test/jest-e2e.json"
+    "test:e2e": "dotenv -e .env.test -- jest --watch --config ./test/jest-e2e.json",
+	"env": "./getSecrets.sh",
+	"env:vault": "cat vaultAccess.txt"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",
