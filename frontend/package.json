@@ -11,10 +11,8 @@
 		"prepare": "husky install"
 	},
 	"lint-staged": {
-		"src/**/*.vue": [
-			"eslint --fix",
-			"prettier --write"
-		]
+		"src/**/*.{js,vue,html,css}": "prettier --write",
+		"src/**/*.{js,vue}": "eslint --fix"
 	},
 	"dependencies": {
 		"@mdi/font": "7.0.96",
