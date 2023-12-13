@@ -11,7 +11,7 @@
 		"prepare": "husky install"
 	},
 	"lint-staged": {
-		"*.vue": [
+		"src/**/*.vue": [
 			"eslint --fix",
 			"prettier --write"
 		]
