@@ -1,5 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-cd frontend
-npx lint-staged
+(cd frontend && npm run precommit) || (echo "husky - to debug, use 'npm run precommit' inside frontend directory"; false)
