@@ -49,7 +49,6 @@ import AvatarWrapper from "./Avatar/AvatarWrapper.vue";
 import FriendsWrapper from "./Friends/FriendsWrapper.vue";
 import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
-var a;
 
 const props = defineProps(["user"]);
 
