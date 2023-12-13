@@ -3,7 +3,8 @@
 	"wins": 0,
 	"losses": 0,
 	"points": 0,
-	"ranking": "guru",
+	"rank": "guru",
+	"status": "online",
 	"avatar": "https://cdn.intra.42.fr/users/5a5f048f9b7c415986163febf207bcb7/touteiro.jpg",
 	"friends": [
 		{

@@ -1,15 +1,20 @@
 <template>
-  <div class="avatar mx-auto d-flex flex-column align-center">
-    <div class="avatar__image d-flex align-start mx-auto">
-		<v-avatar size="150px" class="avatar__image__component">
-			<v-img
-			:src="avatar"
-			@error="avatar = defaultPicture"
-			alt="user profile picture"
-			cover
-			/>
-		</v-avatar>
-		<change-profile-picture v-if="editAvatar" />
+  <div class="avatar d-flex flex-column align-center">
+    <div
+      class="avatar__image d-flex align-start mx-auto"
+      :class="editAvatar ? 'avatar__image__change' : ''"
+    >
+      <v-avatar size="150px" class="avatar__image__component"
+      :class="editAvatar ? 'avatar__image__component__change' : ''"
+	  >
+        <v-img
+          :src="avatar"
+          @error="avatar = defaultPicture"
+          alt="user profile picture"
+          cover
+        />
+      </v-avatar>
+      <change-profile-picture v-if="editAvatar" />
     </div>
     <v-tooltip
       location="right"
@@ -45,10 +50,15 @@ onMounted(() => {
 <style scoped lang="scss">
 .avatar {
   &__image {
-    width: 450px;
+    &__change {
+      width: 350px;
+    }
     &__component {
       display: block;
       margin: 0 auto 20px;
+	  &__change {
+		  margin-left: -20px;
+	  }
     }
   }
 }

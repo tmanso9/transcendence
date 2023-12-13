@@ -8,7 +8,7 @@
         class="d-flex flex-column align-center justify-center ml-2"
       >
         <v-card-title class="text-overline mb-n5">Rank</v-card-title>
-        <v-card-item class="text-body-2">{{ ranking }}</v-card-item>
+        <v-card-item class="text-body-2">{{ rank }}</v-card-item>
       </v-card>
       <div class="friends d-flex justify-space-between ml-2 mr-n2">
         <v-card
@@ -27,5 +27,5 @@
 </template>
 
 <script lang="ts" setup>
-defineProps(["stats", "ranking"]);
+defineProps(["stats", "rank"]);
 </script>

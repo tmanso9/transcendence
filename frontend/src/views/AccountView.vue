@@ -1,6 +1,5 @@
 <template>
   <div v-if="user.username">
-    <h2 class="text-center mb-5 pb-5 text-h6">{{ getUsername }}'s account</h2>
     <account-wrapper v-if="isLoaded" :user="user" />
   </div>
   <h2 v-else-if="isLoaded" class="text-center text-red">

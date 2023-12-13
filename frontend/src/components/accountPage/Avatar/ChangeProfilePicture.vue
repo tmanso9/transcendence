@@ -1,6 +1,6 @@
 <template>
   <v-form
-    class="change__image d-flex flex-column ml-n5 mt-2"
+    class="change__image d-flex flex-column mx-auto ml-n5 mt-4"
     @submit.prevent="upload"
     validate-on="submit"
     ref="form"
@@ -16,7 +16,8 @@
       :show-size="true"
       @update:model-value="selectFile"
       :rules="rules"
-      :class="inputError ? 'change__image__input my-3' : 'change__image__input mt-3 mb-n3'"
+	  class="change__image__input"
+      :class="inputError ? 'my-3' : 'mt-3 mb-n3'"
       ref="fileInput"
     ></v-file-input>
     <v-btn color="deep-purple-darken-3" type="submit">Upload</v-btn>
@@ -68,7 +69,7 @@ const upload = async () => {
 
 <style scoped lang="scss">
 .change__image {
-  width: 35%;
-  margin: 0 auto;
+  width: 50%;
+//   margin: 0 auto;
 }
 </style>
