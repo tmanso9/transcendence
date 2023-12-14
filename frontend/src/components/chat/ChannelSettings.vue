@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
 import { ref } from "vue";
+import PersonalSettings from "./PersonalSettings.vue";
 
 const store = chatAppStore();
 const channelSettings = ref(false);
@@ -12,11 +13,15 @@ const channel = ref(store.getChannelInfo(store.selectedChannel));
     size="x-small"
     @click="
       () => {
-        channelSettings = true;
+        if (channel?.type == 'personal') {
+          store.selectedUserProfile = store.findUserByUsername(channel.name);
+          store.personalPopUpSettings = true;
+        } else channelSettings = true;
       }
     "
   ></v-icon>
-  <div v-if="channelSettings" class="channelSettings">
+  <personal-settings v-if="store.personalPopUpSettings"></personal-settings>
+  <div v-else-if="channelSettings" class="channelSettings">
     <div class="channelSettings-header">
       <span class="text-h6"
         ><v-icon icon="mdi-cog" size="x-small"></v-icon
@@ -42,15 +47,48 @@ const channel = ref(store.getChannelInfo(store.selectedChannel));
         members
       </div>
       <v-virtual-scroll
-        :items="channel?.members"
+        v-if="channel"
+        :items="store.channelMembers(channel.name)"
         height="250"
         class="channelSettings-content-users"
       >
         <template v-slot:default="{ item }"
-          ><div class="channelSettings-content-users-user">
-            {{ item }}
-          </div></template
-        >
+          ><div
+            class="channelSettings-content-users-user"
+            @click="
+              () => {
+                store.selectedUserProfile = store.findUserByUsername(
+                  item.username
+                );
+                store.personalPopUpSettings = true;
+              }
+            "
+          >
+            <div class="channelSettings-content-users-user-profile">
+              <v-icon
+                class="channelSettings-content-users-user-profile-icon"
+                :icon="item.avatar"
+              ></v-icon>
+              <div>{{ item.username }}</div>
+            </div>
+            <div
+              class="channelSettings-content-users-user-operator"
+              v-if="item.username == channel.creator"
+            >
+              <v-icon icon="mdi-crown" size="x-small"></v-icon>
+              Admin
+            </div>
+            <div
+              class="channelSettings-content-users-user-operator"
+              v-else-if="store.isAdmin(channel.name, item.username)"
+            >
+              Admin
+            </div>
+          </div>
+          <personal-settings
+            v-if="store.personalPopUpSettings"
+          ></personal-settings>
+        </template>
       </v-virtual-scroll>
       <v-btn color="primary">Leave Group</v-btn>
     </div>

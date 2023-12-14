@@ -186,6 +186,14 @@
     text-align: center;
     width: 100%;
 
+    &-buttons {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      justify-content: space-around;
+			height: 10em;
+    }
+
     &-profile {
       justify-content: center;
     }
@@ -195,12 +203,32 @@
     }
 
     &-users {
-			margin-top: 2em;
+      margin-top: 2em;
       padding: 0 1em;
+      margin-bottom: 2em;
 
       &-user {
         display: flex;
         flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+        padding: 0.5em 1em;
+        border: solid 0.1em map-get($color, primary);
+        border-radius: 1em;
+        margin: 0.5em 0;
+
+        &-profile {
+          display: flex;
+          flex-direction: row;
+
+          &-icon {
+            margin-right: 0.5em;
+          }
+        }
+
+        &-operator {
+          color: map-get($color, secondary);
+        }
       }
     }
   }
