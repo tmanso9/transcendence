@@ -217,6 +217,11 @@
         border-radius: 1em;
         margin: 0.5em 0;
 
+        :hover > & {
+          cursor: pointer;
+          background-color: map-get($color, light-dark);
+        }
+
         &-profile {
           display: flex;
           flex-direction: row;
@@ -268,9 +273,9 @@
       display: flex;
       flex-direction: column;
 
-			&-btn {
-				margin-bottom: 0.5em;
-			}
+      &-btn {
+        margin-bottom: 0.5em;
+      }
     }
   }
 }

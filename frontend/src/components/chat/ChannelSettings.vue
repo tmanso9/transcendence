@@ -61,7 +61,12 @@ const channel = ref(store.getChannelInfo(store.selectedChannel));
                 store.selectedUserProfile = store.findUserByUsername(
                   item.username
                 );
-                if (channel && store.isAdmin(channel.name, store.currentUser))
+                if (
+                  channel &&
+                  store.selectedUserProfile &&
+                  store.isAdmin(channel.name, store.currentUser) &&
+                  channel.creator != store.selectedUserProfile.username
+                )
                   store.settingsAdminPopUp = true;
                 else store.personalPopUpSettings = true;
               }
