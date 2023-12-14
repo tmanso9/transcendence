@@ -31,27 +31,9 @@ const channel = store.getChannelInfo(store.selectedChannel);
       </div>
       <div class="channelSettings-content-info"></div>
       <div class="channelSettings-content-buttons">
-        <v-btn color="primary">Play Game</v-btn>
-        <v-btn color="primary">Block</v-btn>
-        <v-btn
-          v-if="
-            channel?.type != 'personal' &&
-            store.isAdmin(store.selectedChannel, store.currentUser) &&
-            store.selectedUserProfile?.username != channel?.creator
-          "
-          color="primary"
-          >Kick {{ " from " + store.selectedChannel }}</v-btn
-        >
-        <v-btn
-          v-else-if="
-            channel?.type != 'personal' &&
-            store.isAdmin(store.selectedChannel, store.currentUser) &&
-            store.selectedUserProfile?.username == channel?.creator
-          "
-          color="primary"
-          disabled
-          >Kick {{ " from " + store.selectedChannel }}</v-btn
-        >
+        <v-btn color="primary" append-icon="mdi-face-man-profile">Profile</v-btn>
+        <v-btn color="green" append-icon="mdi-table-tennis">Play Game</v-btn>
+        <v-btn color="red" append-icon="mdi-cancel">Block</v-btn>
       </div>
     </div>
   </div>
