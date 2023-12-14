@@ -4,9 +4,11 @@
       class="avatar__image d-flex align-start mx-auto"
       :class="editAvatar ? 'avatar__image__change' : ''"
     >
-      <v-avatar size="150px" class="avatar__image__component"
-      :class="editAvatar ? 'avatar__image__component__change' : ''"
-	  >
+      <v-avatar
+        :size="imageHeight"
+        class="avatar__image__component"
+        :class="editAvatar ? 'avatar__image__component__change' : ''"
+      >
         <v-img
           :src="avatar"
           @error="avatar = defaultPicture"
@@ -32,11 +34,15 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 import { ref, onMounted } from "vue";
+import { useDisplay } from "vuetify";
 const avatar = ref("");
 const editAvatar = ref(false);
 const props = defineProps(["user"]);
+
+const { smAndUp } = useDisplay();
 
 const defaultPicture =
   "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png";
@@ -44,6 +50,10 @@ const defaultPicture =
 onMounted(() => {
   console.log(props.user);
   avatar.value = props.user.avatar || defaultPicture;
+});
+
+const imageHeight = computed(() => {
+  return smAndUp.value ? "150px" : "120px";
 });
 </script>
 
@@ -56,9 +66,9 @@ onMounted(() => {
     &__component {
       display: block;
       margin: 0 auto 20px;
-	  &__change {
-		  margin-left: -20px;
-	  }
+      &__change {
+        margin-left: -20px;
+      }
     }
   }
 }

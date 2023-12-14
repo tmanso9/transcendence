@@ -5,8 +5,8 @@
         <v-card
           v-for="(friend, i) in friends"
           :key="i"
-          class="ma-2 w-25 d-flex align-center friends__card"
-          height="60px"
+          class="ma-2 w-25 d-flex flex-column flex-sm-row align-center friends__card"
+          :height="smAndUp ? '60px' : '75%'"
           target="_"
           :href="`/users/${friend.username}`"
         >
@@ -21,7 +21,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useDisplay } from "vuetify";
 const props = defineProps(["user"]);
+const { smAndUp } = useDisplay();
 
 const friends = props.user?.friends || [];
 </script>
@@ -30,6 +32,7 @@ const friends = props.user?.friends || [];
 .friends {
   &__card {
     max-width: 200px !important;
+    min-width: fit-content !important;
     background-color: rgb(var(--v-theme-code));
   }
 }
