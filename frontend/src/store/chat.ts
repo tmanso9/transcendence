@@ -175,6 +175,8 @@ export const chatAppStore = defineStore("chat", () => {
 
   const personalPopUpSettings = ref(false);
 
+  const settingsAdminPopUp = ref(false);
+
   // Functions
 
   function createNewChannel(
@@ -300,6 +302,7 @@ export const chatAppStore = defineStore("chat", () => {
     friendsWithTick,
     personalPopUpSettings,
     selectedUserProfile,
+    settingsAdminPopUp,
     createNewChannel,
     channelMessages,
     selectChannel,

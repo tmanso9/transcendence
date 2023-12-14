@@ -2,6 +2,7 @@
 import { chatAppStore } from "@/store/chat";
 import { ref } from "vue";
 import PersonalSettings from "./PersonalSettings.vue";
+import SettingsPopUp from "./SettingsPopUp.vue";
 
 const store = chatAppStore();
 const channelSettings = ref(false);
@@ -60,7 +61,9 @@ const channel = ref(store.getChannelInfo(store.selectedChannel));
                 store.selectedUserProfile = store.findUserByUsername(
                   item.username
                 );
-                store.personalPopUpSettings = true;
+                if (channel && store.isAdmin(channel.name, store.currentUser))
+                  store.settingsAdminPopUp = true;
+                else store.personalPopUpSettings = true;
               }
             "
           >
@@ -85,12 +88,13 @@ const channel = ref(store.getChannelInfo(store.selectedChannel));
               Admin
             </div>
           </div>
-          <personal-settings
-            v-if="store.personalPopUpSettings"
-          ></personal-settings>
         </template>
       </v-virtual-scroll>
-      <v-btn color="primary">Leave Group</v-btn>
+      <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
+      <personal-settings
+        v-else-if="store.personalPopUpSettings"
+      ></personal-settings>
+      <v-btn color="red">Leave Group</v-btn>
     </div>
   </div>
 </template>

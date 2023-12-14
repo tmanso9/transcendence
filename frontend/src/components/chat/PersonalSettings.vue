@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
-import { ref } from "vue";
 
 const store = chatAppStore();
 const channel = store.getChannelInfo(store.selectedChannel);
