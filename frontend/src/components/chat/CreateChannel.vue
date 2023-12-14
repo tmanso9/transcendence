@@ -6,8 +6,10 @@ import { count } from "console";
 const store = chatAppStore();
 const newChannelPopUp = ref(false);
 const createChannelFinal = ref(false);
+const channelIsPublic = ref(false);
 </script>
 <template>
+  <!-- CHOOSE CHANNEL TYPE -->
   <div v-if="!newChannelPopUp" class="createChannelPopUp">
     <div class="createChannelPopUp-header">
       <span class="text-h6">Create Channel</span>
@@ -34,6 +36,8 @@ const createChannelFinal = ref(false);
           :key="item.name"
           @click="
             () => {
+              if (item.name == 'New Public Channel') channelIsPublic = true;
+              else channelIsPublic = false;
               newChannelPopUp = true;
             }
           "
@@ -70,6 +74,7 @@ const createChannelFinal = ref(false);
       </template>
     </v-virtual-scroll>
   </div>
+  <!-- CHOOSE CHANNEL MEMBERS -->
   <div v-if="newChannelPopUp" class="createChannelPopUp">
     <div class="createChannelPopUp-header newChannelHeader">
       <span class="text-h6">Participants</span>
@@ -130,11 +135,38 @@ const createChannelFinal = ref(false);
       >Next</v-btn
     >
   </div>
+  <!-- CREATE CHANNEL -->
   <div v-if="createChannelFinal" class="createChannelPopUp">
     <div class="createChannelPopUp-header newChannelHeader">
-      <span class="text-h6">Participants</span>
-      <v-icon icon="mdi-close-circle" color="primary" @click=""></v-icon>
+      <span class="text-h6">New Group</span>
+      <v-icon
+        icon="mdi-close-circle"
+        color="primary"
+        @click="
+          () => {
+            createChannelFinal = false;
+          }
+        "
+      ></v-icon>
     </div>
+    <v-text-field
+      label="Group Name"
+      color="primary"
+      variant="outlined"
+    ></v-text-field>
+    <v-text-field
+      v-if="channelIsPublic"
+      label="Password (opcional)"
+      color="primary"
+      variant="outlined"
+    ></v-text-field>
+    <v-text-field
+      v-else
+      label="Password (opcional)"
+      color="primary"
+      variant="outlined"
+      disabled
+    ></v-text-field>
     <v-btn style="float: right; margin-top: 1em" color="primary" @click=""
       >Create</v-btn
     >

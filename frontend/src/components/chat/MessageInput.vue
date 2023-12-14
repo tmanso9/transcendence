@@ -4,7 +4,7 @@
     <v-text-field
       label="Write..."
       color="primary"
-      variant="underlined"
+      variant="outlined"
     ></v-text-field>
     <v-icon
       icon="mdi-send"
