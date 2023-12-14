@@ -12,6 +12,7 @@
   flex-direction: row;
   background-color: map-get($color, dark);
   border-radius: 1em 1em 0 0;
+  z-index: 10000;
 }
 
 .chatBox > .chatBar {
