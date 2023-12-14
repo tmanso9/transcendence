@@ -16,29 +16,31 @@
       :show-size="true"
       @update:model-value="selectFile"
       :rules="rules"
-	  class="change__image__input"
+      class="change__image__input"
       :class="inputError ? 'my-3' : 'mt-3 mb-n3'"
       ref="fileInput"
+      :key="fileInputKey"
     ></v-file-input>
     <v-btn color="deep-purple-darken-3" type="submit">Upload</v-btn>
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const newPicture = ref<File>();
 const form = ref<HTMLFormElement>();
 const fileInput = ref<HTMLInputElement>();
-const inputError = ref(false)
+const inputError = ref(false);
+const fileInputKey = ref(0);
 
 const selectFile = (files: File[]) => {
-	if (files !== null) {
-		newPicture.value = files[0];
-		// console.log(newPicture.value)
-		form.value && form.value.resetValidation()
-		inputError.value = false
-	}
+  if (files !== null) {
+    newPicture.value = files[0];
+    // console.log(newPicture.value)
+    form.value && form.value.resetValidation();
+    inputError.value = false;
+  }
 };
 
 const rules = [
@@ -49,27 +51,28 @@ const rules = [
 ];
 
 const upload = async () => {
-	if (form.value) {
-		const isValid = await form.value.validate();
-		if (!isValid.valid) {
-			inputError.value = true;
-			return;
-		}
-		console.log(newPicture.value);
+  if (form.value) {
+    const isValid = await form.value.validate();
+    if (!isValid.valid) {
+      inputError.value = true;
+      return;
+    }
+    console.log(newPicture.value);
 
-		//to be done after successful post to backend
-		//will the file be hosted on BE? will a link to it work on image?
-		
-		fileInput.value && fileInput.value.reset()
-		//TO-DO: reload page on change
-	}
+    //to be done after successful post to backend
+    //will the file be hosted on BE? will a link to it work on image?
+
+    //to re-render the file input element after upload
+    fileInputKey.value++;
+
+    //TO-DO: reload page on change
+  }
 };
-
 </script>
 
 <style scoped lang="scss">
 .change__image {
   width: 50%;
-//   margin: 0 auto;
+  //   margin: 0 auto;
 }
 </style>
