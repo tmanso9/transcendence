@@ -1,30 +1,9 @@
 <template>
   <!-- <h3>User stats are here</h3> -->
-  <div class="d-flex ma-5 mx-auto w-75 justify-space-around align-center">
-    <div
-      class="account__header__name-and-status d-flex flex-column align-center mt-n2"
-    >
-      <h2
-        class="text-center text-h5 text-sm-h4 mb-1 text-deep-purple-lighten-3"
-      >
-        {{ user.username }}
-      </h2>
-      <v-badge
-        class="mb-4 mt-n2"
-        :dot="true"
-        location="start center"
-        offset-x="-13"
-        :color="mapColor"
-      >
-        <p class="text-subtitle-1 text-sm-h6">{{ user.status }}</p>
-      </v-badge>
-      <p class="text-overline text-sm-button text-deep-purple-lighten-3">
-        Rank: <span class="text-white">{{ user.rank }}</span>
-      </p>
-    </div>
-    <v-divider vertical class=""></v-divider>
-    <avatar-wrapper :user="user" />
-  </div>
+  <account-header
+    class="d-flex ma-5 mx-auto w-75 justify-space-around align-center"
+    :user="user"
+  />
   <div
     class="d-flex flex-column flex-sm-row justify-space-evenly mx-auto my-10 account__header__buttons"
     :width="mdAndUp ? '80%' : '100%'"
@@ -49,8 +28,8 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useDisplay } from "vuetify/lib/framework.mjs";
-import AvatarWrapper from "./Avatar/AvatarWrapper.vue";
+import { useDisplay } from "vuetify";
+import AccountHeader from "./Header/AccountHeader.vue";
 import FriendsWrapper from "./Friends/FriendsWrapper.vue";
 import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
@@ -65,17 +44,6 @@ const computedStats = computed(() => {
     losses: { name: "losses", value: losses },
     points: { name: "points", value: points },
   };
-});
-
-const mapColor = computed(() => {
-  switch (props.user.status) {
-    case "online":
-      return "success";
-    case "offline":
-      return "gray";
-    default:
-      return "deep-purple";
-  }
 });
 
 const headerButtons = [

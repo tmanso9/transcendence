@@ -2,21 +2,22 @@
   <div class="avatar d-flex flex-column align-center">
     <div
       class="avatar__image d-flex align-start mx-auto"
-      :class="editAvatar ? 'avatar__image__change' : ''"
+      :class="editAvatar && mdAndUp ? 'avatar__image__change' : ''"
     >
       <v-avatar
         :size="imageHeight"
         class="avatar__image__component"
-        :class="editAvatar ? 'avatar__image__component__change' : ''"
+        :class="editAvatar && mdAndUp ? 'avatar__image__component__change' : ''"
       >
         <v-img
           :src="avatar"
           @error="avatar = defaultPicture"
           alt="user profile picture"
           cover
+          :class="editAvatar ? 'gradient' : ''"
         />
       </v-avatar>
-      <change-profile-picture v-if="editAvatar" />
+      <change-profile-picture v-if="editAvatar && mdAndUp" source="avatar" />
     </div>
     <v-tooltip
       location="right"
@@ -25,7 +26,13 @@
       :attach="true"
     >
       <template v-slot:activator="{ props }">
-        <v-icon class="my-n2" v-bind="props" @click="editAvatar = !editAvatar">
+        <v-icon
+          class="my-n2"
+          :class="editAvatar && mdAndUp ? 'avatar__edit__on' : 'avatar__edit'"
+          v-bind="props"
+          @click="$emit('edit')"
+          :color="editAvatar ? 'error' : ''"
+        >
           mdi-camera-flip-outline
         </v-icon>
       </template>
@@ -39,10 +46,10 @@ import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
 const avatar = ref("");
-const editAvatar = ref(false);
-const props = defineProps(["user"]);
+const props = defineProps(["user", "editAvatar"]);
+defineEmits(["edit"]);
 
-const { smAndUp } = useDisplay();
+const { smAndUp, mdAndUp } = useDisplay();
 
 const defaultPicture =
   "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png";
@@ -67,16 +74,29 @@ const imageHeight = computed(() => {
       display: block;
       margin: 0 auto 20px;
       &__change {
-        margin-left: -20px;
+        margin-left: -50px;
       }
     }
+  }
+  &__edit__on {
+    margin-right: 140px;
   }
 }
 .avatar__tooltip {
   padding: 2px 10px !important;
-  //   background-color: inherit !important;
-  //   color: var(--v-primary) !important;
-  //   margin-left: -25px;
-  //   font-size: .75rem;
+}
+
+.gradient::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
 }
 </style>

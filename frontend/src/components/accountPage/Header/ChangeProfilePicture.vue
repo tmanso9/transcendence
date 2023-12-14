@@ -1,6 +1,7 @@
 <template>
   <v-form
-    class="change__image d-flex flex-column mx-auto ml-n5 mt-4"
+    class="change__image d-flex flex-column mx-auto ml-md-n5 mt-md-4"
+    :class="mdAndUp ? '' : 'change__image__mobile'"
     @submit.prevent="upload"
     validate-on="submit"
     ref="form"
@@ -27,6 +28,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useDisplay } from "vuetify";
+
+const { mdAndUp } = useDisplay();
+
+const props = defineProps(["source"]);
+
+console.log(props.source);
 
 const newPicture = ref<File>();
 const form = ref<HTMLFormElement>();
@@ -73,6 +81,9 @@ const upload = async () => {
 <style scoped lang="scss">
 .change__image {
   width: 50%;
-  //   margin: 0 auto;
+  &__mobile {
+    width: 100%;
+    min-width: 140px !important;
+  }
 }
 </style>
