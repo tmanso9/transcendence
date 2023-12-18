@@ -1,6 +1,6 @@
 <template>
-  <div v-if="user.username">
-    <account-wrapper v-if="isLoaded" :user="user" />
+  <div v-if="account.username">
+    <account-wrapper v-if="isLoaded" :account="account" />
   </div>
   <h2 v-else-if="isLoaded" class="text-center text-red">
     The user {{ getUsername }} does not exist
@@ -23,11 +23,11 @@ const getUsername = computed(() => {
   return path.split("/")[2] || "Please login";
 });
 
-const user = ref<User>({});
+const account = ref<User>({});
 const isLoaded = ref(false);
 
 onBeforeMount(async () => {
-  user.value = await fetchUser(getUsername.value);
+  account.value = await fetchUser(getUsername.value);
   isLoaded.value = true;
 });
 </script>

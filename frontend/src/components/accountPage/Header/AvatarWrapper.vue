@@ -46,7 +46,7 @@ import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
 const avatar = ref("");
-const props = defineProps(["user", "editAvatar"]);
+const props = defineProps(["account", "editAvatar"]);
 defineEmits(["edit"]);
 
 const { smAndUp, mdAndUp } = useDisplay();
@@ -55,8 +55,8 @@ const defaultPicture =
   "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png";
 
 onMounted(() => {
-  console.log(props.user);
-  avatar.value = props.user.avatar || defaultPicture;
+  //   console.log(props.account);
+  avatar.value = props.account.avatar || defaultPicture;
 });
 
 const imageHeight = computed(() => {

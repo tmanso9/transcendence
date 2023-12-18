@@ -22,10 +22,10 @@
 
 <script lang="ts" setup>
 import { useDisplay } from "vuetify";
-const props = defineProps(["user"]);
+const props = defineProps(["account"]);
 const { smAndUp } = useDisplay();
 
-const friends = props.user?.friends || [];
+const friends = props.account?.friends || [];
 </script>
 
 <style lang="scss">

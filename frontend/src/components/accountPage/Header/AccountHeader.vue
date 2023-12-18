@@ -9,7 +9,7 @@
         <h2
           class="text-center text-h5 text-sm-h4 mb-1 text-deep-purple-lighten-3"
         >
-          {{ user.username }}
+          {{ account.username }}
         </h2>
         <v-badge
           class="mb-4 mt-n2"
@@ -18,15 +18,15 @@
           offset-x="-13"
           :color="mapColor"
         >
-          <p class="text-subtitle-1 text-sm-h6">{{ user.status }}</p>
+          <p class="text-subtitle-1 text-sm-h6">{{ account.status }}</p>
         </v-badge>
         <p class="text-overline text-sm-button text-deep-purple-lighten-3">
-          Rank: <span class="text-white">{{ user.rank }}</span>
+          Rank: <span class="text-white">{{ account.rank }}</span>
         </p>
       </div>
       <v-divider vertical class=""></v-divider>
       <avatar-wrapper
-        :user="user"
+        :account="account"
         :editAvatar="editAvatar"
         @edit="toggleEditAvatar"
       />
@@ -43,12 +43,12 @@ import { useDisplay } from "vuetify";
 import AvatarWrapper from "./AvatarWrapper.vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 
-const props = defineProps(["user"]);
+const props = defineProps(["account"]);
 const { sm, mdAndUp } = useDisplay();
 const editAvatar = ref(false);
 
 const mapColor = computed(() => {
-  switch (props.user.status) {
+  switch (props.account.status) {
     case "online":
       return "success";
     case "offline":
