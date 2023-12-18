@@ -5,7 +5,11 @@
     :account="account"
   />
   <interact-buttons :account="account" />
-  <v-expansion-panels variant="popout" class="my-5">
+  <v-expansion-panels
+    variant="popout"
+    class="my-5 mx-auto"
+    :class="mdAndUp ? 'account__panels__md' : ''"
+  >
     <friends-wrapper class="" :account="account" />
     <stats-wrapper class="" :stats="computedStats" :rank="account.rank" />
     <match-history class="" />
@@ -19,6 +23,9 @@ import FriendsWrapper from "./Friends/FriendsWrapper.vue";
 import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
+import { useDisplay } from "vuetify";
+
+const { mdAndUp } = useDisplay();
 
 const props = defineProps(["account"]);
 
@@ -40,6 +47,11 @@ const computedStats = computed(() => {
       &__button {
         min-width: 140px !important;
       }
+    }
+  }
+  &__panels {
+    &__md {
+      max-width: 1000px;
     }
   }
 }
