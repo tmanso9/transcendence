@@ -1,14 +1,10 @@
 <template>
-  <div v-if="account.username">
-    <account-wrapper v-if="isLoaded" :account="account" />
-  </div>
-  <h2 v-else-if="isLoaded" class="text-center text-red">
-    The user {{ getUsername }} does not exist
-  </h2>
+  <component v-if="isLoaded" :is="loadedComponent" :account="account" />
 </template>
 
 <script lang="ts" setup>
 import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
+import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
 import { ref } from "vue";
 import { onMounted, onBeforeMount } from "vue";
 import { computed } from "vue";
@@ -29,6 +25,10 @@ const isLoaded = ref(false);
 onBeforeMount(async () => {
   account.value = await fetchUser(getUsername.value);
   isLoaded.value = true;
+});
+
+const loadedComponent = computed(() => {
+  return account.value.username ? AccountWrapper : NotFoundWrapper;
 });
 </script>
 
