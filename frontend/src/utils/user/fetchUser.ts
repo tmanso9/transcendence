@@ -1,11 +1,19 @@
-export const fetchUser = ( async (username: string) => {
-	try {
-		const result = await fetch(`/mock-data/${username}.json`)
-		if (!result.ok) throw new Error('Could not fetch ' + username)
-		const data = await result.json()
-		return data
-	} catch (error) {
-		console.error(error)
-		return {}
-	}
-})
+export const fetchUser = async (username: string) => {
+  try {
+    const result = await fetch(`http://localhost:3000/users/${username}`, {
+      credentials: "include",
+    });
+    if (!result.ok) {
+      const error = result.status;
+      console.error(result.statusText);
+      throw new Error(result.statusText);
+    }
+    const data = await result.json();
+    console.log(data);
+    return data;
+  } catch (error) {
+    // console.error(error);
+	if (error instanceof Error)
+		throw new Error(error.message)
+  }
+};

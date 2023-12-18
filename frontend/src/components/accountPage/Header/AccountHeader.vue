@@ -49,9 +49,9 @@ const editAvatar = ref(false);
 
 const mapColor = computed(() => {
   switch (props.account.status) {
-    case "online":
+    case "ONLINE":
       return "success";
-    case "offline":
+    case "OFFLINE":
       return "gray";
     default:
       return "deep-purple";

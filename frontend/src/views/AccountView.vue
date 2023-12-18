@@ -1,13 +1,15 @@
 <template>
-  <component v-if="isLoaded" :is="loadedComponent" :account="account" />
+  <account-wrapper v-if="isLoaded" :account="account" />
+  <h2 v-else-if="unauthorized">
+    You must be logged in to see {{ getUsername }}'s profile
+  </h2>
+  <not-found-wrapper v-else />
 </template>
 
 <script lang="ts" setup>
 import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
 import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
-import { ref } from "vue";
-import { onMounted, onBeforeMount } from "vue";
-import { computed } from "vue";
+import { ref, onBeforeMount, computed } from "vue";
 import { useRoute } from "vue-router";
 import { fetchUser } from "@/utils";
 import { User } from "@/types";
@@ -21,14 +23,18 @@ const getUsername = computed(() => {
 
 const account = ref<User>({});
 const isLoaded = ref(false);
+const unauthorized = ref(false);
 
 onBeforeMount(async () => {
-  account.value = await fetchUser(getUsername.value);
-  isLoaded.value = true;
-});
-
-const loadedComponent = computed(() => {
-  return account.value.username ? AccountWrapper : NotFoundWrapper;
+  try {
+    account.value = await fetchUser(getUsername.value);
+    if (account.value.username) isLoaded.value = true;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Unauthorized") unauthorized.value = true;
+      console.log(error);
+    }
+  }
 });
 </script>
 
