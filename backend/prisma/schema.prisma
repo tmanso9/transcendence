@@ -21,6 +21,12 @@ enum ConnectionStatus {
   ACCEPTED
 }
 
+enum Rank {
+  GURU
+  PRO
+  NOOBIE
+}
+
 model Connections {
   id String @id @default(uuid())
   status ConnectionStatus @default(PENDING)
@@ -37,6 +43,7 @@ model User {
   username String @unique // username
   status Status // user status
   avatar String // user avatar
+  rank Rank @default(NOOBIE) // player rank
 
   points Int @default(0)  // Total points of the user
   wins Int @default(0)  // Number of wins
