@@ -5,10 +5,10 @@
     </div>
 
     <div class="wrapper mt-4 d-flex flex-column align-center">
-      <a :href="authUrl + 'forty-two'" class="my-2">
+      <a :href="authUrl + 'forty-two'" referrerpolicy="unsafe-url" class="my-2">
         <v-btn width="200">Login with 42</v-btn>
       </a>
-      <a :href="authUrl + 'google'" class="my-2">
+      <a :href="authUrl + 'google'" referrerpolicy="unsafe-url" class="my-2">
         <v-btn width="200" color="red">Login with Google</v-btn>
       </a>
 

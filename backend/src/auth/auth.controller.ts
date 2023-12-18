@@ -46,11 +46,11 @@ export class AuthController {
 	/***** GOOGLE LOGIN *****/
 	@UseGuards(GoogleGuard)
 	@Get('google')
-	async auth() {}
+	async auth(@Req() req: Request) {}
 
 	@UseGuards(GoogleGuard)
 	@Get('google/redirect')
-	async googleLogin(@getUser() user: any, @Res({passthrough: true}) response: Response) {
+	async googleLogin(@getUser() user: any, @Res({passthrough: true}) response: Response, @Req() request: Request) {
 		const logged_user = await this.authService.googleLogin(user);
 		const access_token = logged_user.access_token;
 		delete logged_user.access_token;
@@ -64,24 +64,25 @@ export class AuthController {
 
 		const url = `http://localhost:3001/users/${logged_user.username}`;
 		
+    // response.redirect(request.headers.referer);
 		response.redirect(url)
 	}
 
 	/***** 42 LOGIN *****/
 	@UseGuards(Guard42)
     @Get('forty-two')
-    async login42(){}
+    async login42(@Req() req: Request){}
 
     @UseGuards(Guard42)
     @Get('callback')
-    async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response) {
+    async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response, @Req() request: Request) {
         const logged_user = await this.authService.login42(user);
         response.cookie('access_token', logged_user.accessToken);
 		
 		const url = `http://localhost:3001/users/${logged_user.username}`;
 
-		response.redirect(url)
-    }
+    response.redirect(request.headers.referer);
+  }
 
 	/***** LOGOUT *****/
 	@Get('logout')

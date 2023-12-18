@@ -15,6 +15,7 @@ export const useUserStore = defineStore("user", () => {
         },
         body: urlEncoded,
         credentials: "include",
+		referrerPolicy: "unsafe-url"
       });
       if (!result.ok) {
         const err = await result.text();
