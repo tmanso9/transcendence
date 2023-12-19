@@ -160,7 +160,7 @@ export class AuthService {
             }
         })
 
-		const accessToken = await this.signToken(profile.id, profile.email, '10m');
+		const accessToken = await this.signToken(profile.id, profile.email, '1m');
 		const refresh_token = await this.signToken(user.id, user.email, '24h');
 
      	return { ...profile, accessToken, refresh_token };
@@ -234,8 +234,8 @@ export class AuthService {
 			throw new UnauthorizedException('Access token is not expired');
 
 		//validate refresh token
-		if (refreshDecoded.exp < now)
-			throw new UnauthorizedException('Invalid refresh token');
+		if (!refreshDecoded || refreshDecoded.exp < now)
+			throw new UnauthorizedException('Non-existent or expired refresh token');
 
 		const user = await this.prisma.user.findUnique({where: {email: refreshDecoded.email}});
 
@@ -261,6 +261,6 @@ export class AuthService {
 		const newRefreshToken = await this.signToken(user.id, user.email, refreshDecoded.exp - now);
 
 
-		return { newAccessToken, newRefreshToken };
+		return { newAccessToken, newRefreshToken, user };
 	}
 }

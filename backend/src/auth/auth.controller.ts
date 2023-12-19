@@ -133,5 +133,7 @@ export class AuthController {
 			sameSite: true,
 			secure: false,
 		});
+
+		return newTokens.user
 	}
 }

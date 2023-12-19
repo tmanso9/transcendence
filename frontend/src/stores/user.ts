@@ -41,26 +41,46 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const getMe = async () => {
+    return await fetch("http://localhost:3000/users/me", {
+      credentials: "include",
+    });
+  };
+
+  const getRefreshMe = async () => {
+    return await fetch("http://localhost:3000/auth/refresh-token", {
+      credentials: "include",
+    });
+  };
+
   const fetchUser = async (jwt: string) => {
     if (!jwt || !jwt.length) {
       username.value = "";
       return;
     }
     try {
-      const result = await fetch("http://localhost:3000/users/me", {
-        credentials: "include",
-      });
+      const result = await getMe();
       if (!result.ok) {
-		const data = await result.text()
-		throw new Error(data)
-	  }
+        const error = await result.json();
+        if (error.statusCode === 401) {
+          const refresh = await getRefreshMe()
+          if (!refresh.ok) {
+            const refreshError = await refresh.text();
+            throw new Error(refreshError);
+          }
+          const refreshData = await refresh.json();
+          username.value = refreshData.username;
+          return;
+        }
+        throw new Error(JSON.stringify(error));
+      }
       const data = await result.json();
       username.value = data.username;
     } catch (error) {
-		if (error instanceof Error) {
-			const message = JSON.parse(error.message).message;
-			console.error(message);
-		}
+      if (error instanceof Error) {
+        const message = JSON.parse(error.message).message;
+        console.error(message);
+      }
     }
   };
 
