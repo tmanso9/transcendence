@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { DbController } from './db/db.controller';
 import { DbService } from './db/db.service';
 import { DbModule } from './db/db.module';
+import { ChannelsModule } from './channels/channels.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DbModule } from './db/db.module';
     }),
     UserModule,
     DbModule,
+    ChannelsModule,
   ],
 })
 export class AppModule {}

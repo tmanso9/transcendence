@@ -21,6 +21,12 @@ enum ConnectionStatus {
   ACCEPTED
 }
 
+enum ChannelType {
+  PERSONAL
+  PRIVATE
+  PUBLIC
+}
+
 model Connections {
   id String @id @default(uuid())
   status ConnectionStatus @default(PENDING)
@@ -44,13 +50,34 @@ model User {
 
   friends User[]  @relation("Friends") // array of friends
   friendOf User[]  @relation("Friends") // array of friends
+
+  channels Channels[] @relation("Members")  // array of channels of which the user is part
+  adminOf Channels[] @relation("Admins")  // array of channels of which the user is an admin
+  bannedFrom Channels[] @relation("Banned") //array of channels from which the user is banned
+  mutedOn Channels[] @relation("Muted") // array of channels on which the user is muted
 }
 
 model Blacklist {
   id Int @id @default(autoincrement())
   token String
-  sub Int
+  sub String
   email String
   expiresIn Int
   createdAt DateTime @default(now())
+}
+
+model Gamestats {
+  id String @id @default(uuid())
+}
+
+model Channels {
+  id String @id @default(uuid())  // id of the channel
+  creator String  // id of the User who created the chat
+  password String @default("")  // hashed password to access the chat (optional - empty of not desired)
+  channelName String  // name of the channel
+  members User[] @relation("Members") // array of members who are part of the channel
+  messages Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
+  admins User[] @relation("Admins") // array of IDs of the admins
+  bannedUsers User[] @relation("Banned")  // array of banned users
+  mutedUsers User[] @relation("Muted")  // array of muted users
 }
