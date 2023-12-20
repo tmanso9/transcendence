@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuthDTO } from "./dto";
 import * as argon from 'argon2';
@@ -34,7 +34,8 @@ export class AuthService {
 					password: hashed,
 					username: dto.username,
 					avatar: '#',
-					status: "OFFLINE"
+					status: "OFFLINE",
+					login: "REGULAR"
 				},
 			});
 			delete user.password;
@@ -77,9 +78,11 @@ export class AuthService {
 			data: { status: "ONLINE" }
 		});
 
-		const access_token = await this.signToken(user.id, user.email);
+		const access_token = await this.signToken(user.id, user.email, '10m');
+		const refresh_token = await this.signToken(user.id, user.email, '24h');
 		return {
 			access_token,
+			refresh_token,
 			email: user.email,
 			username: user.username,
 		};
@@ -113,6 +116,7 @@ export class AuthService {
 						username: user_name,
 						avatar: data.picture,
 						status: "ONLINE",
+						login: "GOOGLE"
 					}
 				});
 			} catch (error) {
@@ -127,9 +131,11 @@ export class AuthService {
 			});
 		}
 
-		const access_token = await this.signToken(user.id, user.email);
+		const access_token = await this.signToken(user.id, user.email, '10m');
+		const refresh_token = await this.signToken(user.id, user.email, '24h');
 		return {
 			access_token,
+			refresh_token,
 			email: user.email,
 			username: user.username,
 			avatar: user.avatar
@@ -147,6 +153,7 @@ export class AuthService {
                 username: user.username,
                 status: 'ONLINE',
                 avatar: user.avatar,
+				login: "FORTYTWO"
             },
             update: {
                 status: 'ONLINE',
@@ -156,9 +163,10 @@ export class AuthService {
             }
         })
 
-		const accessToken = await this.signToken(profile.id, profile.email);
+		const accessToken = await this.signToken(profile.id, profile.email, '10m');
+		const refresh_token = await this.signToken(user.id, user.email, '24h');
 
-     	return { ...profile, accessToken };
+     	return { ...profile, accessToken, refresh_token };
     }
 
 	/*** USING RANDOM NAME GENERATOR API ***/
@@ -174,14 +182,14 @@ export class AuthService {
 		return username;
 	}
 
-	async signToken(id: string, email: string): Promise<string> {
+	async signToken(id: string, email: string, duration: any): Promise<string> {
 		const payload = {
 			sub: id,
 			email,
 		};
 
 		const access_token = await this.jwt.signAsync(payload, {
-			expiresIn: '15m',
+			expiresIn: duration,
 			secret: this.config.get('JWT_SECRET'),
 		});
 
@@ -198,17 +206,14 @@ export class AuthService {
 		if (!check)
 		{
 			const blackToken = await this.prisma.blacklist.create({data: {
-				sub: decoded['sub'],
 				email: decoded['email'],
 				token: accessToken,
 				expiresIn: decoded['exp'],
 			}})
 		}
-		//await setTimeout(async () => {
-		//	await this.prisma.blacklist.delete({where: {token: accessToken}})
-		//}, 15 * 60 * 1000);
-		const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-		await this.prisma.blacklist.deleteMany({where: {createdAt: {lte: fifteenMinutesAgo}}});
+
+		const now = Math.floor(Date.now() / 1000);
+		await this.prisma.blacklist.deleteMany({where: {expiresIn: {lte: now}}});
 		const user = this.prisma.user.update({
 			data:{
 				status: 'OFFLINE',
@@ -216,6 +221,54 @@ export class AuthService {
 			where: {
 				email: decoded['email'],
 			}})
-		return user;
+		return user;	
+	}
+
+	/***** REFRESH *****/
+	async refresh(refreshToken: string, accessToken: string) {
+		const refreshDecoded = await this.jwt.decode(refreshToken);
+		const accessDecoded = await this.jwt.decode(accessToken);	
+		
+		const now = Math.floor(Date.now() / 1000);
+
+		if (accessDecoded.exp > now)
+			throw new UnauthorizedException('Access token is not expired');
+
+		if (!refreshDecoded)
+			throw new UnauthorizedException('Invalid refresh token format')
+		
+		const user = await this.prisma.user.findUnique({where: {email: refreshDecoded.email}});
+
+		if (!user)
+			throw new UnauthorizedException('Invalid refresh token');
+
+		//validate refresh token
+		if (refreshDecoded.exp < now)
+		{
+			await this.prisma.user.update({data: {status: "OFFLINE"}, where: {email: user.email}})
+			throw new UnauthorizedException('Expired refresh token');
+		}
+
+		await this.prisma.blacklist.deleteMany({where: {expiresIn: {lte: now}}});
+		
+		const blacklisted = await this.prisma.blacklist.findUnique({where: {token: refreshToken}})
+
+		if (blacklisted)
+		{
+			const updatedUser = await this.prisma.user.update({data: {status: "BLOCKED"}, where: {email: user.email}})
+			return {newAccessToken: '', newRefreshToken: '', updatedUser};
+		}
+
+		await this.prisma.blacklist.create({data: {
+			token: refreshToken,
+			email: refreshDecoded.email,
+			expiresIn: refreshDecoded.exp,
+		}})
+
+		const newAccessToken = await this.signToken(user.id, user.email, '10m');
+		const newRefreshToken = await this.signToken(user.id, user.email, refreshDecoded.exp - now);
+
+
+		return { newAccessToken, newRefreshToken, user };
 	}
 }

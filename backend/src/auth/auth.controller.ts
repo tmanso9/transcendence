@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { Response, Request } from "express";
+import { Response, Request, response } from "express";
 
 import { AuthService } from "./auth.service";
 import { AuthDTO } from "./dto";
@@ -39,6 +39,12 @@ export class AuthController {
 			secure: false,
 		});
 
+		response.cookie('refresh_token', user.refresh_token, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
+
 		// Return user to frontend
 		return user;
 	}
@@ -62,6 +68,14 @@ export class AuthController {
 			secure: false,
 		});
 
+		response.cookie('refresh_token', logged_user.refresh_token, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
+
+		delete logged_user.refresh_token;
+
 		const url = `http://localhost:3001/users/${logged_user.username}`;
 		
 		response.redirect(url)
@@ -76,7 +90,18 @@ export class AuthController {
     @Get('callback')
     async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response) {
         const logged_user = await this.authService.login42(user);
-        response.cookie('access_token', logged_user.accessToken);
+        
+		response.cookie('access_token', logged_user.accessToken, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
+
+		response.cookie('refresh_token', logged_user.refresh_token, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
 		
 		const url = `http://localhost:3001/users/${logged_user.username}`;
 
@@ -88,6 +113,27 @@ export class AuthController {
 	async logout(@Req() req: Request, @Res({ passthrough: true }) response: Response){
 		const accessToken = req.cookies['access_token'];
 		response.cookie('access_token', '');
+		response.cookie('refresh_token', '');
 		return this.authService.logout(accessToken)
+	}
+
+
+	/***** REFRESH *****/
+	@Get('refresh-token')
+	async refresh(@Req() req: Request, @Res({ passthrough: true }) response: Response) {
+		
+		const newTokens = await this.authService.refresh(req.cookies['refresh_token'], req.cookies['access_token']);
+		response.cookie('access_token', newTokens.newAccessToken, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
+		response.cookie('refresh_token', newTokens.newRefreshToken, {
+			maxAge: 2592000000,
+			sameSite: true,
+			secure: false,
+		});
+
+		return newTokens.user
 	}
 }

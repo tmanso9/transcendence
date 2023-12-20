@@ -1,1 +1,1 @@
-export * from './logout.middleware';
+export * from './validation.middleware';
