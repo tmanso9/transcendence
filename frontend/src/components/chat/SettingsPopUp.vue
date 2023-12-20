@@ -70,7 +70,7 @@ const channel = store.getChannelInfo(store.selectedChannel);
           >Ban</v-btn
         >
         <v-btn
-          color="red"
+          color="warning"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-minus-circle-outline"
           >Remove from channel</v-btn

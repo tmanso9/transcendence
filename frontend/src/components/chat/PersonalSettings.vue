@@ -43,7 +43,7 @@ const channel = store.getChannelInfo(store.selectedChannel);
         >
         <v-btn
           class="channelSettings-content-buttons-btn"
-          color="red"
+          color="warning"
           append-icon="mdi-cancel"
           >Block</v-btn
         >

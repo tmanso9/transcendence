@@ -33,6 +33,7 @@ export default createVuetify({
         colors: {
           primary: "#582258",
           secondary: "#ffadff",
+          warning: "#630438",
         },
       },
     },

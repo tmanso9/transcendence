@@ -102,7 +102,7 @@ const { height } = useDisplay();
       <personal-settings
         v-else-if="store.personalPopUpSettings"
       ></personal-settings>
-      <v-btn color="red">Leave Group</v-btn>
+      <v-btn color="warning">Leave Group</v-btn>
     </div>
   </div>
 </template>
