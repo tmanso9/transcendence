@@ -35,6 +35,7 @@ function updateScroll(id: string) {
       <messages-scroll></messages-scroll>
       <message-input
         @scrollMessages="updateScroll('scrollMessages')"
+				style="bottom: 0;"
       ></message-input>
     </div>
   </div>

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { useDisplay } from "vuetify/lib/framework.mjs";
 
 const store = chatAppStore();
+const { height } = useDisplay();
 </script>
 <template>
   <div class="messageScroll">
     <v-virtual-scroll
       :items="store.channelMessages(store.selectedChannel)"
-      height="400"
+      :height="height > 700 ? 400 : 300"
       id="scrollMessages"
     >
       <template v-slot:default="{ item }">
@@ -16,23 +18,22 @@ const store = chatAppStore();
             v-if="item.sender == store.currentUser"
             class="messageChip messageSentByCurrentUser"
           >
-            <v-chip size="large" append-icon="">
+            <v-chip>
               {{ item.content }}
             </v-chip>
             <v-chip
               size="x-small"
-              prepend-icon=""
-              color="primary"
+              color="secondary"
               class="messageSentByCurrentUser"
             >
               {{ item.sender }}
             </v-chip>
           </div>
           <div v-else class="messageChip">
-            <v-chip size="large" prepend-icon="">
+            <v-chip>
               {{ item.content }}
             </v-chip>
-            <v-chip size="x-small" prepend-icon="" color="primary">
+            <v-chip size="x-small" color="secondary">
               {{ item.sender }}
             </v-chip>
           </div>

@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useDisplay } from "vuetify/lib/framework.mjs";
 import CreateChannel from "./CreateChannel.vue";
 import { chatAppStore } from "@/store/chat";
+
+const { height } = useDisplay();
 
 const store = chatAppStore();
 </script>
@@ -10,21 +13,20 @@ const store = chatAppStore();
     <div class="chatTopBar">
       <h3>Chat</h3>
       <v-icon
-			v-if="!store.createChannelPopUp"
+        v-if="!store.createChannelPopUp"
         @click="
           () => {
             store.createChannelPopUp = true;
           }
         "
         icon="mdi-chat-plus"
-        color="primary"
-        size="large"
+        :size="height > 700 ? 'large' : 'medium'"
       ></v-icon>
     </div>
     <div class="chatConversations">
       <v-virtual-scroll
         :items="store.allChannelsUserIsIn"
-        height="200"
+        :height="height > 700 ? 200 : 150"
         class="contactsScroller"
       >
         <template v-slot:default="{ item }">
@@ -34,7 +36,10 @@ const store = chatAppStore();
             class="contactElement"
           >
             <template v-slot:prepend>
-              <v-icon :icon="item.avatar" color="primary"></v-icon>
+              <v-icon
+                :icon="item.avatar"
+                :size="height > 700 ? 'small' : 'x-small'"
+              ></v-icon>
             </template>
             <v-list-item-title v-text="item.name"></v-list-item-title>
           </v-list-item>
@@ -47,7 +52,7 @@ const store = chatAppStore();
     <div class="chatConversations">
       <v-virtual-scroll
         :items="store.publicChannelsUserIsNotIn"
-        height="200"
+        :height="height > 700 ? 200 : 150"
         class="contactsScroller"
       >
         <template v-slot:default="{ item }">
@@ -56,25 +61,25 @@ const store = chatAppStore();
               <div class="contactElement-publicChan-pofile">
                 <v-icon
                   :icon="item.avatar"
-                  color="secondary"
                   class="contactElement-publicChan-pofile-avatar"
+                  :size="height > 700 ? 'small' : 'x-small'"
                 ></v-icon>
                 <v-list-item-title v-text="item.name"></v-list-item-title>
               </div>
               <v-btn
                 v-if="item.password == 'yes'"
                 append-icon="mdi-lock"
-                size="small"
-                color="secondary"
+                :size="height > 700 ? 'small' : 'x-small'"
                 >Join</v-btn
               >
               <v-btn
                 v-else-if="item.type == 'personal'"
-                size="small"
-                color="secondary"
+                :size="height > 700 ? 'small' : 'x-small'"
                 >Talk</v-btn
               >
-              <v-btn v-else size="small" color="secondary">Join</v-btn>
+              <v-btn v-else :size="height > 700 ? 'small' : 'x-small'"
+                >Join</v-btn
+              >
             </div>
           </v-list-item>
         </template>

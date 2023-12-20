@@ -43,7 +43,7 @@ const channelIsPublic = ref(false);
           "
         >
           <template v-slot:prepend>
-            <v-icon :icon="item.avatar" color="primary"></v-icon>
+            <v-icon :icon="item.avatar"></v-icon>
           </template>
           <v-list-item-title v-text="item.name"></v-list-item-title>
         </v-list-item>
@@ -67,7 +67,7 @@ const channelIsPublic = ref(false);
           "
         >
           <template v-slot:prepend>
-            <v-icon icon="mdi-account" color="primary"></v-icon>
+            <v-icon icon="mdi-account"></v-icon>
           </template>
           <v-list-item-title v-text="item"></v-list-item-title>
         </v-list-item>
@@ -93,7 +93,7 @@ const channelIsPublic = ref(false);
     </div>
     <v-virtual-scroll
       :items="store.friendsWithTick"
-      height="300"
+      height="200"
       class="createChannelPopUp-friends"
     >
       <template v-slot:default="{ item }">
@@ -112,7 +112,7 @@ const channelIsPublic = ref(false);
           "
         >
           <template v-slot:prepend>
-            <v-icon icon="mdi-account" color="primary"></v-icon>
+            <v-icon icon="mdi-account"></v-icon>
           </template>
           <v-list-item-title v-text="item.name"></v-list-item-title>
           <v-icon
@@ -151,13 +151,13 @@ const channelIsPublic = ref(false);
     </div>
     <v-text-field
       label="Group Name"
-      color="primary"
+      color="secondary"
       variant="outlined"
     ></v-text-field>
     <v-text-field
       v-if="channelIsPublic"
       label="Password (opcional)"
-      color="primary"
+      color="secondary"
       variant="outlined"
     ></v-text-field>
     <v-text-field

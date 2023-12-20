@@ -1,18 +1,20 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useDisplay } from "vuetify/lib/framework.mjs";
+
+const { height } = useDisplay();
+</script>
 <template>
   <div class="messageWriteBox">
     <v-text-field
       label="Write..."
-      color="primary"
+      color="secondary"
       variant="outlined"
-    ></v-text-field>
-    <v-icon
-      icon="mdi-send"
-      @click="$emit('scrollMessages')"
-      color="primary"
-      size="large"
-      class="sendMessageButton"
-    ></v-icon>
+      clearable
+    >
+      <template v-slot:append-inner
+        ><v-icon icon="mdi-send" @click="$emit('scrollMessages')"> </v-icon
+      ></template>
+    </v-text-field>
   </div>
 </template>
 <style scoped lang="scss"></style>
