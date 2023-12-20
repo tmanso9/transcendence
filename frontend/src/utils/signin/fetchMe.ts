@@ -2,7 +2,7 @@ import { User } from "@/types";
 import { Store } from "pinia";
 import { VueCookies } from "vue-cookies";
 
-export const fetchUser = async (
+export const fetchMe = async (
   cookies: VueCookies | undefined,
   user: Store<"user", User>,
 ) => {

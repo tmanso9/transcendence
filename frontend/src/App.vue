@@ -8,7 +8,7 @@ import { onMounted, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
-import { fetchUser } from "./utils";
+import { fetchMe } from "./utils";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
@@ -18,11 +18,11 @@ const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 
 onMounted(async () => {
-  await fetchUser(cookies, user);
+  await fetchMe(cookies, user);
 });
 
 router.beforeEach(async (to, from) => {
-  await fetchUser(cookies, user);
+  await fetchMe(cookies, user);
 });
 
 const toggleChat = () => {
@@ -33,12 +33,12 @@ const toggleChat = () => {
 const toggleLogin = () => {
   showLogin.value = !showLogin.value;
   showSignup.value = false;
-  fetchUser(cookies, user);
+  fetchMe(cookies, user);
 };
 
 const toggleSignUp = () => {
   showSignup.value = !showSignup.value;
-  fetchUser(cookies, user);
+  fetchMe(cookies, user);
 };
 </script>
 
@@ -48,7 +48,7 @@ const toggleSignUp = () => {
       :user="user"
       :showLogin="showLogin"
       @login="toggleLogin"
-      @logout="fetchUser(cookies, user)"
+      @logout="fetchMe(cookies, user)"
       class="navbar"
     />
     <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
