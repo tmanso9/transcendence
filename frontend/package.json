@@ -7,8 +7,7 @@
 		"build": "vue-tsc --noEmit && vite build",
 		"preview": "vite preview",
 		"lint": "eslint . --fix --ignore-path .gitignore",
-		"precommit": "lint-staged",
-		"prepare": "husky install"
+		"precommit": "lint-staged"
 	},
 	"lint-staged": {
 		"src/**/*.{js,vue,html,css}": "prettier --write",
@@ -22,7 +21,8 @@
 		"vue": "^3.2.0",
 		"vue-cookies": "^1.8.3",
 		"vue-router": "^4.0.0",
-		"vuetify": "^3.0.0"
+		"vuetify": "^3.0.0",
+		"socket.io-client": "^4.7.2"
 	},
 	"devDependencies": {
 		"@babel/types": "^7.21.4",

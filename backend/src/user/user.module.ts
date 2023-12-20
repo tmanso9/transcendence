@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { LogoutMiddleware } from 'src/auth/middleware';
+import { ValidationMiddleware } from 'src/auth/middleware';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
@@ -11,7 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 export class UserModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(LogoutMiddleware)
+      .apply(ValidationMiddleware)
       .forRoutes('users/me');
   }
 }

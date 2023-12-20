@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
+import { RouterView } from "vue-router";
 import ChatWrapper from "@/components/chat/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
 import NavBar from "./components/NavBar.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
-import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
+import router from "./router";
+import { fetchUser } from "./utils";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
 const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
-
 const cookies = inject<VueCookies>("$cookies");
 
-const fetchUser = async () => {
-  const jwt = cookies?.get("access_token");
-  user.fetchUser(jwt);
-};
+onMounted(async () => {
+  await fetchUser(cookies, user);
+});
 
-onMounted(() => {
-  fetchUser();
+router.beforeEach(async (to, from) => {
+  await fetchUser(cookies, user);
 });
 
 const toggleChat = () => {
@@ -34,12 +33,12 @@ const toggleChat = () => {
 const toggleLogin = () => {
   showLogin.value = !showLogin.value;
   showSignup.value = false;
-  fetchUser();
+  fetchUser(cookies, user);
 };
 
 const toggleSignUp = () => {
   showSignup.value = !showSignup.value;
-  fetchUser();
+  fetchUser(cookies, user);
 };
 </script>
 
@@ -49,7 +48,7 @@ const toggleSignUp = () => {
       :user="user"
       :showLogin="showLogin"
       @login="toggleLogin"
-      @logout="fetchUser"
+      @logout="fetchUser(cookies, user)"
       class="navbar"
     />
     <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">

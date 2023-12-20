@@ -6,4 +6,5 @@ export interface User {
   losses?: number
   position?: number
   avatar?: string
+  fetchUser?: Function
 }
