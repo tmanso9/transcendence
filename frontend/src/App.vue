@@ -7,6 +7,7 @@ import NavBar from "./components/NavBar.vue";
 import { onMounted, ref } from "vue";
 import { useUserStore } from "./stores/user";
 import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 
 const showLogin = ref(false)
 const showSignup = ref(false)
@@ -14,11 +15,15 @@ const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
 
-const cookies = inject('$cookies')
+const cookies = inject<VueCookies>('$cookies')
 
 const fetchUser = async () => {
-  const jwt = cookies.get("access_token");
-  user.fetchUser(jwt)
+  const jwt = cookies?.get("access_token");
+  await user.fetchUser(jwt)
+  if (!user.username) {
+	cookies?.set("access_token", "")
+	cookies?.set("refresh_token", "")
+  }
 };
 
 onMounted(() => {
