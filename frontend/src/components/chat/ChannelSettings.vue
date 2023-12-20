@@ -3,10 +3,12 @@ import { chatAppStore } from "@/store/chat";
 import { ref } from "vue";
 import PersonalSettings from "./PersonalSettings.vue";
 import SettingsPopUp from "./SettingsPopUp.vue";
+import { useDisplay } from "vuetify/lib/framework.mjs";
 
 const store = chatAppStore();
 const channelSettings = ref(false);
 const channel = ref(store.getChannelInfo(store.selectedChannel));
+const { height } = useDisplay();
 </script>
 <template>
   <v-icon
@@ -36,6 +38,7 @@ const channel = ref(store.getChannelInfo(store.selectedChannel));
             channelSettings = false;
           }
         "
+				:size="height > 700 ? 'medium' : 'small'"
       ></v-icon>
     </div>
     <div class="channelSettings-content">
