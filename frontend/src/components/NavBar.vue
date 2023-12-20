@@ -11,19 +11,44 @@
     </a>
     <v-spacer></v-spacer>
     <RouterLink to="/">
-      <v-btn> Home </v-btn>
+      <v-btn
+        class="navbar__link"
+        :ripple="{ class: 'text-deep-purple-darken-2' }"
+      >
+        Home
+      </v-btn>
     </RouterLink>
     <RouterLink to="/play">
-      <v-btn> Play </v-btn>
+      <v-btn
+        class="navbar__link"
+        :ripple="{ class: 'text-deep-purple-darken-2' }"
+      >
+        Play
+      </v-btn>
     </RouterLink>
     <RouterLink to="/ranking">
-      <v-btn> Leaderboard </v-btn>
+      <v-btn
+        class="navbar__link"
+        :ripple="{ class: 'text-deep-purple-darken-2' }"
+      >
+        Leaderboard
+      </v-btn>
     </RouterLink>
     <RouterLink v-if="user.username.length" :to="`/users/${user.username}`">
-      <v-btn> Account </v-btn>
+      <v-btn
+        class="navbar__link"
+        :ripple="{ class: 'text-deep-purple-darken-2' }"
+      >
+        Account
+      </v-btn>
     </RouterLink>
     <RouterLink to="/about">
-      <v-btn> About </v-btn>
+      <v-btn
+        class="navbar__link"
+        :ripple="{ class: 'text-deep-purple-darken-2 ' }"
+      >
+        About
+      </v-btn>
     </RouterLink>
     <v-spacer></v-spacer>
     <div class="mr-10">
@@ -60,6 +85,9 @@ const logOut = async () => {
 .navbar {
   &__ft_logo .v-img__img {
     position: relative;
+  }
+  &__link:active {
+    color: white;
   }
 }
 </style>
