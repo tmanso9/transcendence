@@ -1,23 +1,41 @@
-<script lang="ts" setup>
-import StatsWrapper from '@/components/StatsWrapper.vue'
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+<template>
+  <account-wrapper v-if="isLoaded" :account="account" />
+  <h2 v-else-if="unauthorized">
+    You must be logged in to see {{ getUsername }}'s profile
+  </h2>
+  <not-found-wrapper v-else />
+</template>
 
-const route = useRoute()
+<script lang="ts" setup>
+import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
+import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
+import { ref, onBeforeMount, computed } from "vue";
+import { useRoute } from "vue-router";
+import { fetchUser } from "@/utils";
+import { User } from "@/types";
+
+const route = useRoute();
 
 const getUsername = computed(() => {
-  const path = route.path
-  return path.split('/')[2] || 'Please login'
-})
+  const path = route.path;
+  return path.split("/")[2] || "Please login";
+});
 
-//TODO: add fetch request and check for valid username
+const account = ref<User>({});
+const isLoaded = ref(false);
+const unauthorized = ref(false);
+
+onBeforeMount(async () => {
+  try {
+    account.value = await fetchUser(getUsername.value);
+    if (account.value.username) isLoaded.value = true;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "Unauthorized") unauthorized.value = true;
+      console.log(error);
+    }
+  }
+});
 </script>
-
-<template>
-  <div>
-    <h2>{{ getUsername }}'s account</h2>
-    <stats-wrapper />
-  </div>
-</template>
 
 <style></style>

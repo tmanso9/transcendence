@@ -22,6 +22,11 @@ enum ConnectionStatus {
   ACCEPTED
 }
 
+enum Rank {
+  GURU
+  PRO
+  NOOBIE
+}
 enum Login {
   REGULAR
   FORTYTWO
@@ -44,6 +49,7 @@ model User {
   username String @unique // username
   status Status // user status
   avatar String // user avatar
+  rank Rank @default(NOOBIE) // player rank
   login Login //user login method
   tfa_secret String // secret string associated with two factor authentication
   tfa_enabled Boolean // does the user have tfa enabled
