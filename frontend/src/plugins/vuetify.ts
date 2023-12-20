@@ -27,12 +27,12 @@ import { createVuetify } from "vuetify";
 
 export default createVuetify({
   theme: {
-	defaultTheme: 'dark',
+    defaultTheme: "dark",
     themes: {
       light: {
         colors: {
-          primary: '#1867C0',
-          secondary: '#5CBBF6',
+          primary: "#fc5dfc",
+          secondary: "#f75cf7",
         },
       },
     },
