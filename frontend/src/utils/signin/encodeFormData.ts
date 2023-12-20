@@ -12,5 +12,3 @@ export const encodeFormData = (values: Ref<string>[], propertyNames: string[]) =
 
   return formData.join("&");
 };
-
-// export default encodeFormData
