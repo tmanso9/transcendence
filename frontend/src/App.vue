@@ -72,7 +72,7 @@ const toggleSignUp = () => {
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper v-if="showChat" />
     </v-main>
-    <v-footer height="1" class="pa-0">
+    <v-footer height="1" class="pa-0" style="z-index: 2;">
       <v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
     </v-footer>
   </v-app>

@@ -13,7 +13,7 @@
   width: 22em;
   background-color: map-get($color, darker);
   border-radius: 1em 1em 0 0;
-  z-index: 10000;
+  z-index: 1;
 }
 
 .chatBox > .chatBar {
