@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: row;
   width: 22em;
-  background-color: map-get($color, dark);
+  background-color: map-get($color, darker);
   border-radius: 1em 1em 0 0;
 }
 

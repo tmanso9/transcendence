@@ -20,7 +20,6 @@ const store = chatAppStore();
           }
         "
         icon="mdi-chat-plus"
-        color="primary"
         :size="height > 700 ? 'large' : 'medium'"
       ></v-icon>
     </div>
@@ -39,7 +38,6 @@ const store = chatAppStore();
             <template v-slot:prepend>
               <v-icon
                 :icon="item.avatar"
-                color="primary"
                 :size="height > 700 ? 'small' : 'x-small'"
               ></v-icon>
             </template>
@@ -63,7 +61,6 @@ const store = chatAppStore();
               <div class="contactElement-publicChan-pofile">
                 <v-icon
                   :icon="item.avatar"
-                  color="secondary"
                   class="contactElement-publicChan-pofile-avatar"
                   :size="height > 700 ? 'small' : 'x-small'"
                 ></v-icon>
@@ -73,19 +70,14 @@ const store = chatAppStore();
                 v-if="item.password == 'yes'"
                 append-icon="mdi-lock"
                 :size="height > 700 ? 'small' : 'x-small'"
-                color="secondary"
                 >Join</v-btn
               >
               <v-btn
                 v-else-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
-                color="secondary"
                 >Talk</v-btn
               >
-              <v-btn
-                v-else
-                :size="height > 700 ? 'small' : 'x-small'"
-                color="secondary"
+              <v-btn v-else :size="height > 700 ? 'small' : 'x-small'"
                 >Join</v-btn
               >
             </div>

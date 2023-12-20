@@ -29,10 +29,10 @@ export default createVuetify({
   theme: {
     defaultTheme: "dark",
     themes: {
-      light: {
+      dark: {
         colors: {
-          primary: "#fc5dfc",
-          secondary: "#f75cf7",
+          primary: "#582258",
+          secondary: "#ffadff",
         },
       },
     },

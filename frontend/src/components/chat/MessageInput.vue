@@ -7,20 +7,15 @@ const { height } = useDisplay();
   <div class="messageWriteBox">
     <v-text-field
       label="Write..."
-      color="primary"
+      color="secondary"
       variant="outlined"
       size="x-small"
       clearable
     >
-      <template v-slot:append-inner><v-icon></v-icon></template>
+      <template v-slot:append-inner
+        ><v-icon icon="mdi-send" @click="$emit('scrollMessages')"> </v-icon
+      ></template>
     </v-text-field>
-    <v-icon
-      icon="mdi-send"
-      @click="$emit('scrollMessages')"
-      color="primary"
-      :size="height > 700 ? 'large' : 'medium'"
-      class="sendMessageButton"
-    ></v-icon>
   </div>
 </template>
 <style scoped lang="scss"></style>

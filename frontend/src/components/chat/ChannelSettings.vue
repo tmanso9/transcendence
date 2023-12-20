@@ -38,7 +38,7 @@ const { height } = useDisplay();
             channelSettings = false;
           }
         "
-				:size="height > 700 ? 'medium' : 'small'"
+				:size="height > 700 ? 'large' : 'medium'"
       ></v-icon>
     </div>
     <div class="channelSettings-content">

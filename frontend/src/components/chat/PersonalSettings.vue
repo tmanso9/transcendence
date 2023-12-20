@@ -33,13 +33,11 @@ const channel = store.getChannelInfo(store.selectedChannel);
       <div class="channelSettings-content-buttons">
         <v-btn
           class="channelSettings-content-buttons-btn"
-          color="primary"
           append-icon="mdi-face-man-profile"
           >Profile</v-btn
         >
         <v-btn
           class="channelSettings-content-buttons-btn"
-          color="green"
           append-icon="mdi-table-tennis"
           >Play Game</v-btn
         >

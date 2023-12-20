@@ -23,7 +23,7 @@ const { height } = useDisplay();
             </v-chip>
             <v-chip
               size="x-small"
-              color="primary"
+              color="secondary"
               class="messageSentByCurrentUser"
             >
               {{ item.sender }}
@@ -33,7 +33,7 @@ const { height } = useDisplay();
             <v-chip>
               {{ item.content }}
             </v-chip>
-            <v-chip size="x-small" color="primary">
+            <v-chip size="x-small" color="secondary">
               {{ item.sender }}
             </v-chip>
           </div>
