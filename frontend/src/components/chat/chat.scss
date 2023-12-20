@@ -1,0 +1,281 @@
+@import "../../styles/settings.scss";
+
+.sendMessageButton {
+  margin-left: 1em;
+  transform: translateY(-0.5em);
+}
+
+.chatBox {
+  position: absolute;
+  bottom: 7em;
+  display: flex;
+  flex-direction: row;
+  background-color: map-get($color, dark);
+  border-radius: 1em 1em 0 0;
+}
+
+.chatBox > .chatBar {
+  display: flex;
+  flex-direction: column;
+  width: 23em;
+  padding: 0 0.5em;
+  border-radius: 1em 1em 0 0;
+  border-left: solid 0.2em map-get($color, primary);
+  border-top: solid 0.2em map-get($color, primary);
+  border-right: solid 0.2em map-get($color, primary);
+  padding-bottom: 2em;
+}
+
+.chatBox > .chatMessagesBox {
+  display: flex;
+  flex-direction: column;
+  width: 23em;
+  border-radius: 1em 1em 0 0;
+  border-top: solid 0.2em map-get($color, primary);
+  border-right: solid 0.2em map-get($color, primary);
+  border-left: solid 0.2em map-get($color, primary);
+}
+
+.messageScroll {
+  padding: 0 1em;
+}
+
+.chatBox > .chatMessagesBox > .messageWriteBox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: black;
+  padding: 0.5em 1em 0.5em 1em;
+}
+
+.messageChip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0.5em 0;
+}
+
+.messageSentByCurrentUser {
+  float: right;
+}
+
+.messageSentOrReceived {
+  width: 100%;
+  overflow: hidden;
+}
+
+.chatBox > .chatMessagesBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.chatBox > .chatBar > .chatTopBar > h3 {
+  display: flex;
+  align-items: center; /* Vertical alignment */
+  justify-content: center;
+}
+
+.chatBox > .chatBar > .chatConversations > .contactsScroller {
+  border-radius: 1em;
+}
+
+.chatTopBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em 1em 1em 1em;
+}
+
+.contactElement-publicChan {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  &-pofile {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+// .contactElement-publicChan-pofile {
+// }
+
+.contactElement-publicChan-pofile-avatar {
+  margin-right: 1em;
+}
+
+.channelHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: map-get($color, primary);
+  border-radius: 0.8em 0.8em 0 0;
+  padding: 1em 1em;
+}
+
+.channelHeader-profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.channelHeader-profile-avatar {
+  margin-right: 1em;
+}
+
+.createChannelPopUp {
+  position: absolute;
+  padding: 1em;
+  background-color: map-get($color, dark);
+  width: 98%;
+  bottom: 0;
+  left: 1%;
+  border-radius: 1em 1em 0 0;
+  border-top: solid 0.1em map-get($color, primary);
+  height: 90%;
+  justify-content: center;
+}
+
+.createChannelPopUp-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.createChannelPopUp-options {
+  margin: 1em 0;
+  border: solid 0.1em map-get($color, light);
+  border-radius: 1em;
+  padding-top: 0.5em;
+}
+
+.createChannelPopUp-friends {
+  border: solid 0.1em map-get($color, light);
+  border-radius: 1em;
+  padding-top: 0.5em;
+}
+
+.newChannelHeader {
+  margin-bottom: 1em;
+}
+
+.channelSettings {
+  position: absolute;
+  padding: 1em;
+  background-color: map-get($color, dark);
+  width: 98%;
+  bottom: 0;
+  left: 1%;
+  border-radius: 1em 1em 0 0;
+  border-top: solid 0.1em map-get($color, primary);
+  height: 98%;
+  z-index: 1;
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 2em;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+
+    &-buttons {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      justify-content: space-around;
+      height: 10em;
+    }
+
+    &-profile {
+      justify-content: center;
+    }
+
+    &-info {
+      margin-top: 0.5em;
+    }
+
+    &-users {
+      margin-top: 2em;
+      padding: 0 1em;
+      margin-bottom: 2em;
+
+      &-user {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+        padding: 0.5em 1em;
+        border: solid 0.1em map-get($color, primary);
+        border-radius: 1em;
+        margin: 0.5em 0;
+
+        :hover > & {
+          cursor: pointer;
+          background-color: map-get($color, light-dark);
+        }
+
+        &-profile {
+          display: flex;
+          flex-direction: row;
+
+          &-icon {
+            margin-right: 0.5em;
+          }
+        }
+
+        &-operator {
+          color: map-get($color, secondary);
+        }
+      }
+    }
+  }
+}
+
+.userSettingPopUp {
+  position: absolute;
+  padding: 1em;
+  background-color: map-get($color, dark);
+  width: 98%;
+  bottom: 0;
+  left: 1%;
+  border-radius: 1em 1em 0 0;
+  border-top: solid 0.1em map-get($color, primary);
+  height: 80%;
+  z-index: 1;
+
+  &-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 2em;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+
+    &-profile {
+      display: flex;
+      flex-direction: row;
+    }
+
+    &-info {
+      display: flex;
+      flex-direction: column;
+
+      &-btn {
+        margin-bottom: 0.5em;
+      }
+    }
+  }
+}
