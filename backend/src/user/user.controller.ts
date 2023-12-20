@@ -19,6 +19,12 @@ export class UserController {
 		return this.userService.getMe(user);
 	}
 
+	@UseGuards(JwtGuard)
+	@Get(':username')
+	getUserById(@Param('username') username: string) {
+		return this.userService.getUserById(username);
+	}
+
 	// Send Friend Request
 	@UseGuards(JwtGuard)
 	@Post('friend-request/:id')
