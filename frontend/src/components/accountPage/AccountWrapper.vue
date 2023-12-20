@@ -3,8 +3,9 @@
   <account-header
     class="d-flex ma-5 mx-auto w-75 justify-space-around align-center"
     :account="account"
+    :isSelf="isSelf"
   />
-  <interact-buttons :account="account" />
+  <interact-buttons :account="account" :isSelf="isSelf" />
   <v-expansion-panels
     variant="popout"
     class="my-5 mx-auto"
@@ -24,10 +25,12 @@ import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
 import { useDisplay } from "vuetify";
+import { useUserStore } from "@/stores/user";
 
 const { mdAndUp } = useDisplay();
 
 const props = defineProps(["account"]);
+const user = useUserStore();
 
 const computedStats = computed(() => {
   const { wins, losses, points } = props.account;
@@ -36,6 +39,10 @@ const computedStats = computed(() => {
     losses: { name: "losses", value: losses },
     points: { name: "points", value: points },
   };
+});
+
+const isSelf = computed(() => {
+  return user.username && user.username === props.account.username;
 });
 </script>
 

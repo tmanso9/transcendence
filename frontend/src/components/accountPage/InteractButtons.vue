@@ -22,13 +22,9 @@ import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
 
-const props = defineProps(["account"]);
+defineProps(["account", "isSelf"]);
 const user = useUserStore();
 const { sm, mdAndUp } = useDisplay();
-
-const isSelf = computed(() => {
-  return user.username && user.username === props.account.username;
-});
 
 const headerButtons = [
   { text: "Chat", icon: "mdi-chat-outline" },
