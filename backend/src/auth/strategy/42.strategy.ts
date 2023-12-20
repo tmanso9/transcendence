@@ -7,8 +7,8 @@ import { Profile, Strategy } from 'passport-42';
 export class Strategy42 extends PassportStrategy(Strategy, '42') {
   constructor(configService: ConfigService) {
     super({
-      clientID: configService.get<string>('42LOGIN_CLIENT_UID'),
-      clientSecret: configService.get<string>('42LOGIN_CLIENT_SECRET'),
+      clientID: configService.get<string>('FTLOGIN_CLIENT_UID'),
+      clientSecret: configService.get<string>('FTLOGIN_CLIENT_SECRET'),
       callbackURL: 'http://localhost:3000/auth/callback',
       scope: ['public'],
     });
