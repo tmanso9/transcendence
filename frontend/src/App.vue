@@ -48,7 +48,7 @@ const toggleSignUp = () => {
       :user="user"
       :showLogin="showLogin"
       @login="toggleLogin"
-      @logout="fetchUser"
+      @logout="fetchUser(cookies, user)"
       class="navbar"
     />
     <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
