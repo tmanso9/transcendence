@@ -16,11 +16,11 @@ export class Strategy42 extends PassportStrategy(Strategy, '42') {
 
   async validate(accessToken: string, _refreshToken: string, profile: Profile) {
     const user = {
-        email: profile.emails[0].value,
-        username: profile.username,
-        avatar: profile._json.image.link,
-        accessToken
-    }
+      email: profile.emails[0].value,
+      username: profile.username,
+      avatar: profile._json.image.link,
+      accessToken,
+    };
     return user;
   }
 }
