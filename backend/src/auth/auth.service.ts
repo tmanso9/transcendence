@@ -34,7 +34,8 @@ export class AuthService {
 					password: hashed,
 					username: dto.username,
 					avatar: '#',
-					status: "OFFLINE"
+					status: "OFFLINE",
+					login: "REGULAR"
 				},
 			});
 			delete user.password;
@@ -115,6 +116,7 @@ export class AuthService {
 						username: user_name,
 						avatar: data.picture,
 						status: "ONLINE",
+						login: "GOOGLE"
 					}
 				});
 			} catch (error) {
@@ -151,6 +153,7 @@ export class AuthService {
                 username: user.username,
                 status: 'ONLINE',
                 avatar: user.avatar,
+				login: "FORTYTWO"
             },
             update: {
                 status: 'ONLINE',
@@ -160,7 +163,7 @@ export class AuthService {
             }
         })
 
-		const accessToken = await this.signToken(profile.id, profile.email, '1m');
+		const accessToken = await this.signToken(profile.id, profile.email, '10m');
 		const refresh_token = await this.signToken(user.id, user.email, '24h');
 
      	return { ...profile, accessToken, refresh_token };
@@ -208,9 +211,7 @@ export class AuthService {
 				expiresIn: decoded['exp'],
 			}})
 		}
-		//await setTimeout(async () => {
-		//	await this.prisma.blacklist.delete({where: {token: accessToken}})
-		//}, 15 * 60 * 1000);
+
 		const now = Math.floor(Date.now() / 1000);
 		await this.prisma.blacklist.deleteMany({where: {expiresIn: {lte: now}}});
 		const user = this.prisma.user.update({
@@ -233,14 +234,20 @@ export class AuthService {
 		if (accessDecoded.exp > now)
 			throw new UnauthorizedException('Access token is not expired');
 
-		//validate refresh token
-		if (!refreshDecoded || refreshDecoded.exp < now)
-			throw new UnauthorizedException('Non-existent or expired refresh token');
-
+		if (!refreshDecoded)
+			throw new UnauthorizedException('Invalid refresh token format')
+		
 		const user = await this.prisma.user.findUnique({where: {email: refreshDecoded.email}});
 
 		if (!user)
 			throw new UnauthorizedException('Invalid refresh token');
+
+		//validate refresh token
+		if (refreshDecoded.exp < now)
+		{
+			await this.prisma.user.update({data: {status: "OFFLINE"}, where: {email: user.email}})
+			throw new UnauthorizedException('Expired refresh token');
+		}
 
 		await this.prisma.blacklist.deleteMany({where: {expiresIn: {lte: now}}});
 		
@@ -248,7 +255,8 @@ export class AuthService {
 
 		if (blacklisted)
 		{
-			return {newAccessToken: '', newRefreshToken: ''};
+			const updatedUser = await this.prisma.user.update({data: {status: "BLOCKED"}, where: {email: user.email}})
+			return {newAccessToken: '', newRefreshToken: '', updatedUser};
 		}
 
 		await this.prisma.blacklist.create({data: {
