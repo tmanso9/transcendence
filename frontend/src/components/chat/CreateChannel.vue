@@ -93,7 +93,7 @@ const channelIsPublic = ref(false);
     </div>
     <v-virtual-scroll
       :items="store.friendsWithTick"
-      height="300"
+      height="200"
       class="createChannelPopUp-friends"
     >
       <template v-slot:default="{ item }">

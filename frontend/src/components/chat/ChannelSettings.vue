@@ -53,7 +53,7 @@ const { height } = useDisplay();
       <v-virtual-scroll
         v-if="channel"
         :items="store.channelMembers(channel.name)"
-        height="250"
+        height="150"
         class="channelSettings-content-users"
       >
         <template v-slot:default="{ item }"
@@ -98,11 +98,11 @@ const { height } = useDisplay();
           </div>
         </template>
       </v-virtual-scroll>
+			<v-btn color="warning">Leave Group</v-btn>
       <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
       <personal-settings
         v-else-if="store.personalPopUpSettings"
       ></personal-settings>
-      <v-btn color="warning">Leave Group</v-btn>
     </div>
   </div>
 </template>

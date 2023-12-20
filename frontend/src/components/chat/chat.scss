@@ -7,7 +7,7 @@
 
 .chatBox {
   position: absolute;
-  bottom: 10%;
+  bottom: 12%;
   display: flex;
   flex-direction: row;
   width: 22em;
@@ -47,7 +47,7 @@
   flex-direction: row;
   align-items: center;
   background-color: black;
-  padding: 0.5em 1em 0.5em 1em;
+  padding: 1em 0.5em 0 0.5em;
 }
 
 .messageChip {
@@ -253,7 +253,7 @@
   left: 1%;
   border-radius: 1em 1em 0 0;
   border-top: solid 0.1em map-get($color, primary);
-  height: 80%;
+  height: 85%;
   z-index: 1;
 
   &-header {

@@ -9,7 +9,6 @@ const { height } = useDisplay();
       label="Write..."
       color="secondary"
       variant="outlined"
-      size="x-small"
       clearable
     >
       <template v-slot:append-inner
