@@ -121,11 +121,16 @@ const twoFAEnabled = ref(false);
 
 const generateCode = async (val: Selected) => {
   if (!val.value) return;
-  console.log("generating code");
-  // try {
-  // } catch (error) {
-  // }
-  QRSource.value = "/qr--mock--TO-DELETE.png";
+  try {
+    const result = await fetch("http://localhost:3000/auth/2fa/generate", {
+      credentials: "include",
+    });
+    //check for errors
+    const data = await result.text();
+    QRSource.value = data;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const updateAccount = (user: User) => {
