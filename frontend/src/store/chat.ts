@@ -1,6 +1,20 @@
 // Utilities
 import { defineStore } from "pinia";
+import { Socket, io } from "socket.io-client";
 import { ref } from "vue";
+
+const socket = io("http://localhost:3000");
+socket.on("connect", () => {
+  console.log("connection id: ", socket.id);
+});
+socket.on("disconnect", () => {
+  socket.close();
+  window.location.reload();
+});
+
+socket.on("test", (msg) => {
+  console.log("server: ", msg);
+});
 
 export const chatAppStore = defineStore("chat", () => {
   // Data
@@ -185,7 +199,7 @@ export const chatAppStore = defineStore("chat", () => {
     password: string,
     avatar: string,
     name: string,
-    members: string[]
+    members: string[],
   ) {
     if (
       (type != "personal" && type != "public" && type != "private") ||
@@ -290,6 +304,10 @@ export const chatAppStore = defineStore("chat", () => {
     return undefined;
   }
 
+  function testWebSockets() {
+    socket.emit("test", "hello server, im frontend");
+  }
+
   return {
     friends,
     allUsers,
@@ -311,5 +329,6 @@ export const chatAppStore = defineStore("chat", () => {
     isAdmin,
     isBlockedFromChannel,
     findUserByUsername,
+    testWebSockets,
   };
 });
