@@ -7,6 +7,8 @@ import { catchError, firstValueFrom } from "rxjs";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import { authenticator } from "otplib";
+import { toDataURL } from "qrcode";
 
 @Injectable()
 export class AuthService {
@@ -35,7 +37,9 @@ export class AuthService {
 					username: dto.username,
 					avatar: '#',
 					status: "OFFLINE",
-					login: "REGULAR"
+					login: "REGULAR",
+					tfa_enabled: false,
+					tfa_secret: ''
 				},
 			});
 			delete user.password;
@@ -73,18 +77,25 @@ export class AuthService {
 			throw new ForbiddenException('Invalid Password');
 
 		// Update user status
-		await this.prisma.user.update({
-			where: { email: dto.email },
-			data: { status: "ONLINE" }
-		});
+		if (!user.tfa_enabled) {
+			await this.prisma.user.update({
+				where: { email: dto.email },
+				data: { status: "ONLINE" }
+			});
+		}
+		
+		let access_token = "";
+		let refresh_token = "";
+		
+		if (!user.tfa_enabled) {
+			access_token = await this.signToken(user, '10m');
+			refresh_token = await this.signToken(user, '24h');
+		}
 
-		const access_token = await this.signToken(user.id, user.email, '10m');
-		const refresh_token = await this.signToken(user.id, user.email, '24h');
 		return {
 			access_token,
 			refresh_token,
-			email: user.email,
-			username: user.username,
+			user
 		};
 	}
 
@@ -116,7 +127,9 @@ export class AuthService {
 						username: user_name,
 						avatar: data.picture,
 						status: "ONLINE",
-						login: "GOOGLE"
+						login: "GOOGLE",
+						tfa_enabled: false,
+						tfa_secret: ''
 					}
 				});
 			} catch (error) {
@@ -131,8 +144,8 @@ export class AuthService {
 			});
 		}
 
-		const access_token = await this.signToken(user.id, user.email, '10m');
-		const refresh_token = await this.signToken(user.id, user.email, '24h');
+		const access_token = await this.signToken(user, '10m');
+		const refresh_token = await this.signToken(user, '24h');
 		return {
 			access_token,
 			refresh_token,
@@ -153,7 +166,9 @@ export class AuthService {
                 username: user.username,
                 status: 'ONLINE',
                 avatar: user.avatar,
-				login: "FORTYTWO"
+				login: "FORTYTWO",
+				tfa_enabled: false,
+				tfa_secret: ''
             },
             update: {
                 status: 'ONLINE',
@@ -163,8 +178,8 @@ export class AuthService {
             }
         })
 
-		const accessToken = await this.signToken(profile.id, profile.email, '10m');
-		const refresh_token = await this.signToken(user.id, user.email, '24h');
+		const accessToken = await this.signToken(profile, '10m');
+		const refresh_token = await this.signToken(profile, '24h');
 
      	return { ...profile, accessToken, refresh_token };
     }
@@ -182,10 +197,10 @@ export class AuthService {
 		return username;
 	}
 
-	async signToken(id: string, email: string, duration: any): Promise<string> {
+	async signToken(user: any, duration: any): Promise<string> {
 		const payload = {
-			sub: id,
-			email,
+			sub: user.id,
+			email: user.email,
 		};
 
 		const access_token = await this.jwt.signAsync(payload, {
@@ -265,10 +280,64 @@ export class AuthService {
 			expiresIn: refreshDecoded.exp,
 		}})
 
-		const newAccessToken = await this.signToken(user.id, user.email, '10m');
-		const newRefreshToken = await this.signToken(user.id, user.email, refreshDecoded.exp - now);
+		const newAccessToken = await this.signToken(user, '10m');
+		const newRefreshToken = await this.signToken(user, refreshDecoded.exp - now);
 
 
 		return { newAccessToken, newRefreshToken, user };
+	}
+
+	/***** TWO FACTOR AUTHENTICATION *****/
+
+	async generateTwoFactorAuthenticationSecret(user: any) {
+		const secret = authenticator.generateSecret();
+	
+		const otpAuthUrl = authenticator.keyuri(
+		  user.email,
+		  'Transcendence',
+		  secret,
+		);
+	
+		await this.prisma.user.update({where: {email: user.email}, data: {tfa_secret: secret}});
+	
+		return otpAuthUrl;
+	}
+	
+	generateQrCodeDataURL(otpAuthUrl: string) {
+		return toDataURL(otpAuthUrl);
+	}
+
+	async turnOnTwoFactorAuthentication(user: any) {
+		const newUser = await this.prisma.user.update({where: {email: user.email}, data: {tfa_enabled: true}});
+		return newUser;
+	}
+
+	isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, user: any) {
+		return authenticator.verify({
+		  token: twoFactorAuthenticationCode,
+		  secret: user.tfa_secret,
+		});
+	}
+
+	async login2fa(user: any) {
+		const updatedUser = await this.prisma.user.update({where: {email: user.email}, data: {status: "ONLINE"}});
+
+		const access_token = await this.signToken(updatedUser, '10m');
+		const refresh_token = await this.signToken(updatedUser, '24h');
+
+		return {access_token, refresh_token, updatedUser};
+	}
+
+	/***** UTILS *****/
+
+	async getUserFromToken(token: string) {
+		const decoded = this.jwt.decode(token);
+		const user = await this.prisma.user.findUnique({where: {email: decoded.email}});
+		return user;
+	}
+
+	async getUserFromEmail(emailToFind: string) {
+		const user = await this.prisma.user.findUnique({where: {email: emailToFind}});
+		return user;
 	}
 }

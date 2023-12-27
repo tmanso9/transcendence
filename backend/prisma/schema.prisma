@@ -45,6 +45,8 @@ model User {
   status Status // user status
   avatar String // user avatar
   login Login //user login method
+  tfa_secret String // secret string associated with two factor authentication
+  tfa_enabled Boolean // does the user have tfa enabled
 
   points Int @default(0)  // Total points of the user
   wins Int @default(0)  // Number of wins
