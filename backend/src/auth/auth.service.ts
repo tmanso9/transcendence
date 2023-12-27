@@ -312,6 +312,11 @@ export class AuthService {
 		return newUser;
 	}
 
+	async turnOffTwoFactorAuthentication(user: any) {
+		const newUser = await this.prisma.user.update({where: {email: user.email}, data: {tfa_enabled: false}});
+		return newUser;
+	}
+
 	isTwoFactorAuthenticationCodeValid(twoFactorAuthenticationCode: string, user: any) {
 		return authenticator.verify({
 		  token: twoFactorAuthenticationCode,

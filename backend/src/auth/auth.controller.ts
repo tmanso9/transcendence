@@ -150,6 +150,20 @@ export class AuthController {
 		return newUser;
 	}
 
+	@Post('2fa/turn-off')
+	@UseGuards(JwtGuard)
+	async turnOffTFA(@Req() request: Request, @Body() body: any) {
+
+		const user = await this.authService.getUserFromToken(request.cookies['access_token']);
+
+		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(body.tfa_code, user);
+		if (!isCodeValid)
+			throw new ForbiddenException('Wrong authentication code');
+
+		const newUser = await this.authService.turnOffTwoFactorAuthentication(user);
+		return newUser;
+	}
+
 	@Post('2fa/authenticate')
 	async authenticate(@Body() body: any, @Res({ passthrough: true }) response: Response) {
 
