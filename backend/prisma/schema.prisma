@@ -21,11 +21,11 @@ model User {
   email      String     @unique
   password   String
   username   String     @unique
-  status     Status
-  avatar     String
+  losses     Int        @default(0)
   points     Int        @default(0)
   wins       Int        @default(0)
-  losses     Int        @default(0)
+  avatar     String
+  status     Status
   adminOf    Channels[] @relation("Admins")
   bannedFrom Channels[] @relation("Banned")
   User_A     User[]     @relation("Friends")
@@ -35,12 +35,12 @@ model User {
 }
 
 model Blacklist {
-  id        Int      @id @default(autoincrement())
-  token     String
-  sub       String
   email     String
   expiresIn Int
   createdAt DateTime @default(now())
+  token     String
+  sub       String
+  id        Int      @id @default(autoincrement())
 }
 
 model Gamestats {
