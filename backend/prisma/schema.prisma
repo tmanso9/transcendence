@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -5,58 +8,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-model Connections {
-  id       String           @id @default(uuid())
-  status   ConnectionStatus @default(PENDING)
-  creator  String
-  receiver String
-}
-
-model User {
-  id         String     @id @default(uuid())
-  createdAt  DateTime   @default(now())
-  editedAt   DateTime   @updatedAt
-  email      String     @unique
-  password   String
-  username   String     @unique
-  losses     Int        @default(0)
-  points     Int        @default(0)
-  wins       Int        @default(0)
-  avatar     String
-  status     Status
-  adminOf    Channels[] @relation("Admins")
-  bannedFrom Channels[] @relation("Banned")
-  User_A     User[]     @relation("Friends")
-  User_B     User[]     @relation("Friends")
-  channels   Channels[] @relation("Members")
-  mutedOn    Channels[] @relation("Muted")
-}
-
-model Blacklist {
-  email     String
-  expiresIn Int
-  createdAt DateTime @default(now())
-  token     String
-  sub       String
-  id        Int      @id @default(autoincrement())
-}
-
-model Gamestats {
-  id String @id @default(uuid())
-}
-
-model Channels {
-  id          String @id @default(uuid())
-  creator     String
-  password    String @default("")
-  channelName String
-  messages    Json[]
-  admins      User[] @relation("Admins")
-  bannedUsers User[] @relation("Banned")
-  members     User[] @relation("Members")
-  mutedUsers  User[] @relation("Muted")
 }
 
 enum Status {
@@ -74,4 +25,59 @@ enum ChannelType {
   PERSONAL
   PRIVATE
   PUBLIC
+}
+
+model Connections {
+  id       String           @id @default(uuid())
+  status   ConnectionStatus @default(PENDING)
+  creator  String
+  receiver String
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) // user creation time
+  editedAt  DateTime @updatedAt() // last user edit
+  email     String   @unique // user email
+  password  String // hashed password
+  username  String   @unique // username
+  status    Status // user status
+  avatar    String // user avatar
+
+  points Int @default(0) // Total points of the user
+  wins   Int @default(0) // Number of wins
+  losses Int @default(0) // Number of losses
+
+  friends  User[] @relation("Friends") // array of friends
+  friendOf User[] @relation("Friends") // array of friends
+
+  channels   Channels[] @relation("Members") // array of channels of which the user is part
+  adminOf    Channels[] @relation("Admins") // array of channels of which the user is an admin
+  bannedFrom Channels[] @relation("Banned") //array of channels from which the user is banned
+  mutedOn    Channels[] @relation("Muted") // array of channels on which the user is muted
+}
+
+model Blacklist {
+  id        Int      @id @default(autoincrement())
+  token     String
+  sub       String
+  email     String
+  expiresIn Int
+  createdAt DateTime @default(now())
+}
+
+model Gamestats {
+  id String @id @default(uuid())
+}
+
+model Channels {
+  id          String @id @default(uuid()) // id of the channel
+  creator     String // id of the User who created the chat
+  password    String @default("") // hashed password to access the chat (optional - empty of not desired)
+  channelName String // name of the channel
+  members     User[] @relation("Members") // array of members who are part of the channel
+  messages    Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
+  admins      User[] @relation("Admins") // array of IDs of the admins
+  bannedUsers User[] @relation("Banned") // array of banned users
+  mutedUsers  User[] @relation("Muted") // array of muted users
 }
