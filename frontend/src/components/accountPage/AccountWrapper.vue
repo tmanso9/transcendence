@@ -28,11 +28,15 @@ import InteractButtons from "./InteractButtons.vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/stores/user";
 import { User } from "@/types";
+import { fetchMe } from "@/utils";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 
 const { mdAndUp } = useDisplay();
 
 const props = defineProps(["account"]);
 const user = useUserStore();
+const cookies = inject<VueCookies>("$cookies");
 
 const computedStats = computed(() => {
   const { wins, losses, points } = props.account;
@@ -47,8 +51,9 @@ const isSelf = computed(() => {
   return user.username && user.username === props.account.username;
 });
 
-const updateAccount = (newUser: User) => {
+const updateAccount = async (newUser: User) => {
   console.log(newUser);
+  await fetchMe(cookies, user);
   // if (newUser.username) user.username = newUser.username
 };
 </script>

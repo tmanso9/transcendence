@@ -4,7 +4,17 @@
       <v-icon v-bind="props" @click="dialog = true"> mdi-cog-outline </v-icon>
       <v-dialog v-model="dialog" class="w-50 text-center">
         <v-card class="py-3 edit-user my-auto">
-          <v-expansion-panels variant="accordion" class="my-5 w-75 mx-auto">
+          <p
+            v-if="sent"
+            class="text-success mb-n2 text-overline edit-user__2fa__toggle"
+          >
+            2FA enabled successfully
+          </p>
+          <v-expansion-panels
+            variant="accordion"
+            class="my-5 w-75 mx-auto"
+            v-model="panel"
+          >
             <v-expansion-panel title="Change username">
               <v-expansion-panel-text>
                 <v-form
@@ -62,7 +72,7 @@
               </v-expansion-panel-text>
             </v-expansion-panel>
             <v-expansion-panel
-              v-if="twoFAEnabled"
+              v-if="user.tfa_enabled"
               @group:selected="console.log('disable 2fa')"
               title="disable 2FA"
             >
@@ -95,6 +105,7 @@
 import { ref } from "vue";
 import SendCodeForm from "./SendCodeForm.vue";
 import { User } from "@/types";
+import { useUserStore } from "@/stores/user";
 
 const props = defineProps(["account"]);
 const emits = defineEmits(["accountUpdated"]);
@@ -102,6 +113,10 @@ const dialog = ref(false);
 const username = ref("");
 const pwd = ref("");
 const pwdConfirm = ref("");
+const user = useUserStore();
+// change to ref to account value tfa_enabled
+const sent = ref(false);
+const panel = ref([]);
 
 const QRSource = ref("");
 
@@ -116,17 +131,15 @@ const editUsername = () => {
   console.log(dialog.value);
 };
 
-// change to ref to account value tfa_enabled
-const twoFAEnabled = ref(false);
-
 const generateCode = async (val: Selected) => {
-  if (!val.value) return;
+  if (!val.value || QRSource.value.length) return;
   try {
     const result = await fetch("http://localhost:3000/auth/2fa/generate", {
       credentials: "include",
     });
     //check for errors
     const data = await result.text();
+    console.log(data);
     QRSource.value = data;
   } catch (error) {
     console.error(error);
@@ -134,18 +147,28 @@ const generateCode = async (val: Selected) => {
 };
 
 const updateAccount = (user: User) => {
+  setTimeout(() => {
+    sent.value = false;
+  }, 2000);
   emits("accountUpdated", user);
+  sent.value = true;
+  panel.value = [];
 };
 </script>
 
 <style lang="scss">
 .edit-user {
   min-height: 300px;
-  &__2fa__code {
-    margin: 10px auto;
-    width: 150px;
-    height: 150px;
-    background-color: grey;
+  &__2fa {
+    &__toggle {
+      font-size: small !important;
+    }
+    &__code {
+      margin: 10px auto;
+      width: 150px;
+      height: 150px;
+      background-color: grey;
+    }
   }
 }
 </style>
