@@ -23,69 +23,11 @@
         <p class="text-overline text-sm-button text-deep-purple-lighten-3">
           Rank: <span class="text-white">{{ account.rank }}</span>
         </p>
-        <!-- <template v-slot:activator="{ props }"> -->
-        <v-tooltip
-          location="bottom"
-          text="Change username and password"
-          :attach="true"
-        >
-          <template v-slot:activator="{ props }">
-            <v-icon v-if="isSelf" v-bind="props" @click="dialog = true">
-              mdi-cog-outline
-            </v-icon>
-            <v-dialog width="300px" v-model="dialog">
-              <v-card>
-                <v-card-text> Change username </v-card-text>
-                <v-form
-                  @submit.prevent="console.log('e isso')"
-                  class="d-flex flex-column align-center"
-                  ref="username-form"
-                >
-                  <v-text-field
-                    size="30"
-                    v-model="username"
-                    label="New username"
-                    type="text"
-                    autofocus
-                    @update:focused="$emit('update-username', username)"
-                  />
-                  <div>
-                    <v-btn type="submit" class="mx-2">Change</v-btn>
-                  </div>
-                </v-form>
-                <v-card-text> Change password </v-card-text>
-                <v-form
-                  @submit.prevent="console.log('e isso 2')"
-                  class="d-flex flex-column align-center"
-                  ref="pwd-form"
-                >
-                  <v-text-field
-                    size="30"
-                    v-model="pwd"
-                    label="New password"
-                    type="password"
-                    autofocus
-                    required
-                    @update:focused="$emit('update-username', username)"
-                  />
-                  <v-text-field
-                    size="30"
-                    v-model="pwdConfirm"
-                    label="Confirm new password"
-                    type="password"
-                    autofocus
-                    required
-                    @update:focused="$emit('update-username', username)"
-                  />
-                  <div>
-                    <v-btn type="submit" class="mx-2">Change pwd</v-btn>
-                  </div>
-                </v-form>
-              </v-card>
-            </v-dialog>
-          </template>
-        </v-tooltip>
-        <!-- </template> -->
+        <user-settings
+          v-if="isSelf"
+          :account="account"
+          @accountUpdated="updateAccount"
+        />
       </div>
       <v-divider vertical class=""></v-divider>
       <avatar-wrapper
@@ -105,14 +47,13 @@ import { computed, ref } from "vue";
 import { useDisplay } from "vuetify";
 import AvatarWrapper from "./AvatarWrapper.vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
+import UserSettings from "@/components/accountPage/Settings/UserSettings.vue";
+import { User } from "@/types";
 
 const props = defineProps(["account", "isSelf"]);
+const emits = defineEmits(["accountUpdated"]);
 const { sm, mdAndUp } = useDisplay();
 const editAvatar = ref(false);
-const dialog = ref(false);
-const username = ref("");
-const pwd = ref("");
-const pwdConfirm = ref("");
 
 const mapColor = computed(() => {
   switch (props.account.status) {
@@ -129,10 +70,7 @@ const toggleEditAvatar = () => {
   editAvatar.value = !editAvatar.value;
 };
 
-const editUsername = () => {
-  console.log(dialog.value);
-  dialog.value = true;
-  console.log("oi");
-  console.log(dialog.value);
+const updateAccount = (user: User) => {
+  emits("accountUpdated", user);
 };
 </script>

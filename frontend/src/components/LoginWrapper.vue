@@ -75,6 +75,7 @@ const login = async () => {
     const urlEncoded = encodeFormData(values, propertyNames);
     try {
       const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
+      //   check for errors and cookies
       console.log(data);
       emit("login");
     } catch (error) {

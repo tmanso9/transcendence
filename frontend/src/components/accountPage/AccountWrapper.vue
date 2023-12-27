@@ -4,6 +4,7 @@
     class="d-flex ma-5 mx-auto w-75 justify-space-around align-center"
     :account="account"
     :isSelf="isSelf"
+    @accountUpdated="updateAccount"
   />
   <interact-buttons :account="account" :isSelf="isSelf" />
   <v-expansion-panels
@@ -26,6 +27,7 @@ import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/stores/user";
+import { User } from "@/types";
 
 const { mdAndUp } = useDisplay();
 
@@ -44,6 +46,11 @@ const computedStats = computed(() => {
 const isSelf = computed(() => {
   return user.username && user.username === props.account.username;
 });
+
+const updateAccount = (newUser: User) => {
+  console.log(newUser);
+  // if (newUser.username) user.username = newUser.username
+};
 </script>
 
 <style lang="scss">
