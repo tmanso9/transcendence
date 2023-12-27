@@ -26,38 +26,6 @@ export class UserService {
 		return user;
 	}
 
-	// Get user by username
-	async getUserById(username: string) {
-		const requested_user = await this.prisma.user.findFirst({
-			where: {
-				username,
-			},
-			include: {
-				friends: true,
-			}
-		});
-		if (!requested_user)
-			throw new ForbiddenException(`User ${username} does not exist`);
-
-		const friends = requested_user.friends.map(friend => {
-			return {
-				username: friend.username,
-				avatar: friend.avatar
-			}
-		});
-
-		return {
-			username: requested_user.username,
-			wins: requested_user.wins,
-			losses: requested_user.losses,
-			points: requested_user.points,
-			rank: requested_user.rank,
-			status: requested_user.status,
-			avatar: requested_user.avatar,
-			friends,
-		};
-	}
-
 	// Sends friend request
 	async requestFriend(id: string, sender_info: any) {
 		// Save friend

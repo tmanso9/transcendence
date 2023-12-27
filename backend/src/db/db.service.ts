@@ -37,8 +37,7 @@ export class DbService {
 					password: hashed,
 					username: user.username,
 					avatar: '#',
-					status: "OFFLINE",
-					login: "REGULAR"
+					status: "OFFLINE"
 				},
 			});
 		} catch (error) {

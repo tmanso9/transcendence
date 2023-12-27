@@ -1,17 +1,10 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { ValidationMiddleware } from 'src/auth/middleware';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
   controllers: [UserController],
   providers: [UserService, JwtService]
 })
-export class UserModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ValidationMiddleware)
-      .forRoutes('users/me');
-  }
-}
+export class UserModule {}
