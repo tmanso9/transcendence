@@ -199,36 +199,24 @@ export class AuthService {
 
   /***** LOGOUT *****/
 
-  async logout(accessToken: string) {
-    if (!accessToken) throw new ForbiddenException('No access token');
-    const decoded = this.jwt.decode(accessToken);
-    const check = await this.prisma.blacklist.findUnique({
-      where: { token: accessToken },
-    });
-    if (!check) {
-      const blackToken = await this.prisma.blacklist.create({
-        data: {
-          email: decoded['email'],
-          token: accessToken,
-          expiresIn: decoded['exp'],
-        },
-      });
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    await this.prisma.blacklist.deleteMany({
-      where: { expiresIn: { lte: now } },
-    });
-    const user = this.prisma.user.update({
-      data: {
-        status: 'OFFLINE',
-      },
-      where: {
-        email: decoded['email'],
-      },
-    });
-    return user;
-  }
+	async logout(accessToken: string) {
+		const decoded = this.jwt.decode(accessToken);
+		const blackToken = await this.prisma.blacklist.create({data: {
+			sub: decoded['sub'],
+			email: decoded['email'],
+			token: accessToken,
+			expiresIn: decoded['exp'],
+		}})
+		const user = this.prisma.user.update({
+			data:{
+				status: 'OFFLINE',
+			},
+			where: {
+				email: decoded['email'],
+			}})
+		return user;
+	}
+}
 
   /***** REFRESH *****/
   async refresh(refreshToken: string, accessToken: string) {
