@@ -199,84 +199,86 @@ export class AuthService {
 
   /***** LOGOUT *****/
 
-	async logout(accessToken: string) {
-		const decoded = this.jwt.decode(accessToken);
-		const blackToken = await this.prisma.blacklist.create({data: {
-			sub: decoded['sub'],
-			email: decoded['email'],
-			token: accessToken,
-			expiresIn: decoded['exp'],
-		}})
-		const user = this.prisma.user.update({
-			data:{
-				status: 'OFFLINE',
-			},
-			where: {
-				email: decoded['email'],
-			}})
-		return user;
-	}
-}
-
-  /***** REFRESH *****/
-  async refresh(refreshToken: string, accessToken: string) {
-    const refreshDecoded = await this.jwt.decode(refreshToken);
-    const accessDecoded = await this.jwt.decode(accessToken);
-
-    const now = Math.floor(Date.now() / 1000);
-
-    if (accessDecoded.exp > now)
-      throw new UnauthorizedException('Access token is not expired');
-
-    if (!refreshDecoded)
-      throw new UnauthorizedException('Invalid refresh token format');
-
-    const user = await this.prisma.user.findUnique({
-      where: { email: refreshDecoded.email },
-    });
-
-    if (!user) throw new UnauthorizedException('Invalid refresh token');
-
-    //validate refresh token
-    if (refreshDecoded.exp < now) {
-      await this.prisma.user.update({
-        data: { status: 'OFFLINE' },
-        where: { email: user.email },
-      });
-      throw new UnauthorizedException('Expired refresh token');
-    }
-
-    await this.prisma.blacklist.deleteMany({
-      where: { expiresIn: { lte: now } },
-    });
-
-    const blacklisted = await this.prisma.blacklist.findUnique({
-      where: { token: refreshToken },
-    });
-
-    if (blacklisted) {
-      const updatedUser = await this.prisma.user.update({
-        data: { status: 'BLOCKED' },
-        where: { email: user.email },
-      });
-      return { newAccessToken: '', newRefreshToken: '', updatedUser };
-    }
-
-    await this.prisma.blacklist.create({
+  async logout(accessToken: string) {
+    const decoded = this.jwt.decode(accessToken);
+    const blackToken = await this.prisma.blacklist.create({
       data: {
-        token: refreshToken,
-        email: refreshDecoded.email,
-        expiresIn: refreshDecoded.exp,
+        sub: decoded['sub'],
+        email: decoded['email'],
+        token: accessToken,
+        expiresIn: decoded['exp'],
       },
     });
-
-    const newAccessToken = await this.signToken(user.id, user.email, '10m');
-    const newRefreshToken = await this.signToken(
-      user.id,
-      user.email,
-      refreshDecoded.exp - now,
-    );
-
-    return { newAccessToken, newRefreshToken, user };
+    const user = this.prisma.user.update({
+      data: {
+        status: 'OFFLINE',
+      },
+      where: {
+        email: decoded['email'],
+      },
+    });
+    return user;
   }
 }
+
+// /***** REFRESH *****/
+// async refresh(refreshToken: string, accessToken: string) {
+//   const refreshDecoded = await this.jwt.decode(refreshToken);
+//   const accessDecoded = await this.jwt.decode(accessToken);
+
+//   const now = Math.floor(Date.now() / 1000);
+
+//   if (accessDecoded.exp > now)
+//     throw new UnauthorizedException('Access token is not expired');
+
+//   if (!refreshDecoded)
+//     throw new UnauthorizedException('Invalid refresh token format');
+
+//   const user = await this.prisma.user.findUnique({
+//     where: { email: refreshDecoded.email },
+//   });
+
+//   if (!user) throw new UnauthorizedException('Invalid refresh token');
+
+//   //validate refresh token
+//   if (refreshDecoded.exp < now) {
+//     await this.prisma.user.update({
+//       data: { status: 'OFFLINE' },
+//       where: { email: user.email },
+//     });
+//     throw new UnauthorizedException('Expired refresh token');
+//   }
+
+//   await this.prisma.blacklist.deleteMany({
+//     where: { expiresIn: { lte: now } },
+//   });
+
+//   const blacklisted = await this.prisma.blacklist.findUnique({
+//     where: { token: refreshToken },
+//   });
+
+//   if (blacklisted) {
+//     const updatedUser = await this.prisma.user.update({
+//       data: { status: 'BLOCKED' },
+//       where: { email: user.email },
+//     });
+//     return { newAccessToken: '', newRefreshToken: '', updatedUser };
+//   }
+
+//   await this.prisma.blacklist.create({
+//     data: {
+//       token: refreshToken,
+//       email: refreshDecoded.email,
+//       expiresIn: refreshDecoded.exp,
+//     },
+//   });
+
+//   const newAccessToken = await this.signToken(user.id, user.email, '10m');
+//   const newRefreshToken = await this.signToken(
+//     user.id,
+//     user.email,
+//     refreshDecoded.exp - now,
+//   );
+
+//   return { newAccessToken, newRefreshToken, user };
+// }
