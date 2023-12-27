@@ -3,7 +3,17 @@ import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref } from "vue";
 
-const socket = io("http://localhost:3000");
+const socketOptions = {
+  transportOptions: {
+    polling: {
+      extraHeaders: {
+        Authorization: "your token", // 'Bearer h93t4293t49jt34j9rferek...'
+      },
+    },
+  },
+};
+
+const socket = io("http://localhost:3000", socketOptions);
 socket.on("connect", () => {
   console.log("connection id: ", socket.id);
 });

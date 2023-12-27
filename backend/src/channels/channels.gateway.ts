@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
@@ -9,6 +10,7 @@ import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from 'src/auth/auth.service';
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChannelsGateway {
@@ -16,6 +18,7 @@ export class ChannelsGateway {
     private readonly channelsService: ChannelsService,
     private prisma: PrismaService,
     private authService: AuthService,
+    private userService: UserService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -28,12 +31,15 @@ export class ChannelsGateway {
   }
 
   @SubscribeMessage('test')
-  testFunc(client: Socket, @MessageBody() data: string): undefined {
+  testFunc(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: string,
+  ): undefined {
     this.server.emit('test', 'ola, eu sou o server');
-    const payload = this.authService.verify(
-      client.handshake.headers.authorization,
-    );
-    const user = await this.usersService.findOne(payload.userId);
-    this.logger.debug('hi, im chat debug');
+    // const payload = this.authService.verify(
+    //   client.handshake.headers.authorization,
+    // );
+    // const user = await this.userService.findOne(payload.userId);
+    this.logger.debug(client.handshake.headers.authorization);
   }
 }
