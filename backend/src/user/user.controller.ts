@@ -19,6 +19,26 @@ export class UserController {
 		return this.userService.getMe(user);
 	}
 
+	@UseGuards(JwtGuard)
+	@Get('me/friends')
+	getFriends(@decodeJwt() decoded_jwt: any) {
+		return this.userService.getFriends(decoded_jwt);
+	}
+
+	// Get user channels
+	@UseGuards(JwtGuard)
+	@Get('me/channels')
+	async getUserChannels(@decodeJwt('sub') id: string) {
+		return this.userService.getUserChannels(id);
+	}
+
+	// Get user channels
+	@UseGuards(JwtGuard)
+	@Get('me/other-channels')
+	async getNonUserChannels(@decodeJwt('sub') id: string) {
+		return this.userService.getNonUserChannels(id);
+	}
+
 	// Send Friend Request
 	@UseGuards(JwtGuard)
 	@Post('friend-request/:id')

@@ -13,6 +13,9 @@ import { ChannelsModule } from './channels/channels.module';
   imports: [
     AuthModule,
     PrismaModule,
+    UserModule,
+    DbModule,
+    ChannelsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
