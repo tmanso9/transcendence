@@ -21,6 +21,10 @@ export const chatAppStore = defineStore("chat", () => {
 
   const socket = io("http://localhost:3000", socketOptions);
 
+  function send<T>(event: string, ...args: any[]): Promise<T> {
+    return new Promise((r) => socket.emit(event, ...args, r));
+  }
+
   function startConection() {
     socket.on("connect", () => {
       console.log("connection id: ", socket.id);
@@ -29,14 +33,16 @@ export const chatAppStore = defineStore("chat", () => {
       socket.close();
       window.location.reload();
     });
-
-    socket.on("test", (msg) => {
-      console.log("server: ", msg);
-    });
-    getUsers();
   }
 
-  // Data
+  function checkTokenConection() {
+    const payload = send("checkTokenConection");
+    payload.then((value) => {
+      console.log(value);
+      return true;
+    });
+    return false;
+  }
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
 
@@ -320,5 +326,6 @@ export const chatAppStore = defineStore("chat", () => {
     findUserByUsername,
     testWebSockets,
     startConection,
+    checkTokenConection,
   };
 });

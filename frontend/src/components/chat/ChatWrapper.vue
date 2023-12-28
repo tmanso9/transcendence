@@ -10,7 +10,6 @@ import CreateChannel from "./CreateChannel.vue";
 
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 const store = chatAppStore();
-store.startConection();
 
 // --------------------------------------------------------------------------------
 
@@ -23,6 +22,7 @@ const members = ref([]);
 function updateScroll(id: string) {
   var element = document.getElementById(id);
   if (element) element.scrollTop = element.scrollHeight;
+  console.log(store.allUsers); // test to check if var is not empty
 }
 </script>
 

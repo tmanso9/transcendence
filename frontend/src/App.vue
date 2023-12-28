@@ -9,6 +9,7 @@ import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
 import { fetchMe } from "./utils";
+import { chatAppStore } from "./store/chat";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
@@ -16,6 +17,8 @@ const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
+const store = chatAppStore();
+store.startConection();
 
 onMounted(async () => {
   await fetchMe(cookies, user);
@@ -26,6 +29,7 @@ router.beforeEach(async (to, from) => {
 });
 
 const toggleChat = () => {
+  console.log(store.checkTokenConection());
   showChat.value = !showChat.value;
   chatText.value = showChat.value ? "Hide chat" : "Show chat";
 };
@@ -72,7 +76,7 @@ const toggleSignUp = () => {
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper v-if="showChat" />
     </v-main>
-    <v-footer height="1" class="pa-0" style="z-index: 2;">
+    <v-footer height="1" class="pa-0" style="z-index: 2">
       <v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
     </v-footer>
   </v-app>

@@ -6,11 +6,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { ChannelsService } from './channels.service';
-import { Logger } from '@nestjs/common';
+import { ForbiddenException, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
+import { User } from '@prisma/client';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChannelsGateway {
@@ -30,17 +31,12 @@ export class ChannelsGateway {
     return data;
   }
 
-  @SubscribeMessage('test')
-  async testFunc(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: string,
-  ): Promise<undefined> {
-    this.server.emit('test', 'ola, eu sou o server');
+  @SubscribeMessage('checkTokenConection')
+  async checkTokenConection(@ConnectedSocket() client: Socket) {
     const payload = await this.authService.getUserFromToken(
       client.handshake.headers.authorization,
     );
-    if (payload)
-      this.logger.debug('user ', payload.username, ' is using tokens');
-    else this.logger.debug('user is not using tokens');
+    if (payload) return payload;
+    else return undefined;
   }
 }

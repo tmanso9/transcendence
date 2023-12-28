@@ -17,7 +17,6 @@ const store = chatAppStore();
         @click="
           () => {
             store.createChannelPopUp = true;
-            store.testWebSockets();
           }
         "
         icon="mdi-chat-plus"
