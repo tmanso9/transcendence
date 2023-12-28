@@ -1,28 +1,28 @@
 <template>
-  <p v-if="error" class="text-red py-3">{{ errText }}</p>
-  <div class="w-25">
-    <send-code-form
-      path="authenticate"
-      @error="handleError"
-      @clearError="resetForm"
-    />
+  <div v-if="isLoaded" class="mx-auto two-fa">
+    <h3 class="text-center mb-2 text-button">please enter 2fa code</h3>
+    <send-code-form path="authenticate" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import SendCodeForm from "@/components/accountPage/Settings/SendCodeForm.vue";
-import { ref } from "vue";
+import { useUserStore } from "@/stores/user";
+import { onBeforeMount, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const error = ref(false);
-const errText = ref("");
+const isLoaded = ref(false);
+const user = useUserStore();
+const router = useRouter();
 
-const handleError = (err: string) => {
-  error.value = true;
-  errText.value = err;
-};
-
-const resetForm = () => {
-  error.value = false;
-  errText.value = "";
-};
+onBeforeMount(() => {
+  if (user.username) router.push("/");
+  else isLoaded.value = true;
+});
 </script>
+
+<style lang="scss">
+.two-fa {
+  width: 300px;
+}
+</style>

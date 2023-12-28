@@ -28,7 +28,6 @@
                     type="text"
                     class="w-100"
                     autofocus
-                    @update:focused="$emit('update-username', username)"
                   />
                   <div>
                     <v-btn type="submit" class="mt-n3 bg-deep-purple"
@@ -52,7 +51,6 @@
                     class="my-n3 w-100"
                     autofocus
                     required
-                    @update:focused="$emit('update-username', username)"
                   />
                   <v-text-field
                     v-model="pwdConfirm"
@@ -61,7 +59,6 @@
                     class="w-100"
                     autofocus
                     required
-                    @update:focused="$emit('update-username', username)"
                   />
                   <div>
                     <v-btn type="submit" class="mx-2 bg-deep-purple"
@@ -76,7 +73,7 @@
               @group:selected="console.log('disable 2fa')"
               title="disable 2FA"
             >
-              <v-expansion-panel-text>
+              <v-expansion-panel-text class="my-2">
                 <send-code-form path="turn-off" />
               </v-expansion-panel-text>
             </v-expansion-panel>
@@ -164,7 +161,7 @@ const updateAccount = (user: User) => {
       font-size: small !important;
     }
     &__code {
-      margin: 10px auto;
+      margin: 10px auto 20px;
       width: 150px;
       height: 150px;
       background-color: grey;

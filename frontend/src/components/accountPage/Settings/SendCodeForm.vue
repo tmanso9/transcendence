@@ -1,27 +1,32 @@
 <template>
-  <v-form @submit.prevent="sendCode" ref="form">
-    <v-text-field v-model="code" label="Enter code" />
-    <v-btn type="submit" color="deep-purple">confirm</v-btn>
-  </v-form>
+  <div>
+    <p v-if="hasError" class="text-red py-3 pl-1 mt-n2">{{ errText }}</p>
+    <v-form @submit.prevent="sendCode" ref="form" class="d-flex flex-column">
+      <v-text-field v-model="code" placeholder="000000" class="mt-n2" />
+      <v-btn type="submit" color="deep-purple" class="mt-n3">confirm</v-btn>
+    </v-form>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { User } from "@/types";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { computed } from "vue";
+import { fetchMe } from "@/utils";
 
 const p = defineProps(["path"]);
-const e = defineEmits(["codeSent", "error", "clearError"]);
+const e = defineEmits(["codeSent"]);
 const code = ref();
 const form = ref<HTMLFormElement>();
 const router = useRouter();
 const route = useRoute();
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
+const hasError = ref(false);
+const errText = ref("");
 
 const emailValue = computed(() => {
   const val = cookies?.get("email") || user.email;
@@ -31,12 +36,9 @@ const emailValue = computed(() => {
 
 const sendCode = async () => {
   const path = `http://localhost:3000/auth/2fa/${p.path}`;
-  //   console.log(path);
-  //   console.log(code.value);
   const body = `tfa_code=${code.value || ""}&email=${emailValue.value}`;
-  cookies?.set("email", "");
-  //   console.log(body);
-  e("clearError");
+  hasError.value = false;
+  errText.value = "";
   try {
     const result = await fetch(path, {
       method: "post",
@@ -47,10 +49,11 @@ const sendCode = async () => {
       credentials: "include",
     });
     if (result.ok) {
+      cookies?.remove("email");
       const data = await result.json();
-      //   console.log("aqui");
       code.value = "";
       if (route.path === "/2fa") {
+        fetchMe(cookies, user);
         router.push(history.state.back);
       } else {
         e("codeSent", data);
@@ -59,7 +62,10 @@ const sendCode = async () => {
       throw new Error(await result.text());
     }
   } catch (error) {
-    error instanceof Error && e("error", JSON.parse(error.message).message);
+    if (error instanceof Error) {
+      hasError.value = true;
+      errText.value = JSON.parse(error.message).message;
+    }
     console.error(error);
   }
 };
