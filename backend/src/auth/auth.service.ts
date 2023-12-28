@@ -137,21 +137,28 @@ export class AuthService {
 					throw new ForbiddenException('Credentials Taken')
 				throw error;
 			}
-		} else {
+		} else if (!user.tfa_enabled) {
 			await this.prisma.user.update({
 				where: { email: data.email },
 				data: { status: "ONLINE" }
 			});
 		}
 
-		const access_token = await this.signToken(user, '10m');
-		const refresh_token = await this.signToken(user, '24h');
+		let access_token = "";
+		let refresh_token = "";
+
+		if (!user.tfa_enabled) {
+			access_token = await this.signToken(user, '10m');
+			refresh_token = await this.signToken(user, '24h');
+		}
+
 		return {
 			access_token,
 			refresh_token,
 			email: user.email,
 			username: user.username,
-			avatar: user.avatar
+			avatar: user.avatar,
+			tfa: user.tfa_enabled
 		};
 	}
 
@@ -159,9 +166,12 @@ export class AuthService {
 
 	async login42(user)
     {
-        const profile = await this.prisma.user.upsert({
-            create: {
-                email: user.email,
+		let profile = await this.prisma.user.findUnique({where: {email: user.email}})
+
+		if (!profile)
+		{
+			profile = await this.prisma.user.create({data: {
+				email: user.email,
                 password: '',
                 username: user.username,
                 status: 'ONLINE',
@@ -169,17 +179,20 @@ export class AuthService {
 				login: "FORTYTWO",
 				tfa_enabled: false,
 				tfa_secret: ''
-            },
-            update: {
-                status: 'ONLINE',
-            },
-            where : {
-                email: user.email,
-            }
-        })
+			}});
+		}
 
-		const accessToken = await this.signToken(profile, '10m');
-		const refresh_token = await this.signToken(profile, '24h');
+		else if (!profile.tfa_enabled) {
+			profile = await this.prisma.user.update({where: {email: user.email}, data: {status: "ONLINE"}});
+		}
+
+		let accessToken = "";
+		let refresh_token = "";
+
+		if (!profile.tfa_enabled) {
+			accessToken = await this.signToken(profile, '10m');
+			refresh_token = await this.signToken(profile, '24h');
+		}
 
      	return { ...profile, accessToken, refresh_token };
     }
