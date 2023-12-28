@@ -31,15 +31,15 @@ export class ChannelsGateway {
   }
 
   @SubscribeMessage('test')
-  testFunc(
+  async testFunc(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: string,
-  ): undefined {
+  ): Promise<undefined> {
     this.server.emit('test', 'ola, eu sou o server');
-    // const payload = this.authService.verify(
-    //   client.handshake.headers.authorization,
-    // );
-    // const user = await this.userService.findOne(payload.userId);
+    const payload = this.authService.verify(
+      client.handshake.headers.authorization,
+    );
+    const user = await this.userService.getUserById(payload.userId);
     this.logger.debug(client.handshake.headers.authorization);
   }
 }

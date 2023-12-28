@@ -3,176 +3,185 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UserService {
-	constructor(
-		private prisma: PrismaService,
-	) {}
+  constructor(private prisma: PrismaService) {}
 
-	// Returns all users as an arraw
-	async getUsers() {
-		const all_users = await this.prisma.user.findMany({
-			select: {
-				username: true,
-				wins: true,
-				losses: true,
-				points: true
-			}
-		});
+  async getUserById(userId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId },
+      include: {
+        friends: true,
+        friendOf: true,
+        channels: true,
+        adminOf: true,
+        bannedFrom: true,
+        mutedOn: true,
+      },
+    });
 
-		return all_users;
-	}
+    if (user) return user;
+    return undefined;
+  }
 
-	// Returns User Info
-	getMe(user: any) {
-		return user;
-	}
+  // Returns all users as an arraw
+  async getUsers() {
+    const all_users = await this.prisma.user.findMany({
+      select: {
+        username: true,
+        wins: true,
+        losses: true,
+        points: true,
+      },
+    });
 
-	// Sends friend request
-	async requestFriend(id: string, sender_info: any) {
-		// Save friend
-		const friend = await this.prisma.user.findUnique({
-			where: { id },
-			include: { friends: true, friendOf: true },
-		});
+    return all_users;
+  }
 
-		// Check if the friend exists. If it doesn't, throw.
-		if (!friend)
-			throw new ForbiddenException('User does not exist');
+  // Returns User Info
+  getMe(user: any) {
+    return user;
+  }
 
-		// Check that sender != receiver. If same, throw.
-		if (id == sender_info.sub)
-			throw new ForbiddenException('Sender is same as Receiver')
-		
-		// Check that sender and receiver are not already friends. If they are, throw.
-		const sender = await this.prisma.user.findUnique({
-			where: { id: sender_info.sub },
-			include: { friends: true, friendOf: true },
-		});
-		if (!sender)
-			throw new ForbiddenException('Something went wrong');
-		if (friend.friends.includes(friend))
-			throw new ForbiddenException('Already Friends');
+  // Sends friend request
+  async requestFriend(id: string, sender_info: any) {
+    // Save friend
+    const friend = await this.prisma.user.findUnique({
+      where: { id },
+      include: { friends: true, friendOf: true },
+    });
 
-		// Check if the request was already sent (bilateral check)
-		const already_sent = await this.prisma.connections.findFirst({
-			where: {
-				OR: [
-					{ creator: sender_info.sub, receiver: id },
-					{ creator: id, receiver: sender_info.sub }
-				]
-			}
-		});
+    // Check if the friend exists. If it doesn't, throw.
+    if (!friend) throw new ForbiddenException('User does not exist');
 
-		if (already_sent)
-			throw new ForbiddenException('Friend Request already sent');
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
 
-		// Add new connection to database
-		const connection = await this.prisma.connections.create({
-			data: {
-				creator: sender_info.sub,
-				receiver: id
-			}
-		});
-	}
+    // Check that sender and receiver are not already friends. If they are, throw.
+    const sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
+    if (!sender) throw new ForbiddenException('Something went wrong');
+    if (friend.friends.includes(friend))
+      throw new ForbiddenException('Already Friends');
 
-	// Responds to friend request (accept or reject)
-	async respondFriend(id: string, action: string, sender_info: any) {
-		// Check if action is either 'accept' or 'reject'. If not, throw
-		if (action != 'accept' && action != 'reject')
-			throw new ForbiddenException(`Invalid Action: ${action}`);
+    // Check if the request was already sent (bilateral check)
+    const already_sent = await this.prisma.connections.findFirst({
+      where: {
+        OR: [
+          { creator: sender_info.sub, receiver: id },
+          { creator: id, receiver: sender_info.sub },
+        ],
+      },
+    });
 
-		// Save target friend
-		let friend = await this.prisma.user.findUnique({
-			where: { id }
-		});
+    if (already_sent)
+      throw new ForbiddenException('Friend Request already sent');
 
-		// Check if the friend exists. If it doesn't, throw.
-		if (!friend)
-			throw new ForbiddenException('User does not exist');
+    // Add new connection to database
+    const connection = await this.prisma.connections.create({
+      data: {
+        creator: sender_info.sub,
+        receiver: id,
+      },
+    });
+  }
 
-		// Check that sender != receiver. If same, throw.
-		if (id == sender_info.sub)
-			throw new ForbiddenException('Sender is same as Receiver');
-		
-		// Check that sender and receiver are not already friends. If they are, throw.
-		let sender = await this.prisma.user.findUnique({
-			where: { id: sender_info.sub },
-			include: { friends: true, friendOf: true },
-		});
+  // Responds to friend request (accept or reject)
+  async respondFriend(id: string, action: string, sender_info: any) {
+    // Check if action is either 'accept' or 'reject'. If not, throw
+    if (action != 'accept' && action != 'reject')
+      throw new ForbiddenException(`Invalid Action: ${action}`);
 
-		if (!sender)
-			throw new ForbiddenException('Something went wrong');
-		
-		if (sender.friends.map(user => user.id).includes(id))
-			throw new ForbiddenException('Already Friends');
+    // Save target friend
+    let friend = await this.prisma.user.findUnique({
+      where: { id },
+    });
 
-		// Check if request exists. If not, throw.
-		const req_exists = await this.prisma.connections.findFirst({
-			where: {
-				creator: id,
-				receiver: sender_info.sub
-			}
-		});
+    // Check if the friend exists. If it doesn't, throw.
+    if (!friend) throw new ForbiddenException('User does not exist');
 
-		if (!req_exists)
-			throw new ForbiddenException('Friend Request does not exist');
-		
-		if (action == 'accept') {
-			// Add friendship to all.
-			await this.prisma.user.update({
-				where: { id: sender_info.sub },
-				data: { friends: { connect: [{ id: id }]}}
-			});
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
 
-			await this.prisma.user.update({
-				where: { id: id },
-				data: { friends: { connect: [{ id: sender_info.sub }]}}
-			});
-		}
+    // Check that sender and receiver are not already friends. If they are, throw.
+    let sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
 
-		// Remove connection from DB.
-		await this.prisma.connections.deleteMany({
-			where: {
-				creator: id,
-				receiver: sender_info.sub
-			}
-		});
-	}
+    if (!sender) throw new ForbiddenException('Something went wrong');
 
-	// Removes friend
-	async removeFriend(id: string, sender_info: any) {
-		// Save target friend
-		let friend = await this.prisma.user.findUnique({
-			where: { id }
-		});
+    if (sender.friends.map((user) => user.id).includes(id))
+      throw new ForbiddenException('Already Friends');
 
-		// Check if the friend exists. If it doesn't, throw.
-		if (!friend)
-			throw new ForbiddenException('User does not exist');
+    // Check if request exists. If not, throw.
+    const req_exists = await this.prisma.connections.findFirst({
+      where: {
+        creator: id,
+        receiver: sender_info.sub,
+      },
+    });
 
-		// Check that sender != receiver. If same, throw.
-		if (id == sender_info.sub)
-			throw new ForbiddenException('Sender is same as Receiver');
+    if (!req_exists)
+      throw new ForbiddenException('Friend Request does not exist');
 
-		// Check that sender and receiver are friends. If not, throw.
-		let sender = await this.prisma.user.findUnique({
-			where: { id: sender_info.sub },
-			include: { friends: true, friendOf: true },
-		});
+    if (action == 'accept') {
+      // Add friendship to all.
+      await this.prisma.user.update({
+        where: { id: sender_info.sub },
+        data: { friends: { connect: [{ id: id }] } },
+      });
 
-		if (!sender)
-			throw new ForbiddenException('Something went wrong');
-		
-		if (!sender.friends.map(user => user.id).includes(id))
-			throw new ForbiddenException('Not Friends');
+      await this.prisma.user.update({
+        where: { id: id },
+        data: { friends: { connect: [{ id: sender_info.sub }] } },
+      });
+    }
 
-		// Remove connection from DB.
-		await this.prisma.user.update({
-			where: { id: sender_info.sub },
-			data: {friends: {disconnect: [{ id: id }]}},
-		});
-		await this.prisma.user.update({
-			where: { id: id },
-			data: {friends: {disconnect: [{ id: sender_info.sub }]}},
-		});
-	}
+    // Remove connection from DB.
+    await this.prisma.connections.deleteMany({
+      where: {
+        creator: id,
+        receiver: sender_info.sub,
+      },
+    });
+  }
+
+  // Removes friend
+  async removeFriend(id: string, sender_info: any) {
+    // Save target friend
+    let friend = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    // Check if the friend exists. If it doesn't, throw.
+    if (!friend) throw new ForbiddenException('User does not exist');
+
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
+
+    // Check that sender and receiver are friends. If not, throw.
+    let sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
+
+    if (!sender) throw new ForbiddenException('Something went wrong');
+
+    if (!sender.friends.map((user) => user.id).includes(id))
+      throw new ForbiddenException('Not Friends');
+
+    // Remove connection from DB.
+    await this.prisma.user.update({
+      where: { id: sender_info.sub },
+      data: { friends: { disconnect: [{ id: id }] } },
+    });
+    await this.prisma.user.update({
+      where: { id: id },
+      data: { friends: { disconnect: [{ id: sender_info.sub }] } },
+    });
+  }
 }
