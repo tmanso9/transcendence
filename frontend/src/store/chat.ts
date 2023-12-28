@@ -1,5 +1,6 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
+import { User } from "@/types";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -32,49 +33,25 @@ export const chatAppStore = defineStore("chat", () => {
     socket.on("test", (msg) => {
       console.log("server: ", msg);
     });
+    getUsers();
   }
 
   // Data
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
 
-  const allUsers = ref([
-    { id: 0, username: "joao", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 1,
-      username: "gonçalo",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 2, username: "joana", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 3,
-      username: "roberto",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 4, username: "rui", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 5,
-      username: "francisco",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 6, username: "Pedro", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 7,
-      username: "matilde",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 8, username: "luis", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 9,
-      username: "anastacia",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-  ]);
+  const allUsers = ref<User[]>();
+
+  async function getUsers() {
+    try {
+      const response = await fetch("http://localhost:3000/users");
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      allUsers.value = data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const friendsWithTick = ref([
     { name: "joao", added: false },
@@ -257,9 +234,9 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   function channelMembers(channel: string) {
-    let memberUsers: { id: number; username: string; avatar: string }[] = [];
+    let memberUsers: User[] = [];
 
-    allUsers.value.map((user) => {
+    allUsers.value?.map((user) => {
       let userIsMember = 0;
 
       getChannelInfo(channel)?.members.map((mem) => {
@@ -307,14 +284,9 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   function findUserByUsername(username: string) {
-    const foundedUser = ref<{
-      id: number;
-      username: string;
-      avatar: string;
-      blocked: string[];
-    }>();
+    const foundedUser = ref<User>();
     let foundUser = 0;
-    allUsers.value.map((user) => {
+    allUsers.value?.map((user) => {
       if (user.username == username) foundedUser.value = user;
     });
     if (foundedUser) return foundedUser.value;
