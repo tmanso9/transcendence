@@ -2,7 +2,16 @@
   <div>
     <p v-if="hasError" class="text-red py-3 pl-1 mt-n2">{{ errText }}</p>
     <v-form @submit.prevent="sendCode" ref="form" class="d-flex flex-column">
-      <v-text-field v-model="code" placeholder="000000" class="mt-n2" />
+      <v-text-field
+        v-model="code"
+        placeholder="000000"
+        autofocus
+        class="mt-n2 mb-4"
+        :rules="rules"
+        density="compact"
+        validate-on="submit"
+        variant="outlined"
+      />
       <v-btn type="submit" color="deep-purple" class="mt-n3">confirm</v-btn>
     </v-form>
   </div>
@@ -33,7 +42,18 @@ const emailValue = computed(() => {
   return val;
 });
 
+const rules = [
+  (input: string) => {
+    if (input) return true;
+    return "Required";
+  },
+];
+
 const sendCode = async () => {
+  if (form.value) {
+    const isValid = await form.value.validate();
+    if (!isValid.valid) return;
+  }
   const path = `http://localhost:3000/auth/2fa/${p.path}`;
   const body = `tfa_code=${code.value || ""}&email=${emailValue.value}`;
   hasError.value = false;

@@ -5,7 +5,7 @@
       <v-dialog v-model="dialog" class="w-50 text-center">
         <v-card class="py-3 edit-user my-auto">
           <p
-            v-if="sent"
+            v-if="sent || changedPWD"
             class="text-success mb-n2 text-overline edit-user__2fa__toggle"
           >
             {{ toDisplay }}
@@ -15,19 +15,29 @@
             class="my-5 w-75 mx-auto"
             v-model="panel"
           >
-            <v-expansion-panel title="Change username">
+            <v-expansion-panel
+              title="Change username"
+              class="edit-user__username"
+            >
               <v-expansion-panel-text>
+                <p v-if="hasError" class="text-red text-caption">
+                  {{ errText }}
+                </p>
                 <v-form
-                  @submit.prevent="console.log('e isso')"
+                  @submit.prevent="patchAccount('username')"
                   class="d-flex flex-column align-center"
-                  ref="username-form"
+                  ref="usernameForm"
                 >
                   <v-text-field
                     v-model="username"
                     label="New username"
                     type="text"
-                    class="w-100"
+                    class="w-100 my-2 edit-user__username__input"
                     autofocus
+                    :rules="rules"
+                    density="compact"
+                    validateOn="submit"
+                    variant="outlined"
                   />
                   <div>
                     <v-btn type="submit" class="mt-n3 bg-deep-purple"
@@ -37,28 +47,49 @@
                 </v-form>
               </v-expansion-panel-text>
             </v-expansion-panel>
-            <v-expansion-panel title="Change password">
+            <v-expansion-panel
+              title="Change password"
+              class="edit-user__password"
+            >
               <v-expansion-panel-text>
                 <v-form
-                  @submit.prevent="console.log('e isso 2')"
+                  @submit.prevent="patchAccount('password')"
                   class="d-flex flex-column align-center mt-4"
-                  ref="pwd-form"
+                  ref="pwdForm"
                 >
+                  <v-text-field
+                    v-model="currentPwd"
+                    label="Current password"
+                    type="password"
+                    class="w-100 edit-user__password__input"
+                    autofocus
+                    required
+                    :rules="rules"
+                    validateOn="submit"
+                    density="compact"
+                    variant="outlined"
+                  />
                   <v-text-field
                     v-model="pwd"
                     label="New password"
                     type="password"
-                    class="my-n3 w-100"
-                    autofocus
+                    class="w-100 edit-user__password__input"
                     required
+                    :rules="rules"
+                    validateOn="submit"
+                    density="compact"
+                    variant="outlined"
                   />
                   <v-text-field
                     v-model="pwdConfirm"
                     label="Confirm new password"
                     type="password"
-                    class="w-100"
-                    autofocus
+                    class="w-100 edit-user__password__input"
                     required
+                    :rules="confirmPwdRules"
+                    validateOn="submit"
+                    density="compact"
+                    variant="outlined"
                   />
                   <div>
                     <v-btn type="submit" class="mx-2 bg-deep-purple"
@@ -84,6 +115,7 @@
                   alt="generate code"
                   class="edit-user__2fa__code"
                 />
+                <p class="text-overline mt-n2 mb-1">enter code</p>
                 <send-code-form path="turn-on" @codeSent="updateAccount" />
               </v-expansion-panel-text>
             </v-expansion-panel>
@@ -100,20 +132,47 @@ import SendCodeForm from "./SendCodeForm.vue";
 import { User } from "@/types";
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
+import { fetchMe } from "@/utils";
+import router from "@/router";
 
 const props = defineProps(["account"]);
 const emits = defineEmits(["accountUpdated"]);
 const dialog = ref(false);
 const username = ref("");
+const currentPwd = ref("");
 const pwd = ref("");
 const pwdConfirm = ref("");
 const user = useUserStore();
-// change to ref to account value tfa_enabled
+const usernameForm = ref<HTMLFormElement>();
+const pwdForm = ref<HTMLFormElement>();
 const sent = ref(false);
+const changedPWD = ref(false);
 const panel = ref([]);
 const cameFromEnabled = ref(true);
+const cookies = inject<VueCookies>("$cookies");
+const hasError = ref(false);
+const errText = ref("");
 
 const QRSource = ref("");
+
+const rules = [
+  (input: string) => {
+    if (input) return true;
+    return "Required";
+  },
+];
+
+const confirmPwdRules = [
+  (input: string) => {
+    if (input) {
+      if (input !== pwd.value) return "Passwords don't match";
+      return true;
+    }
+    return "Required";
+  },
+];
 
 type Selected = {
   value: Boolean;
@@ -142,6 +201,7 @@ const generateCode = async (val: Selected) => {
 };
 
 const toDisplay = computed(() => {
+  if (changedPWD.value) return "Password updated";
   return cameFromEnabled.value
     ? "2FA enabled successfully"
     : "2FA disabled successfully";
@@ -156,11 +216,76 @@ const updateAccount = (user: User) => {
   sent.value = true;
   panel.value = [];
 };
+
+const patchAccount = async (url: string) => {
+  let isValid = { valid: false };
+  if (usernameForm.value) {
+    isValid = await usernameForm.value.validate();
+  } else if (pwdForm.value) {
+    isValid = await pwdForm.value.validate();
+    console.log(isValid);
+  }
+  if (!isValid.valid) return;
+  const path = `http://localhost:3000/users/change-${url}`;
+  const body = `username=${username.value}&password=${pwd.value}&currentPwd=${currentPwd.value}`;
+  hasError.value = false;
+  errText.value = "";
+  try {
+    const result = await fetch(path, {
+      method: "post",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+      credentials: "include",
+    });
+    username.value = "";
+    if (!result.ok) throw new Error(await result.text());
+    const data = await result.json();
+    user.username = data.username;
+    await fetchMe(cookies, user);
+    router.push(`/users/${user.username}`);
+    if (url === "password") {
+      setTimeout(() => {
+        changedPWD.value = false;
+      }, 2000);
+      changedPWD.value = true;
+      panel.value = [];
+    }
+  } catch (error) {
+    hasError.value = true;
+    if (error instanceof Error)
+      errText.value = JSON.parse(error.message).message;
+    console.error(error);
+  }
+};
 </script>
 
 <style lang="scss">
 .edit-user {
   min-height: 300px;
+  &__username {
+    &__input {
+      .v-input__details {
+        .v-messages {
+          &__message {
+            margin-top: -5px;
+          }
+        }
+      }
+    }
+  }
+  &__password {
+    &__input {
+      .v-input__details {
+        .v-messages {
+          &__message {
+            margin-top: -5px;
+          }
+        }
+      }
+    }
+  }
   &__2fa {
     &__toggle {
       font-size: small !important;

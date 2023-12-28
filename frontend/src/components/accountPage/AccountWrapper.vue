@@ -52,7 +52,7 @@ const isSelf = computed(() => {
 });
 
 const updateAccount = async (newUser: User) => {
-  console.log(newUser);
+  //   console.log(newUser);
   await fetchMe(cookies, user);
   // if (newUser.username) user.username = newUser.username
 };

@@ -28,7 +28,7 @@ const unauthorized = ref(false);
 onBeforeMount(async () => {
   try {
     account.value = await fetchUser(getUsername.value);
-    if (account.value.username) isLoaded.value = true;
+    if (account.value && account.value.username) isLoaded.value = true;
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "Unauthorized") unauthorized.value = true;

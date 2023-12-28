@@ -9,7 +9,7 @@ export const fetchUser = async (username: string) => {
       throw new Error(result.statusText);
     }
     const data = await result.json();
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
     // console.error(error);
