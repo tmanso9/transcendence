@@ -68,11 +68,7 @@
                 </v-form>
               </v-expansion-panel-text>
             </v-expansion-panel>
-            <v-expansion-panel
-              v-if="user.tfa_enabled"
-              @group:selected="console.log('disable 2fa')"
-              title="disable 2FA"
-            >
+            <v-expansion-panel v-if="user.tfa_enabled" title="disable 2FA">
               <v-expansion-panel-text class="my-2">
                 <send-code-form path="turn-off" @codeSent="updateAccount" />
               </v-expansion-panel-text>

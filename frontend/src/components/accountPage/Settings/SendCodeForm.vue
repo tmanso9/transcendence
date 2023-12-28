@@ -30,7 +30,6 @@ const errText = ref("");
 
 const emailValue = computed(() => {
   const val = cookies?.get("email") || user.email;
-  console.log(val);
   return val;
 });
 
@@ -48,13 +47,13 @@ const sendCode = async () => {
       body,
       credentials: "include",
     });
+    code.value = "";
     if (result.ok) {
       cookies?.remove("email");
       const data = await result.json();
-      code.value = "";
       if (route.path === "/2fa") {
-        fetchMe(cookies, user);
-        router.push(history.state.back);
+        await fetchMe(cookies, user);
+        router.push(`/users/${user.username}`);
       } else {
         e("codeSent", data);
       }
