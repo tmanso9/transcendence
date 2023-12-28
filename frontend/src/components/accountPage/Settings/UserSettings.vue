@@ -8,7 +8,7 @@
             v-if="sent"
             class="text-success mb-n2 text-overline edit-user__2fa__toggle"
           >
-            2FA enabled successfully
+            {{ toDisplay }}
           </p>
           <v-expansion-panels
             variant="accordion"
@@ -74,7 +74,7 @@
               title="disable 2FA"
             >
               <v-expansion-panel-text class="my-2">
-                <send-code-form path="turn-off" />
+                <send-code-form path="turn-off" @codeSent="updateAccount" />
               </v-expansion-panel-text>
             </v-expansion-panel>
             <v-expansion-panel
@@ -103,6 +103,7 @@ import { ref } from "vue";
 import SendCodeForm from "./SendCodeForm.vue";
 import { User } from "@/types";
 import { useUserStore } from "@/stores/user";
+import { computed } from "vue";
 
 const props = defineProps(["account"]);
 const emits = defineEmits(["accountUpdated"]);
@@ -114,6 +115,7 @@ const user = useUserStore();
 // change to ref to account value tfa_enabled
 const sent = ref(false);
 const panel = ref([]);
+const cameFromEnabled = ref(true);
 
 const QRSource = ref("");
 
@@ -143,10 +145,17 @@ const generateCode = async (val: Selected) => {
   }
 };
 
+const toDisplay = computed(() => {
+  return cameFromEnabled.value
+    ? "2FA enabled successfully"
+    : "2FA disabled successfully";
+});
+
 const updateAccount = (user: User) => {
   setTimeout(() => {
     sent.value = false;
   }, 2000);
+  if (user.tfa_enabled !== undefined) cameFromEnabled.value = user.tfa_enabled;
   emits("accountUpdated", user);
   sent.value = true;
   panel.value = [];
