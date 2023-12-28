@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Post, Req, UseGuards, Body } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtGuard } from '../auth/guards';
 import { getUser } from '../auth/decorator';
@@ -50,5 +50,19 @@ export class UserController {
 	async removeFriend(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
 		await this.userService.removeFriend(user_id, decoded_jwt);
 		return HttpCode(201);
+	}
+
+	@UseGuards(JwtGuard)
+	@Post('change-username')
+	async changeUsername(@getUser() user: any, @Body() body: any) {
+		const updated = await this.userService.changeUsername(user, body.username);
+		return updated;
+	}
+
+	@UseGuards(JwtGuard)
+	@Post('change-password')
+	async changePassword(@getUser() user: any, @Body() body: any) {
+		const updated = await this.userService.changePassword(user, body.password);
+		return updated;
 	}
 }

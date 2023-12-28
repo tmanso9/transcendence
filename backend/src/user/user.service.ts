@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UserService {
@@ -206,5 +207,23 @@ export class UserService {
 			where: { id: id },
 			data: {friends: {disconnect: [{ id: sender_info.sub }]}},
 		});
+	}
+
+	/* CHANGE USER DETAILS */
+
+	async changeUsername(user: any, username: string) {
+		const unique = await this.prisma.user.findUnique({where: {username: username}});
+
+		if (unique)
+			throw new ForbiddenException("Username already taken");
+
+		const updated = await this.prisma.user.update({where: {email: user.email}, data: {username: username}})
+		return updated;
+	}
+
+	async changePassword(user: any, password: string) {
+		const hashed = await argon.hash(password); 
+		const updated = await this.prisma.user.update({where: {email: user.email}, data: {password: hashed }})
+		return updated;
 	}
 }

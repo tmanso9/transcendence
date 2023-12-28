@@ -57,6 +57,8 @@ export class AuthController {
 		const logged_user = await this.authService.googleLogin(user);
 		const access_token = logged_user.access_token;
 		delete logged_user.access_token;
+		const refresh_token = logged_user.refresh_token;
+		delete logged_user.refresh_token;
 
 		// Set cookie
 		response.cookie("access_token", access_token, {
@@ -65,17 +67,26 @@ export class AuthController {
 			secure: false,
 		});
 
-		response.cookie('refresh_token', logged_user.refresh_token, {
+		response.cookie('refresh_token', refresh_token, {
 			maxAge: 2592000000,
 			sameSite: true,
 			secure: false,
 		});
 
-		delete logged_user.refresh_token;
-
-		const url = `http://localhost:3001/users/${logged_user.username}`;
+		if (logged_user.tfa)
+		{
+			response.cookie('email', logged_user.email, {
+				maxAge: 2592000000,
+				sameSite: true,
+				secure: false,
+			});
+			response.redirect('http://localhost:3001/2fa');
+		}
+		else {
+			const url = `http://localhost:3001/users/${logged_user.username}`;
+			response.redirect(url)
+		}
 		
-		response.redirect(url)
 	}
 
 	/***** 42 LOGIN *****/
@@ -100,9 +111,20 @@ export class AuthController {
 			secure: false,
 		});
 		
-		const url = `http://localhost:3001/users/${logged_user.username}`;
+		if (logged_user.tfa_enabled)
+		{
+			response.cookie('email', logged_user.email, {
+				maxAge: 2592000000,
+				sameSite: true,
+				secure: false,
+			});
+			response.redirect('http://localhost:3001/2fa');
+		}
+		else {
+			const url = `http://localhost:3001/users/${logged_user.username}`;
+			response.redirect(url)
+		}
 
-		response.redirect(url)
     }
 
 	/***** LOGOUT *****/
@@ -147,6 +169,20 @@ export class AuthController {
 			throw new ForbiddenException('Wrong authentication code');
 
 		const newUser = await this.authService.turnOnTwoFactorAuthentication(user);
+		return newUser;
+	}
+
+	@Post('2fa/turn-off')
+	@UseGuards(JwtGuard)
+	async turnOffTFA(@Req() request: Request, @Body() body: any) {
+
+		const user = await this.authService.getUserFromToken(request.cookies['access_token']);
+
+		const isCodeValid = this.authService.isTwoFactorAuthenticationCodeValid(body.tfa_code, user);
+		if (!isCodeValid)
+			throw new ForbiddenException('Wrong authentication code');
+
+		const newUser = await this.authService.turnOffTwoFactorAuthentication(user);
 		return newUser;
 	}
 
