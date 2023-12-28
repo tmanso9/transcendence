@@ -36,10 +36,11 @@ export class ChannelsGateway {
     @MessageBody() data: string,
   ): Promise<undefined> {
     this.server.emit('test', 'ola, eu sou o server');
-    const payload = this.authService.verify(
+    const payload = await this.authService.getUserFromToken(
       client.handshake.headers.authorization,
     );
-    const user = await this.userService.getUserById(payload.userId);
-    this.logger.debug(client.handshake.headers.authorization);
+    if (payload)
+      this.logger.debug('user ', payload.username, ' is using tokens');
+    else this.logger.debug('user is not using tokens');
   }
 }

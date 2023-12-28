@@ -210,6 +210,14 @@ export class AuthService {
     return user;
   }
 
-  async verify(authorization_key: string) {
+  async getUserFromToken(token: string) {
+    const decoded = this.jwt.decode(token);
+    if (!decoded)
+      throw new ForbiddenException('getUserFromToken: invalid token');
+    const user = await this.prisma.user.findUnique({
+      where: { email: decoded.email },
+    });
+    if (!user) throw new ForbiddenException('getUserFromToken: invalid user');
+    return user;
   }
 }

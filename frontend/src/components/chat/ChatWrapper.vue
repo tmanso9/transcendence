@@ -10,6 +10,7 @@ import CreateChannel from "./CreateChannel.vue";
 
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 const store = chatAppStore();
+store.startConection();
 
 // --------------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ function updateScroll(id: string) {
       <messages-scroll></messages-scroll>
       <message-input
         @scrollMessages="updateScroll('scrollMessages')"
-				style="bottom: 0;"
+        style="bottom: 0"
       ></message-input>
     </div>
   </div>

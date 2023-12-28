@@ -1,32 +1,39 @@
 // Utilities
+// import { useUserStore } from "@/stores/user";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
-import { ref } from "vue";
-
-const socketOptions = {
-  transportOptions: {
-    polling: {
-      extraHeaders: {
-        Authorization: "your token", // 'Bearer h93t4293t49jt34j9rferek...'
-      },
-    },
-  },
-};
-
-const socket = io("http://localhost:3000", socketOptions);
-socket.on("connect", () => {
-  console.log("connection id: ", socket.id);
-});
-socket.on("disconnect", () => {
-  socket.close();
-  window.location.reload();
-});
-
-socket.on("test", (msg) => {
-  console.log("server: ", msg);
-});
+import { ref, onMounted, inject } from "vue";
+import { VueCookies } from "vue-cookies";
 
 export const chatAppStore = defineStore("chat", () => {
+  const cookies = inject<VueCookies>("$cookies");
+
+  const socketOptions = {
+    transportOptions: {
+      polling: {
+        extraHeaders: {
+          Authorization: cookies?.get("access_token"), // 'Bearer h93t4293t49jt34j9rferek...'
+        },
+      },
+    },
+  };
+
+  const socket = io("http://localhost:3000", socketOptions);
+
+  function startConection() {
+    socket.on("connect", () => {
+      console.log("connection id: ", socket.id);
+    });
+    socket.on("disconnect", () => {
+      socket.close();
+      window.location.reload();
+    });
+
+    socket.on("test", (msg) => {
+      console.log("server: ", msg);
+    });
+  }
+
   // Data
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
@@ -340,5 +347,6 @@ export const chatAppStore = defineStore("chat", () => {
     isBlockedFromChannel,
     findUserByUsername,
     testWebSockets,
+    startConection,
   };
 });
