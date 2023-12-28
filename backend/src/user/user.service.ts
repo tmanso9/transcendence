@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class UserService {
@@ -24,6 +25,23 @@ export class UserService {
 	// Returns User Info
 	getMe(user: any) {
 		return user;
+	}
+
+	// Returns Friends of User
+	async getFriends(decoded_jwt: any) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: decoded_jwt.sub
+			},
+			include: {
+				friends: true,
+			},		
+		});
+
+		return user.friends.map((friend) => {
+			delete friend.password;
+			return friend;
+		});
 	}
 
 	// Sends friend request
@@ -174,5 +192,70 @@ export class UserService {
 			where: { id: id },
 			data: {friends: {disconnect: [{ id: sender_info.sub }]}},
 		});
+	}
+
+	// Returns all channels user is part of
+	async getUserChannels(id: string) {
+		// Get user from db
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				channels: {
+					include: {
+						members: true
+					},
+				}
+			}
+		});
+
+		const channels = user.channels.map(channel => {
+			return {
+				...channel,
+				members: channel.members.map(member => {
+					return member.username;
+				}),
+			};
+		});
+
+		return channels;
+	}
+
+	// Returns all channels user is NOT part of
+	async getNonUserChannels(id: string) {
+		// Get the IDs of the channels the user is part of
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id,
+			},
+			include: {
+				channels: {
+					include: {
+						members: true
+					}
+				}
+			}
+		});
+		const included_channels = user.channels.map(channel => channel.id);
+
+		// Get all channels
+		const all_channels = await this.prisma.channels.findMany({
+			include: {
+				members: true
+			}
+		});
+
+		// Build excluded channels
+		const excluded_channels = all_channels.filter(channel => !included_channels.includes(channel.id)).map(channel => {
+			return {
+				...channel,
+				members: channel.members.map(member => {
+					return member.username;
+				}),
+			};
+		});;
+
+		return excluded_channels;
 	}
 }

@@ -74,9 +74,10 @@ model Channels {
   id String @id @default(uuid())  // id of the channel
   creator String  // id of the User who created the chat
   password String @default("")  // hashed password to access the chat (optional - empty of not desired)
+  type ChannelType  // type of the channel
   channelName String  // name of the channel
-  members User[] @relation("Members") // array of members who are part of the channel
   messages Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
+  members User[] @relation("Members") // array of members who are part of the channel
   admins User[] @relation("Admins") // array of IDs of the admins
   bannedUsers User[] @relation("Banned")  // array of banned users
   mutedUsers User[] @relation("Muted")  // array of muted users

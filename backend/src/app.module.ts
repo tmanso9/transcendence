@@ -12,12 +12,12 @@ import { ChannelsModule } from './channels/channels.module';
   imports: [
     AuthModule,
     PrismaModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
     UserModule,
     DbModule,
     ChannelsModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
 })
 export class AppModule {}

@@ -1,7 +1,3 @@
-// Utilities
-import { defineStore } from "pinia";
-import { ref } from "vue";
-import { useUserStore } from "../stores/user";
 
 export const chatAppStore = defineStore("chat", () => {
   // Data
@@ -122,12 +118,12 @@ export const chatAppStore = defineStore("chat", () => {
   // Functions
 
   function createNewChannel(
-    creator: string,
-    type: string,
-    password: string,
-    avatar: string,
-    name: string,
-    members: string[]
+    creator,
+    type,
+    password,
+    avatar,
+    name,
+    members,
   ) {
     if (
       (type != "personal" && type != "public" && type != "private") ||
@@ -147,18 +143,18 @@ export const chatAppStore = defineStore("chat", () => {
     });
   }
 
-  function channelMessages(channel: any) {
+  function channelMessages(channel) {
     for (let i = 0; i < allChannelsUserIsIn.value.length; i++) {
       if (allChannelsUserIsIn.value[i].name == channel)
         return allChannelsUserIsIn.value[i].messages;
     }
   }
 
-  function selectChannel(channel: string) {
+  function selectChannel(channel) {
     selectedChannel.value = channel;
   }
 
-  function getChannelInfo(channel: string) {
+  function getChannelInfo(channel) {
     const index = allChannelsUserIsIn.value
       .map((n) => n.name)
       .indexOf(channel, 0);

@@ -1,12 +1,22 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { ChannelsService } from './channels.service';
+import { Server } from 'socket.io'
+import { UseGuards } from '@nestjs/common';
+import { JwtGuard } from 'src/auth/guards';
 
-@WebSocketGateway()
+@UseGuards(JwtGuard)
+@WebSocketGateway({ namespace: 'chat' })
 export class ChannelsGateway {
+  @WebSocketServer()
+  server: Server;
+
   constructor(private readonly channelsService: ChannelsService) {}
 
-  @SubscribeMessage('events')
+  @SubscribeMessage('message')
   handleEvent(@MessageBody() data: string): string {
-    return data;
+    console.log('Received', data);
+    console.log('Sending', data.toUpperCase());
+    this.server.emit('message', data.toUpperCase());
+    return data.toUpperCase();
   }
 }
