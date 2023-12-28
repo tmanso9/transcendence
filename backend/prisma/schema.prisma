@@ -73,6 +73,7 @@ model Gamestats {
 model Channels {
   id          String @id @default(uuid()) // id of the channel
   creator     String // id of the User who created the chat
+  type        String
   password    String @default("") // hashed password to access the chat (optional - empty of not desired)
   channelName String // name of the channel
   members     User[] @relation("Members") // array of members who are part of the channel
