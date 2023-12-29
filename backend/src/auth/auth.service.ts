@@ -219,5 +219,6 @@ export class AuthService {
       if (!user) throw new ForbiddenException('getUserFromToken: invalid user');
       return user;
     }
+    throw new ForbiddenException('getUserFromToken: invalid token');
   }
 }

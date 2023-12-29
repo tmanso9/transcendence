@@ -36,12 +36,16 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   function checkTokenConection() {
+    console.log("entered checkToken");
     const payload = send("checkTokenConection");
+    let isValid = 0;
     payload.then((value) => {
+      console.log("entered checkToken then stage");
       console.log(value);
-      return true;
+      isValid = 1;
     });
-    return false;
+    console.log("living checkToken");
+    return isValid;
   }
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);

@@ -33,10 +33,13 @@ export class ChannelsGateway {
 
   @SubscribeMessage('checkTokenConection')
   async checkTokenConection(@ConnectedSocket() client: Socket) {
-    const payload = await this.authService.getUserFromToken(
-      client.handshake.headers.authorization,
-    );
-    if (payload) return payload;
-    else return undefined;
+    try {
+      const payload = await this.authService.getUserFromToken(
+        client.handshake.headers.authorization,
+      );
+      if (payload) return payload;
+    } catch (error) {
+      return undefined;
+    }
   }
 }
