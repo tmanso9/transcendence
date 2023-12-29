@@ -28,10 +28,13 @@ router.beforeEach(async (to, from) => {
   await fetchMe(cookies, user);
 });
 
-const toggleChat = () => {
-  console.log(store.checkTokenConection());
-  showChat.value = !showChat.value;
-  chatText.value = showChat.value ? "Hide chat" : "Show chat";
+const toggleChat = async () => {
+  let permissionGranted = await store.checkTokenConection();
+  if (permissionGranted == 1) {
+    console.log(permissionGranted);
+    showChat.value = !showChat.value;
+    chatText.value = showChat.value ? "Hide chat" : "Show chat";
+  }
 };
 
 const toggleLogin = () => {

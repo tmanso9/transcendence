@@ -37,9 +37,11 @@ export class ChannelsGateway {
       const payload = await this.authService.getUserFromToken(
         client.handshake.headers.authorization,
       );
+      this.logger.debug('tried sucessfully token ');
       if (payload) return payload;
     } catch (error) {
-      return undefined;
+      this.logger.debug('catch token ', error);
+      return 0;
     }
   }
 }

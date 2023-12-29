@@ -35,17 +35,14 @@ export const chatAppStore = defineStore("chat", () => {
     });
   }
 
-  function checkTokenConection() {
-    console.log("entered checkToken");
+  async function checkTokenConection() {
     const payload = send("checkTokenConection");
-    let isValid = 0;
-    payload.then((value) => {
-      console.log("entered checkToken then stage");
-      console.log(value);
-      isValid = 1;
+    const isValid = ref(0);
+    await payload.then((value) => {
+      if (value == 0) isValid.value = 0;
+      else isValid.value = 1;
     });
-    console.log("living checkToken");
-    return isValid;
+    return isValid.value;
   }
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
