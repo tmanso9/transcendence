@@ -213,7 +213,6 @@ export class AuthService {
   }
 
   async getUserFromToken(token: string) {
-    this.logger.debug(token);
     const decoded = this.jwt.decode(token);
     if (!decoded) throw new ForbiddenException('decoded error');
     const user = await this.prisma.user.findUnique({

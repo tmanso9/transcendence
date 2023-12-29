@@ -31,7 +31,6 @@ router.beforeEach(async (to, from) => {
 const toggleChat = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted == 1) {
-    console.log(permissionGranted);
     showChat.value = !showChat.value;
     chatText.value = showChat.value ? "Hide chat" : "Show chat";
   }
@@ -77,7 +76,14 @@ const toggleSignUp = () => {
     <v-main class="px-5 mt-4 h-75 overflow-y-auto">
       <RouterView :key="`${$route.fullPath}--${user.username}`" />
       <v-spacer class="h-10"></v-spacer>
-      <chat-wrapper v-if="showChat" />
+      <chat-wrapper
+        v-if="showChat"
+        v-click-outside="
+          () => {
+            if (showChat) toggleChat();
+          }
+        "
+      />
     </v-main>
     <v-footer height="1" class="pa-0" style="z-index: 2">
       <v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>

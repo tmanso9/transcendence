@@ -38,10 +38,8 @@ export class ChannelsGateway {
   ) {
     try {
       const payload = await this.authService.getUserFromToken(tokenKey);
-      this.logger.debug('tried sucessfully token ');
       if (payload) return payload;
     } catch (error) {
-      this.logger.debug('catch token ', error);
       return 0;
     }
   }
