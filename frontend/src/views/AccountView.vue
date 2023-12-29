@@ -11,7 +11,7 @@ import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
 import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
 import { ref, onBeforeMount, computed } from "vue";
 import { useRoute } from "vue-router";
-import { fetchUser } from "@/utils";
+import { fetchOtherUser } from "@/utils";
 import { User } from "@/types";
 
 const route = useRoute();
@@ -27,7 +27,7 @@ const unauthorized = ref(false);
 
 onBeforeMount(async () => {
   try {
-    account.value = await fetchUser(getUsername.value);
+    account.value = await fetchOtherUser(getUsername.value);
     if (account.value && account.value.username) isLoaded.value = true;
   } catch (error) {
     if (error instanceof Error) {

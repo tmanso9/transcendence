@@ -1,4 +1,4 @@
-export const fetchUser = async (username: string) => {
+export const fetchOtherUser = async (username: string) => {
   try {
     const result = await fetch(`http://localhost:3000/users/${username}`, {
       credentials: "include",
