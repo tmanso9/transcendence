@@ -11,7 +11,8 @@ import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
-import { User } from '@prisma/client';
+import { Channels, User } from '@prisma/client';
+import { Client } from 'socket.io/dist/client';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class ChannelsGateway {
@@ -41,6 +42,22 @@ export class ChannelsGateway {
       if (payload) return payload;
     } catch (error) {
       return 0;
+    }
+  }
+
+  @SubscribeMessage('publicChannels')
+  async allPublicChannels(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody() data: { tokenKey: string; userId: string },
+  ): Promise<Channels[]> {
+    try {
+      const payload = await this.authService.getUserFromToken(data.tokenKey);
+      const publicChannels = this.prisma.channels.findMany({
+        where: { type: 'public' },
+      });
+      return publicChannels;
+    } catch (error) {
+      return [];
     }
   }
 }
