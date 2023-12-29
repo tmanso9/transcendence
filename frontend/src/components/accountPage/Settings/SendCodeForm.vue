@@ -50,14 +50,14 @@ const rules = [
 ];
 
 const sendCode = async () => {
+  hasError.value = false;
+  errText.value = "";
   if (form.value) {
     const isValid = await form.value.validate();
     if (!isValid.valid) return;
   }
   const path = `http://localhost:3000/auth/2fa/${p.path}`;
   const body = `tfa_code=${code.value || ""}&email=${emailValue.value}`;
-  hasError.value = false;
-  errText.value = "";
   try {
     const result = await fetch(path, {
       method: "post",

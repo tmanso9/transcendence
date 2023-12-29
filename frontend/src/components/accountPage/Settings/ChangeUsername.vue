@@ -54,14 +54,14 @@ const errText = ref("");
 
 const changeUsername = async () => {
   let isValid = { valid: false };
+  hasError.value = false;
+  errText.value = "";
   if (usernameForm.value) {
     isValid = await usernameForm.value.validate();
   }
   if (!isValid.valid) return;
   const path = `http://localhost:3000/users/change-username`;
   const body = `username=${username.value}`;
-  hasError.value = false;
-  errText.value = "";
   try {
     const result = await fetch(path, {
       method: "post",
