@@ -17,8 +17,8 @@ const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
-const store = chatAppStore();
-store.startConection();
+const chatStore = chatAppStore();
+chatStore.startConection();
 
 onMounted(async () => {
   await fetchMe(cookies, user);
@@ -29,7 +29,7 @@ router.beforeEach(async (to, from) => {
 });
 
 const toggleChat = async () => {
-  let permissionGranted = await store.checkTokenConection();
+  let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted == 1) {
     console.log(permissionGranted);
     showChat.value = !showChat.value;

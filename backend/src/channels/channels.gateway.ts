@@ -32,11 +32,12 @@ export class ChannelsGateway {
   }
 
   @SubscribeMessage('checkTokenConection')
-  async checkTokenConection(@ConnectedSocket() client: Socket) {
+  async checkTokenConection(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() tokenKey: string,
+  ) {
     try {
-      const payload = await this.authService.getUserFromToken(
-        client.handshake.headers.authorization,
-      );
+      const payload = await this.authService.getUserFromToken(tokenKey);
       this.logger.debug('tried sucessfully token ');
       if (payload) return payload;
     } catch (error) {

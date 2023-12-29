@@ -36,7 +36,7 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   async function checkTokenConection() {
-    const payload = send("checkTokenConection");
+    const payload = send("checkTokenConection", cookies?.get("access_token"));
     const isValid = ref(0);
     await payload.then((value) => {
       if (value == 0) isValid.value = 0;

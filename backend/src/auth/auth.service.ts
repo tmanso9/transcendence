@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDTO } from './dto';
 import * as argon from 'argon2';
@@ -17,6 +17,8 @@ export class AuthService {
     private jwt: JwtService,
     private config: ConfigService,
   ) {}
+
+  private logger: Logger = new Logger('Auth Log');
 
   /***** EMAIL *****/
   async signup(dto: AuthDTO) {
@@ -211,6 +213,7 @@ export class AuthService {
   }
 
   async getUserFromToken(token: string) {
+    this.logger.debug(token);
     const decoded = this.jwt.decode(token);
     if (!decoded) throw new ForbiddenException('decoded error');
     const user = await this.prisma.user.findUnique({
