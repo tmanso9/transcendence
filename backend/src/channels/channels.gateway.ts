@@ -45,18 +45,34 @@ export class ChannelsGateway {
     }
   }
 
-  @SubscribeMessage('publicChannels')
-  async allPublicChannels(
+  @SubscribeMessage('publicChannelsUserIsNotIn')
+  async allPublicChannelsUserIsNotIn(
     @ConnectedSocket() Client: Socket,
-    @MessageBody() data: { tokenKey: string; userId: string },
+    @MessageBody() data: { token: string; userId: string },
   ): Promise<Channels[]> {
     try {
-      const payload = await this.authService.getUserFromToken(data.tokenKey);
-      const publicChannels = this.prisma.channels.findMany({
+      const payload = await this.authService.getUserFromToken(data.token);
+      const publicChannels = await this.prisma.channels.findMany({
         where: { type: 'public' },
+        include: {
+          members: true,
+          admins: true,
+          bannedUsers: true,
+          mutedUsers: true,
+        },
       });
-      return publicChannels;
+      let channelsUserIsNotIn: Channels[] = [];
+      publicChannels.map((channel) => {
+        let userIsMember = 0;
+        channel.members.map((member) => {
+          if (member.id == data.userId) userIsMember = 1;
+        });
+        if (!userIsMember) channelsUserIsNotIn.push(channel);
+      });
+      this.logger.debug(channelsUserIsNotIn.length);
+      return channelsUserIsNotIn;
     } catch (error) {
+      this.logger.debug(error);
       return [];
     }
   }

@@ -1,6 +1,7 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
 import { User } from "@/types";
+import { Channel } from "../types/channel";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -21,7 +22,7 @@ export const chatAppStore = defineStore("chat", () => {
 
   const socket = io("http://localhost:3000", socketOptions);
 
-  function send<T>(event: string, ...args: any[]): Promise<T> {
+  function socketSend<T>(event: string, ...args: any[]): Promise<T> {
     return new Promise((r) => socket.emit(event, ...args, r));
   }
 
@@ -35,8 +36,15 @@ export const chatAppStore = defineStore("chat", () => {
     });
   }
 
+  async function openChat() {
+    await getPublicChannelsUserIsNotIn();
+  }
+
   async function checkTokenConection() {
-    const payload = send("checkTokenConection", cookies?.get("access_token"));
+    const payload = socketSend(
+      "checkTokenConection",
+      cookies?.get("access_token"),
+    );
     const isValid = ref(0);
     await payload.then((value) => {
       if (value == 0) isValid.value = 0;
@@ -67,50 +75,30 @@ export const chatAppStore = defineStore("chat", () => {
     { name: "roberto", added: false },
   ]);
 
-  const publicChannelsUserIsNotIn = ref([
-    {
-      id: 0,
-      creator: "joao",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Football",
-      members: ["joao", "roberto", "francisco", "gonçalo", "Pedro"],
-      admins: ["joao", "roberto"],
-      blocked: [],
-      messages: [
-        { sender: "joao", content: "ola rui" },
-        { sender: "roberto", content: "ola" },
-        { sender: "gonçalo", content: "hello world" },
-        { sender: "Pedro", content: "ola ola" },
-      ],
-    },
-    {
-      id: 0,
-      creator: "gonçalo",
-      type: "public",
-      password: "yes",
-      avatar: "mdi-account-group-outline",
-      name: "Chess Team",
-    },
-    {
-      id: 0,
-      creator: "joana",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Choir",
-      members: ["luis", "joana", "Pedro", "matilde"],
-      admins: ["joana", "Pedro", "matilde"],
-      blocked: [],
-      messages: [
-        { sender: "luis", content: "do" },
-        { sender: "matilde", content: "re" },
-        { sender: "joana", content: "mi" },
-        { sender: "Pedro", content: "fa" },
-      ],
-    },
-  ]);
+  const getPublicChannelsUserIsNotIn = async () => {
+    // const tokenKey = await cookies?.get("access_token");
+    // return await socketSend("publicChannelsUserIsNotIn", {
+    //   token: tokenKey,
+    //   userId: "fc3de202-caef-488b-b877-392396436711",
+    // });
+    try {
+      const response = await fetch("http://localhost:3000/me/other-channels", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: await cookies?.get("access_token"),
+        },
+        // You can include additional options here if needed
+      });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      publicChannelsUserIsNotIn.value = data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const publicChannelsUserIsNotIn = ref<Channel[]>();
 
   const allChannelsUserIsIn = ref([
     {
@@ -307,7 +295,6 @@ export const chatAppStore = defineStore("chat", () => {
   return {
     friends,
     allUsers,
-    publicChannelsUserIsNotIn,
     allChannelsUserIsIn,
     userFriends,
     currentUser,
@@ -317,6 +304,7 @@ export const chatAppStore = defineStore("chat", () => {
     personalPopUpSettings,
     selectedUserProfile,
     settingsAdminPopUp,
+    publicChannelsUserIsNotIn,
     createNewChannel,
     channelMessages,
     selectChannel,
@@ -328,5 +316,6 @@ export const chatAppStore = defineStore("chat", () => {
     testWebSockets,
     startConection,
     checkTokenConection,
+    openChat,
   };
 });

@@ -36,7 +36,7 @@ export class AuthService {
           email: dto.email,
           password: hashed,
           username: dto.username,
-          avatar: '#',
+          avatar: 'mdi-account',
           status: 'OFFLINE',
         },
       });

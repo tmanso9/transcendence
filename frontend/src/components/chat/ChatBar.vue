@@ -64,7 +64,9 @@ const store = chatAppStore();
                   class="contactElement-publicChan-pofile-avatar"
                   :size="height > 700 ? 'small' : 'x-small'"
                 ></v-icon>
-                <v-list-item-title v-text="item.name"></v-list-item-title>
+                <v-list-item-title
+                  v-text="item.channelName"
+                ></v-list-item-title>
               </div>
               <v-btn
                 v-if="item.password == 'yes'"

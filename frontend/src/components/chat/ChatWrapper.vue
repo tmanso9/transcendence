@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import "./chat.scss";
 import { chatAppStore } from "@/store/chat";
 import MessageInput from "./MessageInput.vue";
@@ -24,6 +24,10 @@ function updateScroll(id: string) {
   if (element) element.scrollTop = element.scrollHeight;
   console.log(store.allUsers); // test to check if var is not empty
 }
+
+onMounted(async () => {
+  await store.openChat();
+});
 </script>
 
 <template>
