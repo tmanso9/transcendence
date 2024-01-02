@@ -36,6 +36,7 @@ export class UserController {
 	@UseGuards(JwtGuard)
 	@Get('me/other-channels')
 	async getNonUserChannels(@decodeJwt('sub') id: string) {
+		
 		return this.userService.getNonUserChannels(id);
 	}
 

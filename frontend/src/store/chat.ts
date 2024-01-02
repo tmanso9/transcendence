@@ -83,15 +83,11 @@ export const chatAppStore = defineStore("chat", () => {
     // });
     try {
       const response = await fetch("http://localhost:3000/me/other-channels", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: await cookies?.get("access_token"),
-        },
-        // You can include additional options here if needed
+        credentials: "include",
       });
       if (!response.ok) throw new Error();
       const data = await response.json();
+      console.log("channels data: ", data);
       publicChannelsUserIsNotIn.value = data;
     } catch (error) {
       console.error(error);
