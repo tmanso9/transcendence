@@ -88,9 +88,7 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
     @getUser() user: any,
   ) {
-    // console.log(file);
     const me = this.getMe(user);
-    // console.log(file.path)
     await this.userService.changeAvatar(
       me,
       `http://localhost:3000/${file.filename}`,

@@ -211,7 +211,7 @@ export class UserService {
           join(__dirname, '../..', 'public/'),
         ),
         (err) => {
-          console.error(err);
+          if (err instanceof Error) console.error(err);
         },
       );
     }
