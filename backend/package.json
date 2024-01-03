@@ -29,8 +29,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "pretest:e2e": "npm run db:test:restart",
     "test:e2e": "dotenv -e .env.test -- jest --watch --config ./test/jest-e2e.json",
-	"env": "./getSecrets.sh",
-	"env:vault": "cat vaultAccess.txt"
+    "env": "./getSecrets.sh",
+    "env:vault": "cat vaultAccess.txt"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",
@@ -62,10 +62,12 @@
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
+    "@nestjs/serve-static": "^4.0.0",
     "@nestjs/testing": "^10.0.0",
     "@types/cookie-parser": "^1.4.6",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
+    "@types/multer": "^1.4.11",
     "@types/node": "^20.3.1",
     "@types/passport-google-oauth20": "^2.0.14",
     "@types/passport-jwt": "^3.0.13",

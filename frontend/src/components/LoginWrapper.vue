@@ -79,27 +79,9 @@ const login = async () => {
 
     const urlEncoded = encodeFormData(values, propertyNames);
     try {
-      let data = await user.signin(urlEncoded, new URL(authUrl + "login"));
-      //   check for errors and cookies
-      if (cookies?.get("access_token") === null) {
-        console.log(data);
-        user.email = data.email;
-        emit("login");
-        router.push("/2fa");
-        // data = await fetch("http://localhost:3000/auth/2fa/authenticate", {
-        //   method: "post",
-        //   headers: {
-        //     "Content-Type": "application/x-www-form-urlencoded",
-        //   },
-        //   body: `email=${data.email}`,
-        //   credentials: "include",
-        // });
-        // console.log(data)
-      } else {
-        emit("login");
-      }
-      //   console.log(data);
-      //   console.log();
+      const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
+      console.log(data);
+      emit("login");
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;

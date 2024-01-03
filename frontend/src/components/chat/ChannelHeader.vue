@@ -2,7 +2,9 @@
 import { chatAppStore } from "@/store/chat";
 import ChannelSettings from "./ChannelSettings.vue";
 import { ref } from "vue";
+import { useDisplay } from "vuetify/lib/framework.mjs";
 
+const { height } = useDisplay();
 const store = chatAppStore();
 </script>
 <template>

@@ -88,7 +88,7 @@ export const useUserStore = defineStore("user", () => {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;
         console.error(message);
-        username.value = "";
+		username.value = ''
       }
     }
   };

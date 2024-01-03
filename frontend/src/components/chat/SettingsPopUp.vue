@@ -42,38 +42,35 @@ const channel = store.getChannelInfo(store.selectedChannel);
             store.selectedUserProfile &&
             !store.isAdmin(channel.name, store.selectedUserProfile.username)
           "
-          color="secondary"
+          color="primary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-account-arrow-up"
           >Promote to Admin</v-btn
         >
         <v-btn
           v-else-if="channel?.creator != store.selectedUserProfile?.username"
-          color="red"
+          color="primary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-account-arrow-down"
           >Despromote from Admin</v-btn
         >
         <v-btn
-          color="secondary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-volume-mute"
           >Mute</v-btn
         >
         <v-btn
-          color="secondary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-karate"
           >Kick</v-btn
         >
         <v-btn
-          color="secondary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-cancel"
           >Ban</v-btn
         >
         <v-btn
-          color="red"
+          color="warning"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-minus-circle-outline"
           >Remove from channel</v-btn

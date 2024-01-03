@@ -31,9 +31,22 @@ const channel = store.getChannelInfo(store.selectedChannel);
       </div>
       <div class="channelSettings-content-info"></div>
       <div class="channelSettings-content-buttons">
-        <v-btn color="primary" append-icon="mdi-face-man-profile">Profile</v-btn>
-        <v-btn color="green" append-icon="mdi-table-tennis">Play Game</v-btn>
-        <v-btn color="red" append-icon="mdi-cancel">Block</v-btn>
+        <v-btn
+          class="channelSettings-content-buttons-btn"
+          append-icon="mdi-face-man-profile"
+          >Profile</v-btn
+        >
+        <v-btn
+          class="channelSettings-content-buttons-btn"
+          append-icon="mdi-table-tennis"
+          >Play Game</v-btn
+        >
+        <v-btn
+          class="channelSettings-content-buttons-btn"
+          color="warning"
+          append-icon="mdi-cancel"
+          >Block</v-btn
+        >
       </div>
     </div>
   </div>
