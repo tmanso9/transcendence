@@ -27,20 +27,23 @@
 </template>
 
 <script setup lang="ts">
+import { useUserStore } from "@/stores/user";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 
 const { mdAndUp } = useDisplay();
 
 const props = defineProps(["source"]);
+const emit = defineEmits(["avatarChange"]);
+const user = useUserStore();
 
-console.log(props.source);
-
-const newPicture = ref<File>();
+const newPicture = ref<Blob | string>("");
 const form = ref<HTMLFormElement>();
 const fileInput = ref<HTMLInputElement>();
 const inputError = ref(false);
 const fileInputKey = ref(0);
+const router = useRouter();
 
 const selectFile = (files: File[]) => {
   if (files !== null) {
@@ -65,15 +68,33 @@ const upload = async () => {
       inputError.value = true;
       return;
     }
+    const formData = new FormData();
     console.log(newPicture.value);
+    const name = (newPicture.value as File).name;
+    console.log(name);
+    formData.append("avatar", newPicture.value as File, name);
+    console.log(formData.getAll("avatar"));
 
-    //to be done after successful post to backend
-    //will the file be hosted on BE? will a link to it work on image?
+    try {
+      const response = await fetch(
+        `http://localhost:3000/users/change-avatar/${user.username}`,
+        {
+          method: "post",
+          body: formData,
+          credentials: "include",
+        },
+      );
+
+      if (!response.ok) throw new Error(await response.text());
+      emit("avatarChange");
+      console.log(response);
+      router.go(0);
+    } catch (error) {
+      console.error(error);
+    }
 
     //to re-render the file input element after upload
     fileInputKey.value++;
-
-    //TO-DO: reload page on change
   }
 };
 </script>
