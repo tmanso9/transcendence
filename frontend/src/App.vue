@@ -16,6 +16,7 @@ const showChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
+const interval = ref();
 
 onMounted(async () => {
   await fetchMe(cookies, user);
@@ -23,6 +24,18 @@ onMounted(async () => {
 
 router.beforeEach(async (to, from) => {
   await fetchMe(cookies, user);
+  if (interval.value !== null && interval.value !== 0)
+    clearInterval(interval.value);
+  interval.value = setInterval(
+    async () => {
+      await fetchMe(cookies, user);
+      const now = new Date();
+      console.log(user.username, now.toLocaleString());
+    },
+    15 * 60 * 1000,
+  );
+  const now = new Date();
+  console.log(user.username, now.toLocaleString());
 });
 
 const toggleChat = () => {
@@ -72,7 +85,7 @@ const toggleSignUp = () => {
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper v-if="showChat" />
     </v-main>
-    <v-footer height="1" class="pa-0" style="z-index: 2;">
+    <v-footer height="1" class="pa-0" style="z-index: 2">
       <v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
     </v-footer>
   </v-app>

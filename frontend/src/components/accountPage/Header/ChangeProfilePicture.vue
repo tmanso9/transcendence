@@ -28,7 +28,10 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
+import { fetchMe } from "@/utils";
+import { inject } from "vue";
 import { ref } from "vue";
+import { VueCookies } from "vue-cookies";
 import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 
@@ -37,6 +40,7 @@ const { mdAndUp } = useDisplay();
 const props = defineProps(["source"]);
 const emit = defineEmits(["avatarChange"]);
 const user = useUserStore();
+const cookies = inject<VueCookies>("$cookies");
 
 const newPicture = ref<Blob | string>("");
 const form = ref<HTMLFormElement>();
@@ -76,6 +80,7 @@ const upload = async () => {
     console.log(formData.getAll("avatar"));
 
     try {
+      await fetchMe(cookies, user);
       const response = await fetch(
         `http://localhost:3000/users/change-avatar/${user.username}`,
         {
