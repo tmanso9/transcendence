@@ -82,7 +82,7 @@ const upload = async () => {
     try {
       await fetchMe(cookies, user);
       const response = await fetch(
-        `http://localhost:3000/users/change-avatar/${user.username}`,
+        `http://localhost:3000/users/change-avatar`,
         {
           method: "post",
           body: formData,

@@ -69,7 +69,7 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
-  @Post('change-avatar/:username')
+  @Post('change-avatar')
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage({
