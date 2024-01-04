@@ -38,7 +38,7 @@ const { height } = useDisplay();
             channelSettings = false;
           }
         "
-				:size="height > 700 ? 'large' : 'medium'"
+        :size="height > 700 ? 'large' : 'medium'"
       ></v-icon>
     </div>
     <div class="channelSettings-content">
@@ -62,12 +62,14 @@ const { height } = useDisplay();
             @click="
               () => {
                 store.selectedUserProfile = store.findUserByUsername(
-                  item.username
+                  item.username,
                 );
                 if (
                   channel &&
+                  store.currentUser &&
+                  store.currentUser.username &&
                   store.selectedUserProfile &&
-                  store.isAdmin(channel.name, store.currentUser) &&
+                  store.isAdmin(channel.name, store.currentUser.username) &&
                   channel.creator != store.selectedUserProfile.username
                 )
                   store.settingsAdminPopUp = true;
@@ -98,7 +100,7 @@ const { height } = useDisplay();
           </div>
         </template>
       </v-virtual-scroll>
-			<v-btn color="warning">Leave Group</v-btn>
+      <v-btn color="warning">Leave Group</v-btn>
       <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
       <personal-settings
         v-else-if="store.personalPopUpSettings"
