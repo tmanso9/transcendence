@@ -1,53 +1,53 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, onUnmounted } from "vue";
+import {ref, onMounted, nextTick, onUnmounted, Ref} from "vue";
 import { Socket, io } from "socket.io-client";
 import { game } from "@/game/game";
+import router from "@/router";
+import {connectSocket, disconnectSocket, getSocket} from "@/utils/socket/socketManager";
 
-const canvas = ref(null);
-const s = new io("http://localhost:3000/");
+const roomsList: Ref<string[]> = ref([]);
+let s: Socket = null as any;
+router.beforeEach((to, from, next) => {
+  if (to.path !== "/game") {
+    disconnectSocket();
+  }
+  next();
+});
+function goToGame() {
+  s.emit("createRoom", "room" + roomsList.value.length.toString());
+  router.push("/game");
+}
+
 
 onMounted(async () => {
   await nextTick();
-  s.on("connect", () => {
-    s.emit("reset", "reset");
+  s = connectSocket();
+  s.on("availableRooms", (rooms: string[]) => {
+    roomsList.value = rooms;
   });
-  game(canvas.value as any, s);
 });
 
-onUnmounted(() => {
-  s.disconnect();
-});
-
-function play() {
-  s.emit("play", "play");
-}
-function pause() {
-  s.emit("pause", "play");
+function joinRoom(room: string) {
+  s.emit("joinRoom", room);
+  router.push("/game");
 }
 
-function reset() {
-  s.emit("reset", "reset");
-}
 
-function test() {
-  s.emit("message", "reset");
-}
 </script>
 
 <template>
-  <canvas width="1000" height="700" id="game-canvas" ref="canvas"></canvas>
-  <h4>Move left paddle up and down with the arrow keys</h4>
-  <div>
-    <v-btn variant="outlined" color="white" @click="play" style="margin: 10px"
-      >Play</v-btn
-    >
-    <v-btn variant="outlined" color="white" @click="pause" style="margin: 10px"
-      >Pause</v-btn
-    >
-    <v-btn variant="outlined" color="white" @click="reset" style="margin: 10px"
-      >Reset</v-btn
-    >
+  <div v-if="roomsList.length > 0">
+    <h1>Available Rooms</h1>
+    <div v-for="room in roomsList" :key="room">
+      <v-btn variant="outlined" color="white" @click="joinRoom(room)" style="margin: 10px">
+        Join {{room}}
+      </v-btn>
+    </div>
   </div>
+  <h1 v-else>No rooms available</h1>
+  <v-btn variant="outlined" color="white" @click="goToGame" style="margin: 10px">
+    Create new Game!
+  </v-btn>
 </template>
 
 <style>
