@@ -5,7 +5,12 @@
     :account="account"
     :isSelf="isSelf"
   />
-  <interact-buttons :account="account" :isSelf="isSelf" />
+  <interact-buttons
+    :account="account"
+    :isSelf="isSelf"
+    :myFriends="myFriends"
+    :connections="connections"
+  />
   <v-expansion-panels
     variant="popout"
     class="my-5 mx-auto"
@@ -30,7 +35,7 @@ import { useUserStore } from "@/stores/user";
 const { mdAndUp } = useDisplay();
 const user = useUserStore();
 
-const props = defineProps(["account"]);
+const props = defineProps(["account", "myFriends", "connections"]);
 
 const computedStats = computed(() => {
   const { wins, losses, points } = props.account;
