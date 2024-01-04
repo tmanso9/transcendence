@@ -1,45 +1,54 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "Status" AS ENUM ('OFFLINE', 'ONLINE', 'IN_GAME', 'BLOCKED');
 
-  - The values [BLOCKED] on the enum `Status` will be removed. If these variants are still used in the database, this will fail.
-  - The primary key for the `Blacklist` table will be changed. If it partially fails, the table could be left without primary key constraint.
-  - The `id` column on the `Blacklist` table would be dropped and recreated. This will lead to data loss if there is data in the column.
-  - You are about to drop the column `login` on the `User` table. All the data in the column will be lost.
-  - You are about to drop the column `rank` on the `User` table. All the data in the column will be lost.
-  - Added the required column `sub` to the `Blacklist` table without a default value. This is not possible if the table is not empty.
+-- CreateEnum
+CREATE TYPE "ConnectionStatus" AS ENUM ('PENDING', 'ACCEPTED');
 
-*/
+-- CreateEnum
+CREATE TYPE "Rank" AS ENUM ('GURU', 'PRO', 'NOOBIE');
+
 -- CreateEnum
 CREATE TYPE "ChannelType" AS ENUM ('PERSONAL', 'PRIVATE', 'PUBLIC');
 
--- AlterEnum
-BEGIN;
-CREATE TYPE "Status_new" AS ENUM ('OFFLINE', 'ONLINE', 'IN_GAME');
-ALTER TABLE "User" ALTER COLUMN "status" TYPE "Status_new" USING ("status"::text::"Status_new");
-ALTER TYPE "Status" RENAME TO "Status_old";
-ALTER TYPE "Status_new" RENAME TO "Status";
-DROP TYPE "Status_old";
-COMMIT;
+-- CreateTable
+CREATE TABLE "Connections" (
+    "id" TEXT NOT NULL,
+    "status" "ConnectionStatus" NOT NULL DEFAULT 'PENDING',
+    "creator" TEXT NOT NULL,
+    "receiver" TEXT NOT NULL,
 
--- DropIndex
-DROP INDEX "Blacklist_token_key";
+    CONSTRAINT "Connections_pkey" PRIMARY KEY ("id")
+);
 
--- AlterTable
-ALTER TABLE "Blacklist" DROP CONSTRAINT "Blacklist_pkey",
-ADD COLUMN     "sub" TEXT NOT NULL,
-DROP COLUMN "id",
-ADD COLUMN     "id" SERIAL NOT NULL,
-ADD CONSTRAINT "Blacklist_pkey" PRIMARY KEY ("id");
+-- CreateTable
+CREATE TABLE "User" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "editedAt" TIMESTAMP(3) NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "username" TEXT NOT NULL,
+    "status" "Status" NOT NULL,
+    "avatar" TEXT NOT NULL,
+    "rank" "Rank" NOT NULL DEFAULT 'NOOBIE',
+    "points" INTEGER NOT NULL DEFAULT 0,
+    "wins" INTEGER NOT NULL DEFAULT 0,
+    "losses" INTEGER NOT NULL DEFAULT 0,
 
--- AlterTable
-ALTER TABLE "User" DROP COLUMN "login",
-DROP COLUMN "rank";
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
 
--- DropEnum
-DROP TYPE "Login";
+-- CreateTable
+CREATE TABLE "Blacklist" (
+    "id" SERIAL NOT NULL,
+    "token" TEXT NOT NULL,
+    "sub" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "expiresIn" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
--- DropEnum
-DROP TYPE "Rank";
+    CONSTRAINT "Blacklist_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "Gamestats" (
@@ -52,11 +61,19 @@ CREATE TABLE "Gamestats" (
 CREATE TABLE "Channels" (
     "id" TEXT NOT NULL,
     "creator" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL,
     "password" TEXT NOT NULL DEFAULT '',
     "channelName" TEXT NOT NULL,
     "messages" JSONB[],
 
     CONSTRAINT "Channels_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "_Friends" (
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -84,6 +101,18 @@ CREATE TABLE "_Muted" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_Friends_AB_unique" ON "_Friends"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_Friends_B_index" ON "_Friends"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_Members_AB_unique" ON "_Members"("A", "B");
 
 -- CreateIndex
@@ -106,6 +135,12 @@ CREATE UNIQUE INDEX "_Muted_AB_unique" ON "_Muted"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_Muted_B_index" ON "_Muted"("B");
+
+-- AddForeignKey
+ALTER TABLE "_Friends" ADD CONSTRAINT "_Friends_A_fkey" FOREIGN KEY ("A") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_Friends" ADD CONSTRAINT "_Friends_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_Members" ADD CONSTRAINT "_Members_A_fkey" FOREIGN KEY ("A") REFERENCES "Channels"("id") ON DELETE CASCADE ON UPDATE CASCADE;
