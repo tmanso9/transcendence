@@ -48,6 +48,37 @@ export class UserService {
     return requested_user;
   }
 
+  async getFriends(id: string) {
+    const friend = await this.prisma.user
+      .findUnique({
+        where: { id },
+        select: { friends: true },
+      })
+      .friends();
+    return friend.map((friend) => friend.username);
+  }
+
+  async getPending() {
+    const pending = await this.prisma.connections.findMany();
+    const allPairs = [];
+
+    await Promise.all(
+      pending.map(async (val) => {
+        const creator = (
+          await this.prisma.user.findUnique({ where: { id: val.creator } })
+        ).username;
+        const receiver = (
+          await this.prisma.user.findUnique({ where: { id: val.receiver } })
+        ).username;
+        const pair = new Array();
+        pair.push(creator);
+        pair.push(receiver);
+        allPairs.push(pair);
+      }),
+    );
+    return allPairs;
+  }
+
   // Sends friend request
   async requestFriend(id: string, sender_info: any) {
     // Save friend

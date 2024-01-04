@@ -33,6 +33,20 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('me/friends')
+  getMyFriends(@getUser() user: any) {
+    return this.userService.getFriends(user.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('connections')
+  async getPending() {
+    const pending = await this.userService.getPending();
+	// console.log(pending)
+	return pending
+  }
+
+  @UseGuards(JwtGuard)
   @Get(':username')
   getUserById(@Param('username') username: string) {
     return this.userService.getUserById(username);
