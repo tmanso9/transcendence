@@ -29,6 +29,7 @@
         :account="account"
         :editAvatar="editAvatar"
         @edit="toggleEditAvatar"
+        :isSelf="isSelf"
       />
     </div>
     <div class="acount__header__change-avatar w-100 mt-4">
@@ -43,7 +44,7 @@ import { useDisplay } from "vuetify";
 import AvatarWrapper from "./AvatarWrapper.vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 
-const props = defineProps(["account"]);
+const props = defineProps(["account", "isSelf"]);
 const { sm, mdAndUp } = useDisplay();
 const editAvatar = ref(false);
 
