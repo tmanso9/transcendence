@@ -92,6 +92,24 @@ export class UserService {
         receiver: id,
       },
     });
+
+    const receiverAlerts = (
+      await this.prisma.user.findUnique({
+        where: { id },
+        select: { alerts: true },
+      })
+    ).alerts;
+
+    receiverAlerts.push({
+      message: 'added you as friend',
+      sender: sender.username,
+      id: sender.id,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: receiverAlerts },
+    });
   }
 
   // Responds to friend request (accept or reject)
@@ -154,6 +172,19 @@ export class UserService {
         receiver: sender_info.sub,
       },
     });
+
+    type Alert = {
+      id: string;
+      message: string;
+      sender: string;
+    };
+
+    await this.prisma.user.update({
+      where: { id: sender.id },
+      data: { alerts: sender.alerts.filter((val: Alert) => val.id !== id) },
+    });
+
+    await this.prisma.user.update({ where: { id }, data: {} });
   }
 
   // Removes friend

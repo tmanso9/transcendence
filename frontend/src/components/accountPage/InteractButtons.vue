@@ -10,6 +10,7 @@
       :width="buttonSize"
       class="mx-auto my-2 my-sm-0 account__header__buttons__button py-3 d-flex align-center"
       :color="button.color"
+	  @click="button.action"
     >
       <v-icon>{{ button.icon }}</v-icon>
       <span class="ml-2">{{ button.text }}</span>
@@ -21,16 +22,33 @@
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
 
-defineProps(["account", "isSelf"]);
+const props = defineProps(["account", "isSelf"]);
 const { sm, mdAndUp } = useDisplay();
 
+const addFriend = async () => {
+	// console.log(props.account)
+	try {
+		console.log('oi')
+		const url = `http://localhost:3000/users/friend-request/${props.account.id}`
+		const result = await fetch(url, {
+			method: 'post',
+			credentials: 'include'
+		})
+		if (!result.ok) throw new Error(await result.text())
+		const data = await result.text()
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message)
+	}
+}
+
 const headerButtons = [
-  { text: "Chat", icon: "mdi-chat-outline" },
-  { text: "Add friend", icon: "mdi-account-plus-outline" },
-  { text: "Play pong", icon: "mdi-sword-cross", color: "deep-purple-darken-3" },
+  { text: "Chat", icon: "mdi-chat-outline", action: addFriend },
+  { text: "Add friend", icon: "mdi-account-plus-outline", action: addFriend },
+  { text: "Play pong", icon: "mdi-sword-cross", color: "deep-purple-darken-3", action: addFriend },
 ];
 
 const buttonSize = computed(() => {
   return sm.value || mdAndUp.value ? "145px" : "75%";
 });
+
 </script>

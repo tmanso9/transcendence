@@ -3,6 +3,7 @@ import { RouterView } from "vue-router";
 import ChatWrapper from "@/components/chat/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
+import NotificationsWrapper from "./components/Notifications/NotificationsWrapper.vue";
 import NavBar from "./components/NavBar.vue";
 import { onMounted, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
@@ -14,6 +15,7 @@ import { chatAppStore } from "./store/chat";
 const showLogin = ref(false);
 const showSignup = ref(false);
 const showChat = ref(false);
+const showNotifications = ref(false);
 const permissionToOpenChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
@@ -57,20 +59,24 @@ const toggleChatPermission = async () => {
   else permissionToOpenChat.value = false;
 };
 
-const toggleLogin = () => {
+const toggleLogin = async () => {
   showLogin.value = !showLogin.value;
   showSignup.value = false;
-  fetchMe(cookies, user);
+  await fetchMe(cookies, user);
 };
 
-const toggleSignUp = () => {
+const toggleSignUp = async () => {
   showSignup.value = !showSignup.value;
-  fetchMe(cookies, user);
+  await fetchMe(cookies, user);
 };
 
 function include() {
   return [document.querySelector(".included")];
 }
+
+const handleNotificationResolve = async () => {
+  await fetchMe(cookies, user);
+};
 </script>
 
 <template>
@@ -80,6 +86,7 @@ function include() {
       :showLogin="showLogin"
       @login="toggleLogin"
       @logout="fetchMe(cookies, user)"
+      @notifications="showNotifications = !showNotifications"
       class="navbar"
     />
     <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
@@ -99,6 +106,12 @@ function include() {
       <signup-wrapper @signup="toggleSignUp" />
     </div>
     <v-main class="px-5 mt-4 h-75 overflow-y-auto">
+      <notifications-wrapper
+        v-if="showNotifications"
+        class="mt-n3 notifications"
+        :alerts="user.alerts"
+        @notification-resolve="handleNotificationResolve"
+      />
       <RouterView :key="`${$route.fullPath}--${user.username}`" />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
@@ -142,5 +155,12 @@ function include() {
   z-index: 1010;
   background-color: rgba(0, 0, 0, 0.5);
   position: fixed;
+}
+
+.notifications {
+  position: absolute;
+  z-index: 10000;
+  width: 40% !important;
+  margin-left: 57.5%;
 }
 </style>

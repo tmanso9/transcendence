@@ -5,6 +5,7 @@ export const useUserStore = defineStore("user", () => {
   const username = ref("");
   const isAdmin = ref(false);
   const points = ref(0);
+  const alerts = ref([]);
 
   const signin = async (urlEncoded: BodyInit, path: URL) => {
     try {
@@ -63,27 +64,31 @@ export const useUserStore = defineStore("user", () => {
       if (!result.ok) {
         const error = await result.json();
         if (error.statusCode === 401) {
-          const refresh = await getRefreshMe()
+          const refresh = await getRefreshMe();
           if (!refresh.ok) {
             const refreshError = await refresh.text();
             throw new Error(refreshError);
           }
           const refreshData = await refresh.json();
           username.value = refreshData.username;
+          alerts.value = refreshData.alerts;
+          console.log(refreshData);
           return;
         }
         throw new Error(JSON.stringify(error));
       }
       const data = await result.json();
       username.value = data.username;
+      alerts.value = data.alerts;
+      console.log(data);
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;
         console.error(message);
-		username.value = ''
+        username.value = "";
       }
     }
   };
 
-  return { username, isAdmin, points, signin, logout, fetchUser };
+  return { username, isAdmin, points, alerts, signin, logout, fetchUser };
 });
