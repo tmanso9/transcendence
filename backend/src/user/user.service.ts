@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { channel } from 'diagnostics_channel';
 import * as fs from 'fs';
 import { join } from 'path';
 
@@ -11,10 +12,17 @@ export class UserService {
   async getUsers() {
     const all_users = await this.prisma.user.findMany({
       select: {
+        id: true,
         username: true,
+        avatar: true,
+        points: true,
         wins: true,
         losses: true,
-        points: true,
+        friends: true,
+        channels: true,
+        adminOf: true,
+        bannedFrom: true,
+        mutedOn: true,
       },
     });
 
@@ -36,26 +44,8 @@ export class UserService {
         friends: true,
       },
     });
-    if (!requested_user)
-      throw new ForbiddenException(`User ${username} does not exist`);
 
-    const friends = requested_user.friends.map((friend) => {
-      return {
-        username: friend.username,
-        avatar: friend.avatar,
-      };
-    });
-
-    return {
-      username: requested_user.username,
-      wins: requested_user.wins,
-      losses: requested_user.losses,
-      points: requested_user.points,
-      rank: requested_user.rank,
-      status: requested_user.status,
-      avatar: requested_user.avatar,
-      friends,
-    };
+    return requested_user;
   }
 
   // Sends friend request
@@ -200,6 +190,73 @@ export class UserService {
       where: { id: id },
       data: { friends: { disconnect: [{ id: sender_info.sub }] } },
     });
+  }
+
+  // Returns all channels user is part of
+  async getUserChannels(id: string) {
+    // Get user from db
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        channels: {
+          include: {
+            members: true,
+          },
+        },
+      },
+    });
+
+    const channels = user.channels.map((channel) => {
+      return {
+        ...channel,
+        members: channel.members.map((member) => {
+          return member.username;
+        }),
+      };
+    });
+
+    return channels;
+  }
+
+  // Returns all channels user is NOT part of
+  async getNonUserChannels(id: string) {
+    // Get the IDs of the channels the user is part of
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        channels: {
+          include: {
+            members: true,
+          },
+        },
+      },
+    });
+    const included_channels = user.channels.map((channel) => channel.id);
+
+    // Get all channels
+    const all_channels = await this.prisma.channels.findMany({
+      include: {
+        members: true,
+      },
+    });
+
+    // Build excluded channels
+    const excluded_channels = all_channels
+      .filter((channel) => !included_channels.includes(channel.id))
+      .map((channel) => {
+        return {
+          ...channel,
+          members: channel.members.map((member) => {
+            return member.username;
+          }),
+        };
+      });
+
+    return excluded_channels;
   }
 
   async changeAvatar(user: any, newPath: string) {

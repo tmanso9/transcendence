@@ -9,17 +9,22 @@ import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
 import { fetchMe } from "./utils";
+import { chatAppStore } from "./store/chat";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
 const showChat = ref(false);
+const permissionToOpenChat = ref(false);
 const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
+const chatStore = chatAppStore();
+chatStore.startConection();
 const interval = ref();
 
 onMounted(async () => {
   await fetchMe(cookies, user);
+  await toggleChatPermission();
 });
 
 router.beforeEach(async (to, from) => {
@@ -38,9 +43,18 @@ router.beforeEach(async (to, from) => {
   console.log(user.username, now.toLocaleString());
 });
 
-const toggleChat = () => {
-  showChat.value = !showChat.value;
-  chatText.value = showChat.value ? "Hide chat" : "Show chat";
+const toggleChat = async () => {
+  let permissionGranted = await chatStore.checkTokenConection();
+  if (permissionGranted) {
+    showChat.value = !showChat.value;
+    chatText.value = showChat.value ? "Hide chat" : "Show chat";
+  }
+};
+
+const toggleChatPermission = async () => {
+  let permissionGranted = await chatStore.checkTokenConection();
+  if (permissionGranted) permissionToOpenChat.value = true;
+  else permissionToOpenChat.value = false;
 };
 
 const toggleLogin = () => {
@@ -53,6 +67,10 @@ const toggleSignUp = () => {
   showSignup.value = !showSignup.value;
   fetchMe(cookies, user);
 };
+
+function include() {
+  return [document.querySelector(".included")];
+}
 </script>
 
 <template>
@@ -83,10 +101,36 @@ const toggleSignUp = () => {
     <v-main class="px-5 mt-4 h-75 overflow-y-auto">
       <RouterView :key="`${$route.fullPath}--${user.username}`" />
       <v-spacer class="h-10"></v-spacer>
-      <chat-wrapper v-if="showChat" />
+      <chat-wrapper
+        v-if="showChat"
+        v-click-outside="{
+          handler: () => {
+            if (showChat) toggleChat();
+          },
+          include,
+        }"
+      />
     </v-main>
-    <v-footer height="1" class="pa-0" style="z-index: 2">
-      <v-btn class="chat mx-auto" @click="toggleChat">{{ chatText }}</v-btn>
+    <v-footer
+      height="1"
+      class="pa-0 included"
+      style="z-index: 2"
+      v-click-outside="toggleChatPermission()"
+    >
+      <v-btn
+        v-if="permissionToOpenChat"
+        class="chat mx-auto"
+        @click="toggleChat"
+        >{{ chatText }}</v-btn
+      >
+      <v-btn
+        v-else
+        class="chat mx-auto"
+        @click="toggleChat"
+        append-icon="mdi-cancel"
+        disabled
+        >{{ chatText }}</v-btn
+      >
     </v-footer>
   </v-app>
 </template>

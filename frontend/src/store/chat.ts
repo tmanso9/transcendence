@@ -1,49 +1,72 @@
 // Utilities
+// import { useUserStore } from "@/stores/user";
+import { User } from "@/types";
+import { Channel } from "../types/channel";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { Socket, io } from "socket.io-client";
+import { ref, onMounted, inject } from "vue";
+import { VueCookies } from "vue-cookies";
 
 export const chatAppStore = defineStore("chat", () => {
-  // Data
+  const cookies = inject<VueCookies>("$cookies");
+
+  const socketOptions = {
+    transportOptions: {
+      polling: {
+        extraHeaders: {
+          Authorization: cookies?.get("access_token"), // 'Bearer h93t4293t49jt34j9rferek...'
+        },
+      },
+    },
+  };
+
+  const socket = io("http://localhost:3000", socketOptions);
+
+  function socketSend<T>(event: string, ...args: any[]): Promise<T> {
+    return new Promise((r) => socket.emit(event, ...args, r));
+  }
+
+  function startConection() {
+    socket.on("connect", () => {
+      console.log("connection id: ", socket.id);
+    });
+    socket.on("disconnect", () => {
+      socket.close();
+      window.location.reload();
+    });
+  }
+
+  async function openChat() {
+    await getPublicChannelsUserIsNotIn();
+  }
+
+  async function checkTokenConection() {
+    const payload = socketSend(
+      "checkTokenConection",
+      cookies?.get("access_token"),
+    );
+    const isValid = ref(0);
+    await payload.then((value) => {
+      if (value == 0) isValid.value = 0;
+      else isValid.value = 1;
+    });
+    return isValid.value;
+  }
 
   const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
 
-  const allUsers = ref([
-    { id: 0, username: "joao", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 1,
-      username: "gonçalo",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 2, username: "joana", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 3,
-      username: "roberto",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 4, username: "rui", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 5,
-      username: "francisco",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 6, username: "Pedro", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 7,
-      username: "matilde",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 8, username: "luis", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 9,
-      username: "anastacia",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-  ]);
+  const allUsers = ref<User[]>();
+
+  async function getUsers() {
+    try {
+      const response = await fetch("http://localhost:3000/users");
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      allUsers.value = data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const friendsWithTick = ref([
     { name: "joao", added: false },
@@ -52,50 +75,26 @@ export const chatAppStore = defineStore("chat", () => {
     { name: "roberto", added: false },
   ]);
 
-  const publicChannelsUserIsNotIn = ref([
-    {
-      id: 0,
-      creator: "joao",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Football",
-      members: ["joao", "roberto", "francisco", "gonçalo", "Pedro"],
-      admins: ["joao", "roberto"],
-      blocked: [],
-      messages: [
-        { sender: "joao", content: "ola rui" },
-        { sender: "roberto", content: "ola" },
-        { sender: "gonçalo", content: "hello world" },
-        { sender: "Pedro", content: "ola ola" },
-      ],
-    },
-    {
-      id: 0,
-      creator: "gonçalo",
-      type: "public",
-      password: "yes",
-      avatar: "mdi-account-group-outline",
-      name: "Chess Team",
-    },
-    {
-      id: 0,
-      creator: "joana",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Choir",
-      members: ["luis", "joana", "Pedro", "matilde"],
-      admins: ["joana", "Pedro", "matilde"],
-      blocked: [],
-      messages: [
-        { sender: "luis", content: "do" },
-        { sender: "matilde", content: "re" },
-        { sender: "joana", content: "mi" },
-        { sender: "Pedro", content: "fa" },
-      ],
-    },
-  ]);
+  const getPublicChannelsUserIsNotIn = async () => {
+    // const tokenKey = await cookies?.get("access_token");
+    // return await socketSend("publicChannelsUserIsNotIn", {
+    //   token: tokenKey,
+    //   userId: "fc3de202-caef-488b-b877-392396436711",
+    // });
+    try {
+      const response = await fetch("http://localhost:3000/me/other-channels", {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      console.log("channels data: ", data);
+      publicChannelsUserIsNotIn.value = data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const publicChannelsUserIsNotIn = ref<Channel[]>();
 
   const allChannelsUserIsIn = ref([
     {
@@ -185,7 +184,7 @@ export const chatAppStore = defineStore("chat", () => {
     password: string,
     avatar: string,
     name: string,
-    members: string[]
+    members: string[],
   ) {
     if (
       (type != "personal" && type != "public" && type != "private") ||
@@ -226,9 +225,9 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   function channelMembers(channel: string) {
-    let memberUsers: { id: number; username: string; avatar: string }[] = [];
+    let memberUsers: User[] = [];
 
-    allUsers.value.map((user) => {
+    allUsers.value?.map((user) => {
       let userIsMember = 0;
 
       getChannelInfo(channel)?.members.map((mem) => {
@@ -276,24 +275,22 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   function findUserByUsername(username: string) {
-    const foundedUser = ref<{
-      id: number;
-      username: string;
-      avatar: string;
-      blocked: string[];
-    }>();
+    const foundedUser = ref<User>();
     let foundUser = 0;
-    allUsers.value.map((user) => {
+    allUsers.value?.map((user) => {
       if (user.username == username) foundedUser.value = user;
     });
     if (foundedUser) return foundedUser.value;
     return undefined;
   }
 
+  function testWebSockets() {
+    socket.emit("test", "hello server, im frontend");
+  }
+
   return {
     friends,
     allUsers,
-    publicChannelsUserIsNotIn,
     allChannelsUserIsIn,
     userFriends,
     currentUser,
@@ -303,6 +300,7 @@ export const chatAppStore = defineStore("chat", () => {
     personalPopUpSettings,
     selectedUserProfile,
     settingsAdminPopUp,
+    publicChannelsUserIsNotIn,
     createNewChannel,
     channelMessages,
     selectChannel,
@@ -311,5 +309,9 @@ export const chatAppStore = defineStore("chat", () => {
     isAdmin,
     isBlockedFromChannel,
     findUserByUsername,
+    testWebSockets,
+    startConection,
+    checkTokenConection,
+    openChat,
   };
 });

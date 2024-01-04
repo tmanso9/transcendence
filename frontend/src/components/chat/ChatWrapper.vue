@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import "./chat.scss";
 import { chatAppStore } from "@/store/chat";
 import MessageInput from "./MessageInput.vue";
@@ -22,7 +22,12 @@ const members = ref([]);
 function updateScroll(id: string) {
   var element = document.getElementById(id);
   if (element) element.scrollTop = element.scrollHeight;
+  console.log(store.allUsers); // test to check if var is not empty
 }
+
+onMounted(async () => {
+  await store.openChat();
+});
 </script>
 
 <template>
@@ -35,7 +40,7 @@ function updateScroll(id: string) {
       <messages-scroll></messages-scroll>
       <message-input
         @scrollMessages="updateScroll('scrollMessages')"
-				style="bottom: 0;"
+        style="bottom: 0"
       ></message-input>
     </div>
   </div>
