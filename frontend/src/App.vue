@@ -20,6 +20,7 @@ const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
 chatStore.startConection();
+const interval = ref();
 
 onMounted(async () => {
   await fetchMe(cookies, user);
@@ -28,6 +29,18 @@ onMounted(async () => {
 
 router.beforeEach(async (to, from) => {
   await fetchMe(cookies, user);
+  if (interval.value !== null && interval.value !== 0)
+    clearInterval(interval.value);
+  interval.value = setInterval(
+    async () => {
+      await fetchMe(cookies, user);
+      const now = new Date();
+      console.log(user.username, now.toLocaleString());
+    },
+    15 * 60 * 1000,
+  );
+  const now = new Date();
+  console.log(user.username, now.toLocaleString());
 });
 
 const toggleChat = async () => {

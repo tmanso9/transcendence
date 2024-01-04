@@ -1,6 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { channel } from 'diagnostics_channel';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class UserService {
@@ -14,7 +16,7 @@ export class UserService {
         username: true,
         avatar: true,
         points: true,
-        wins: true,	
+        wins: true,
         losses: true,
         friends: true,
         channels: true,
@@ -32,21 +34,18 @@ export class UserService {
     return user;
   }
 
-  // Returns Friends of User
-  async getFriends(decoded_jwt: any) {
-    const user = await this.prisma.user.findUnique({
+  // Get user by username
+  async getUserById(username: string) {
+    const requested_user = await this.prisma.user.findFirst({
       where: {
-        id: decoded_jwt.sub,
+        username,
       },
       include: {
         friends: true,
       },
     });
 
-    return user.friends.map((friend) => {
-      delete friend.password;
-      return friend;
-    });
+    return requested_user;
   }
 
   // Sends friend request
@@ -258,5 +257,24 @@ export class UserService {
       });
 
     return excluded_channels;
+  }
+
+  async changeAvatar(user: any, newPath: string) {
+    const oldAvatar: string = user.avatar;
+    if (oldAvatar.indexOf('http://localhost:3000') === 0) {
+      fs.unlink(
+        oldAvatar.replace(
+          'http://localhost:3000/',
+          join(__dirname, '../..', 'public/'),
+        ),
+        (err) => {
+          if (err instanceof Error) console.error(err);
+        },
+      );
+    }
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { avatar: newPath },
+    });
   }
 }

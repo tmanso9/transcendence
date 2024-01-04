@@ -62,20 +62,23 @@
 </template>
 
 <script lang="ts" setup>
+import { fetchMe } from "@/utils";
 import { inject } from "vue";
 import { ref } from "vue";
+import { VueCookies } from "vue-cookies";
 
 const props = defineProps(["user"]);
 const emit = defineEmits(["login", "logout"]);
 const showLogin = ref(false);
 
-const cookies = inject("$cookies");
+const cookies = inject<VueCookies>("$cookies");
 
 const toggleLogin = () => {
   emit("login");
 };
 
 const logOut = async () => {
+  await fetchMe(cookies, props.user);
   await props.user.logout();
   emit("logout");
 };
