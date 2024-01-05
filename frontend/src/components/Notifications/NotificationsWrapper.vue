@@ -26,6 +26,7 @@
 import { useRouter } from "vue-router";
 
 defineProps(["alerts"]);
+const emit = defineEmits(["notificationResolve"]);
 const router = useRouter();
 
 type Alert = {
@@ -63,7 +64,7 @@ const dismissAlert = async (alert: Alert) => {
       },
     );
     if (!result.ok) throw new Error(await result.text());
-    router.go(0);
+    emit("notificationResolve");
   } catch (error) {
     if (error instanceof Error) console.error(error);
   }
