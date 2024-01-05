@@ -111,6 +111,9 @@ const handleNotificationResolve = async () => {
         class="mt-n3 notifications"
         :alerts="user.alerts"
         @notification-resolve="handleNotificationResolve"
+        v-click-outside="{
+          handler: () => (showNotifications = false),
+        }"
       />
       <RouterView :key="`${$route.fullPath}--${user.username}`" />
       <v-spacer class="h-10"></v-spacer>

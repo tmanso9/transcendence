@@ -54,7 +54,9 @@
     <div class="mr-10">
       <div v-if="user.username">
         <span class="mr-3">hi, {{ user.username }}!</span>
-		<v-icon @click="$emit('notifications')">{{ notificationBell }}</v-icon>
+        <v-icon @click="$emit('notifications')" :color="notificationColor">{{
+          notificationBell
+        }}</v-icon>
         <v-btn class="login" @click="logOut"> Logout </v-btn>
       </div>
       <v-btn class="login" v-else @click="toggleLogin">Login</v-btn>
@@ -75,8 +77,16 @@ const showLogin = ref(false);
 const cookies = inject<VueCookies>("$cookies");
 
 const notificationBell = computed(() => {
-	return props.user.alerts.length ? 'mdi-bell-badge-outline' : 'mdi-bell-outline'
-})
+  return props.user.alerts.length
+    ? "mdi-bell-badge-outline"
+    : "mdi-bell-outline";
+});
+
+const notificationColor = computed(() => {
+  return notificationBell.value === "mdi-bell-badge-outline"
+    ? "deep-purple"
+    : "";
+});
 
 const toggleLogin = () => {
   emit("login");
