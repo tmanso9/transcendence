@@ -137,7 +137,8 @@ export class UserService {
       include: { friends: true, friendOf: true },
     });
     if (!sender) throw new ForbiddenException('Something went wrong');
-    if (friend.friends.includes(friend))
+	const friendIds = friend.friends.map((val) => val.id)
+    if (friendIds.includes(sender.id))
       throw new ForbiddenException('Already Friends');
 
     // Check if the request was already sent (bilateral check)
