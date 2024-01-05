@@ -26,26 +26,9 @@ import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
+const emit = defineEmits(["friendRequest"]);
 const { sm, mdAndUp } = useDisplay();
-const router = useRouter();
 const user = useUserStore();
-
-const friendRequest = async (path: string) => {
-  // console.log(props.account)
-  try {
-    // console.log("oi");
-    const url = `http://localhost:3000/users/${path}/${props.account.id}`;
-    const result = await fetch(url, {
-      method: "post",
-      credentials: "include",
-    });
-    if (!result.ok) throw new Error(await result.text());
-    const data = await result.text();
-    router.go(0);
-  } catch (error) {
-    if (error instanceof Error) console.error(error.message);
-  }
-};
 
 const friendAction = computed(() => {
   const friendArr = [];
@@ -73,7 +56,7 @@ const friendAction = computed(() => {
     return {
       text: "Remove friend",
       icon: "mdi-account-minus-outline",
-      action: () => friendRequest("remove-friend"),
+      action: () => emit("friendRequest", "remove-friend", props.account.id),
     };
   } else if (pending) {
     return {
@@ -85,7 +68,7 @@ const friendAction = computed(() => {
     return {
       text: "Add friend",
       icon: "mdi-account-plus-outline",
-      action: () => friendRequest("friend-request"),
+      action: () => emit("friendRequest", "friend-request", props.account.id),
       color: "",
     };
   }
@@ -95,7 +78,7 @@ const headerButtons = [
   {
     text: "Chat",
     icon: "mdi-chat-outline",
-    action: () => friendRequest(""),
+    action: () => {},
     color: "",
   },
   friendAction.value,
@@ -103,7 +86,7 @@ const headerButtons = [
     text: "Play pong",
     icon: "mdi-sword-cross",
     color: "deep-purple-darken-3",
-    action: () => friendRequest(""),
+    action: () => {},
   },
 ];
 
