@@ -4,6 +4,13 @@ import { channel } from 'diagnostics_channel';
 import * as fs from 'fs';
 import { join } from 'path';
 
+type Alert = {
+  id: string;
+  message: string;
+  sender: string;
+  action: boolean;
+};
+
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -79,6 +86,36 @@ export class UserService {
     return allPairs;
   }
 
+  async dismissAlert(
+    user: any,
+    id: string,
+    message: string,
+    sender: string,
+    action: boolean,
+  ) {
+    const allAlerts = (
+      await this.prisma.user.findUnique({
+        where: { id: user.id },
+      })
+    ).alerts;
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        alerts: allAlerts.filter((alert: Alert) => {
+          return (
+            alert.id !== id &&
+            alert.message !== message &&
+            alert.sender !== sender &&
+            alert.action !== action
+          );
+        }),
+      },
+    });
+
+    return true;
+  }
+
   // Sends friend request
   async requestFriend(id: string, sender_info: any) {
     // Save friend
@@ -135,6 +172,7 @@ export class UserService {
       message: 'added you as friend',
       sender: sender.username,
       id: sender.id,
+      action: true,
     });
 
     await this.prisma.user.update({
@@ -204,15 +242,26 @@ export class UserService {
       },
     });
 
-    type Alert = {
-      id: string;
-      message: string;
-      sender: string;
-    };
-
     await this.prisma.user.update({
       where: { id: sender.id },
       data: { alerts: sender.alerts.filter((val: Alert) => val.id !== id) },
+    });
+
+    const notifyResult = friend.alerts;
+
+    notifyResult.push({
+      id: sender.id,
+      sender: sender.username,
+      message:
+        action === 'accept'
+          ? 'accepted your friend request'
+          : 'rejected your friend request',
+      action: false,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: notifyResult },
     });
 
     await this.prisma.user.update({ where: { id }, data: {} });
@@ -248,9 +297,24 @@ export class UserService {
       where: { id: sender_info.sub },
       data: { friends: { disconnect: [{ id: id }] } },
     });
+
     await this.prisma.user.update({
       where: { id: id },
       data: { friends: { disconnect: [{ id: sender_info.sub }] } },
+    });
+
+    const notifyResult = friend.alerts;
+
+    notifyResult.push({
+      id: sender.id,
+      sender: sender.username,
+      message: 'is no longer your friend',
+      action: false,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: notifyResult },
     });
   }
 

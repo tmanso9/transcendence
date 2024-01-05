@@ -5,7 +5,7 @@ import {
   HttpCode,
   Param,
   Post,
-  Req,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -42,14 +42,25 @@ export class UserController {
   @Get('connections')
   async getPending() {
     const pending = await this.userService.getPending();
-	// console.log(pending)
-	return pending
+    return pending;
   }
 
   @UseGuards(JwtGuard)
   @Get(':username')
   getUserById(@Param('username') username: string) {
     return this.userService.getUserById(username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('dismiss-alert/alert?')
+  dismissAlert(
+    @getUser() user: any,
+    @Query('id') id: string,
+    @Query('sender') sender: string,
+    @Query('message') message: string,
+    @Query('action') action: boolean,
+  ) {
+    return this.userService.dismissAlert(user, id, message, sender, action);
   }
 
   // Send Friend Request
