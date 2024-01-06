@@ -237,7 +237,7 @@ export class UserService {
 	}
 
 	validatePassword(pass: string) {
-		if (pass.length <= 8 || pass === pass.toLowerCase() || pass === pass.toUpperCase() || !/\d/.test(pass))
+		if (pass.length < 8 || pass === pass.toLowerCase() || pass === pass.toUpperCase() || !/\d/.test(pass))
 			throw new ForbiddenException('Password must contain at least 8 characters, 1 Uppercase, 1 Lowercase and 1 digit');
 	}
 
