@@ -25,14 +25,14 @@ const store = chatAppStore();
     </div>
     <div class="chatConversations">
       <v-virtual-scroll
-        :items="store.allChannelsUserIsIn"
+        :items="store.currentUser?.channels"
         :height="height > 700 ? 200 : 150"
         class="contactsScroller"
       >
         <template v-slot:default="{ item }">
           <v-list-item
             :key="item.id"
-            @click="store.selectChannel(item.name)"
+            @click="store.selectChannel(item.id)"
             class="contactElement"
           >
             <template v-slot:prepend>
@@ -41,7 +41,7 @@ const store = chatAppStore();
                 :size="height > 700 ? 'small' : 'x-small'"
               ></v-icon>
             </template>
-            <v-list-item-title v-text="item.name"></v-list-item-title>
+            <v-list-item-title v-text="item.channelName"></v-list-item-title>
           </v-list-item>
         </template>
       </v-virtual-scroll>

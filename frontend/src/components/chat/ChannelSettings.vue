@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import PersonalSettings from "./PersonalSettings.vue";
 import SettingsPopUp from "./SettingsPopUp.vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
+import { Channel } from "../../store/chat";
 
 const store = chatAppStore();
 const channelSettings = ref(false);
-const channel = ref(store.getChannelInfo(store.selectedChannel));
+const channelPermission = ref(false);
+const channel = ref<Channel>();
 const { height } = useDisplay();
+
+onMounted(async () => {
+  channel.value = store.getChannelInfo(store.selectedChannel);
+  if (channel) channelPermission.value = true;
+});
 </script>
 <template>
   <v-icon

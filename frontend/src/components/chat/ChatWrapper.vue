@@ -32,8 +32,8 @@ onMounted(async () => {
 });
 </script>
 
-<template v-if="haveAllInfoNeeded">
-  <div class="chatBox">
+<template>
+  <div v-if="haveAllInfoNeeded" class="chatBox">
     <chat-bar v-if="store.selectedChannel == ''"></chat-bar>
     <div class="chatMessagesBox" v-if="store.selectedChannel">
       <channel-header

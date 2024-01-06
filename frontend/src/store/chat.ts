@@ -97,9 +97,7 @@ export const chatAppStore = defineStore("chat", () => {
     getUser();
   }
 
-  async function openChat() {
-    await getPublicChannelsUserIsNotIn();
-  }
+  async function openChat() {}
 
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
@@ -111,6 +109,7 @@ export const chatAppStore = defineStore("chat", () => {
     await socketSend<User>("checkTokenConection", cookies?.get("access_token"))
       .then((user) => {
         currentUser.value = user;
+        console.log(user);
       })
       .catch(() => {
         console.log("chat debug: no acessible current user");
@@ -138,7 +137,7 @@ export const chatAppStore = defineStore("chat", () => {
     channels.map((channel) => {
       if (channel.id == channelId) channelFound.value = channel;
     });
-    return channelFound;
+    return channelFound.value;
   }
 
   function channelMessages(
@@ -155,18 +154,18 @@ export const chatAppStore = defineStore("chat", () => {
   function channelMembers(channelId: string) {
     const channel = getChannelInfo(channelId);
 
-    if (channel && channel.value?.members) return channel.value.members;
+    if (channel && channel.members) return channel.members;
 
     return undefined;
   }
 
   function isAdmin(channelId: string, userId: string) {
     const channel = getChannelInfo(channelId);
-    if (!channel || !channel.value?.members) return false;
+    if (!channel || !channel.members) return false;
 
     let isAdmin = false;
 
-    channel.value.members.map((member) => {
+    channel.members.map((member) => {
       if (member.id == userId) isAdmin = true;
     });
 
@@ -175,11 +174,11 @@ export const chatAppStore = defineStore("chat", () => {
 
   function isBlockedFromChannel(channelId: string, userId: string) {
     const channel = getChannelInfo(channelId);
-    if (!channel || !channel.value?.bannedUsers) return false;
+    if (!channel || !channel.bannedUsers) return false;
 
     let isBlockedFromChannel = false;
 
-    channel.value.bannedUsers.map((member) => {
+    channel.bannedUsers.map((member) => {
       if (member.id == userId) isBlockedFromChannel = true;
     });
 
