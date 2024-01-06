@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as argon from 'argon2';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
@@ -212,6 +213,7 @@ export class UserService {
 	/* CHANGE USER DETAILS */
 
 	async changeUsername(user: any, username: string) {
+		this.validareUsername(username);
 		const unique = await this.prisma.user.findUnique({where: {username: username}});
 
 		if (unique)
@@ -221,9 +223,26 @@ export class UserService {
 		return updated;
 	}
 
-	async changePassword(user: any, password: string) {
+	async changePassword(user: any, password: string, oldPass: string) {
+		this.validatePassword(password);
+		const trueUser = await this.prisma.user.findUnique({where: {email: user.email}});
+		if (trueUser.login !== "REGULAR")
+			throw new ForbiddenException('This user can\'t change password');
+		const verifyPass = await argon.verify(trueUser.password, oldPass);
+		if (!verifyPass)
+			throw new ForbiddenException('Wrong password');
 		const hashed = await argon.hash(password); 
 		const updated = await this.prisma.user.update({where: {email: user.email}, data: {password: hashed }})
 		return updated;
+	}
+
+	validatePassword(pass: string) {
+		if (pass.length <= 8 || pass === pass.toLowerCase() || pass === pass.toUpperCase() || !/\d/.test(pass))
+			throw new ForbiddenException('Password must contain at least 8 characters, 1 Uppercase, 1 Lowercase and 1 digit');
+	}
+
+	validareUsername(username: string) {
+		if (username.length <= 4 || !/^[a-zA-Z0-9_-]+$/.test(username))
+			throw new ForbiddenException('Username must be at least 5 characters long and can only have alphanumeric characters or -/_');
 	}
 }
