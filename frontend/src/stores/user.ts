@@ -7,6 +7,7 @@ export const useUserStore = defineStore("user", () => {
   const isAdmin = ref(false);
   const points = ref(0);
   const tfa_enabled = ref(false);
+  const loginType = ref("REGULAR");
 
   const signin = async (urlEncoded: BodyInit, path: URL) => {
     try {
@@ -74,6 +75,9 @@ export const useUserStore = defineStore("user", () => {
           }
           const refreshData = await refresh.json();
           username.value = refreshData.username;
+          tfa_enabled.value = refreshData.tfa_enabled;
+          email.value = refreshData.email;
+          loginType.value = refreshData.login;
           return;
         }
         throw new Error(JSON.stringify(error));
@@ -84,11 +88,12 @@ export const useUserStore = defineStore("user", () => {
       username.value = data.username;
       tfa_enabled.value = data.tfa_enabled;
       email.value = data.email;
+      loginType.value = data.login;
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;
         console.error(message);
-		username.value = ''
+        username.value = "";
       }
     }
   };
@@ -99,6 +104,7 @@ export const useUserStore = defineStore("user", () => {
     points,
     tfa_enabled,
     email,
+    loginType,
     signin,
     logout,
     fetchUser,

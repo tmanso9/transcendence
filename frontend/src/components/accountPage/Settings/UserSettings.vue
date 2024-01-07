@@ -19,6 +19,7 @@
             <change-password
               :cookies="cookies"
               @changedPWD="handleChangedPwd"
+              v-if="user.loginType === 'REGULAR'"
             />
             <disable2-f-a v-if="user.tfa_enabled" @code-sent="updateAccount" />
             <enable2-f-a v-else @code-sent="updateAccount" />
