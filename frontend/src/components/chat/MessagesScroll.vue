@@ -15,7 +15,10 @@ const { height } = useDisplay();
       <template v-slot:default="{ item }">
         <div class="messageSentOrReceived">
           <div
-            v-if="item.sender == store.currentUser"
+            v-if="
+              store.currentUser?.username &&
+              item.sender == store.currentUser?.username
+            "
             class="messageChip messageSentByCurrentUser"
           >
             <v-chip>

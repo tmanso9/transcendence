@@ -18,6 +18,7 @@ const type = ref("public");
 const password = ref("");
 const name = ref("");
 const members = ref([]);
+const haveAllInfoNeeded = ref(false);
 
 function updateScroll(id: string) {
   var element = document.getElementById(id);
@@ -26,12 +27,13 @@ function updateScroll(id: string) {
 }
 
 onMounted(async () => {
-  await store.openChat();
+  if (store.currentUser && store.publicChannelsUserIsNotIn)
+    haveAllInfoNeeded.value = true;
 });
 </script>
 
 <template>
-  <div class="chatBox">
+  <div v-if="haveAllInfoNeeded" class="chatBox">
     <chat-bar v-if="store.selectedChannel == ''"></chat-bar>
     <div class="chatMessagesBox" v-if="store.selectedChannel">
       <channel-header
