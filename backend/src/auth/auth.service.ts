@@ -21,12 +21,16 @@ export class AuthService {
 
 	/***** EMAIL *****/
 	async signup(dto: AuthDTO) {
+		this.validatePassword(dto.password);
+		
 		// Hash the password
 		const hashed = await argon.hash(dto.password);
 
 		// Check if username was provided
 		if (dto.username === undefined || dto.username === "")
 			dto.username = await this.getRandomName();
+		else
+			this.validareUsername(dto.username);
 
 		try {
 			// Add user to the db
@@ -357,5 +361,15 @@ export class AuthService {
 	async getUserFromEmail(emailToFind: string) {
 		const user = await this.prisma.user.findUnique({where: {email: emailToFind}});
 		return user;
+	}
+
+	validatePassword(pass: string) {
+		if (pass.length <= 8 || pass === pass.toLowerCase() || pass === pass.toUpperCase() || !/\d/.test(pass))
+			throw new ForbiddenException('Password must contain at least 8 characters, 1 Uppercase, 1 Lowercase and 1 digit');
+	}
+
+	validareUsername(username: string) {
+		if (username.length <= 4 || !/^[a-zA-Z0-9_-]+$/.test(username))
+			throw new ForbiddenException('Username must be at least 5 characters long and can only have alphanumeric characters or -/_');
 	}
 }

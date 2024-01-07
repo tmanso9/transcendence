@@ -62,7 +62,7 @@ export class UserController {
 	@UseGuards(JwtGuard)
 	@Post('change-password')
 	async changePassword(@getUser() user: any, @Body() body: any) {
-		const updated = await this.userService.changePassword(user, body.password);
+		const updated = await this.userService.changePassword(user, body.password, body.currentPwd);
 		return updated;
 	}
 }
