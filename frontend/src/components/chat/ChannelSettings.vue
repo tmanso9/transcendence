@@ -76,6 +76,8 @@ onMounted(async () => {
                 channel?.members.map((member) => {
                   if (member.id == item.id) store.selectedUserProfile = member;
                 });
+                if (store.selectedUserProfile?.id == store.currentUser?.id)
+                  return;
                 if (
                   channel &&
                   store.currentUser &&

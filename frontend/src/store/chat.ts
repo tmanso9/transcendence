@@ -213,7 +213,7 @@ export const chatAppStore = defineStore("chat", () => {
 
     let isAdmin = false;
 
-    channel.members.map((member) => {
+    channel.admins.map((member) => {
       if (member.id == userId) isAdmin = true;
     });
 
