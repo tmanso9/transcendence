@@ -219,7 +219,14 @@ export class AuthService {
       where: { email: decoded.email },
       include: {
         friends: true,
-        channels: true,
+        channels: {
+          include: {
+            members: true,
+            admins: true,
+            bannedUsers: true,
+            mutedUsers: true,
+          },
+        },
         adminOf: true,
         bannedFrom: true,
         mutedOn: false,

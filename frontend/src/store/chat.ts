@@ -59,12 +59,7 @@ export const chatAppStore = defineStore("chat", () => {
   const createChannelPopUp = ref(false);
   const personalPopUpSettings = ref(false);
   const settingsAdminPopUp = ref(false);
-  const selectedUserProfile = ref<{
-    id: number;
-    username: string;
-    avatar: string;
-    blocked: string[];
-  }>();
+  const selectedUserProfile = ref<User>();
 
   // setup conection functions & condicional functions
 
