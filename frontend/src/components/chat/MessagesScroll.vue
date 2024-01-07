@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { ref } from "vue";
+import { onMounted } from "vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 
 const store = chatAppStore();
 const { height } = useDisplay();
+const openMessages = ref(false);
+
+onMounted(async () => {
+  await store.channelMessages(store.selectedChannel);
+  if (store.channelMessagesVar) openMessages.value = true;
+});
 </script>
 <template>
-  <div class="messageScroll">
+  <div class="messageScroll" v-if="openMessages">
     <v-virtual-scroll
-      :items="store.channelMessages(store.selectedChannel)"
+      :items="store.channelMessagesVar"
       :height="height > 700 ? 400 : 300"
       id="scrollMessages"
     >

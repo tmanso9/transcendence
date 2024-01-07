@@ -38,6 +38,12 @@ export interface User {
   bannedFrom: Channel[];
 }
 
+export interface Message {
+  sender: string;
+  content: string;
+  date: string;
+}
+
 export const chatAppStore = defineStore("chat", () => {
   // conection's variables
   const cookies = inject<VueCookies>("$cookies");
@@ -49,6 +55,7 @@ export const chatAppStore = defineStore("chat", () => {
   const friendsWithTick = ref<{ friend: User; added: boolean }[]>();
   const publicChannelsUserIsNotIn = ref<Channel[]>();
   const selectedChannel = ref("");
+  const channelMessagesVar = ref<Message[]>([]);
 
   // condicional variables
   const createChannelPopUp = ref(false);
@@ -90,6 +97,10 @@ export const chatAppStore = defineStore("chat", () => {
     await getPublicChannelsUserIsNotIn();
     setupFriendsWithTick();
     setupPublicChannelsUserIsNotIn();
+
+    socket.on("channelMessages", (messages) => {
+      channelMessagesVar.value = messages;
+    });
   }
 
   async function getAllChatData() {
@@ -197,15 +208,24 @@ export const chatAppStore = defineStore("chat", () => {
     return channelFound.value;
   }
 
-  function channelMessages(
-    channelId: string,
-  ): { sender: string; content: string; date: string }[] {
-    if (!currentUser.value?.channels.length) return [];
-    for (let i = 0; i < currentUser.value.channels.length; i++) {
-      if (currentUser.value.channels[i].id == channelId)
-        return currentUser.value.channels[i].messages;
-    }
-    return [];
+  async function channelMessages(channelId: string) {
+    if (!currentUser.value?.channels.length) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    const option = "get";
+    const message = "";
+    await socketSend<Message[]>("channelMessages", {
+      token,
+      option,
+      channelId,
+      message,
+    })
+      .then((messages) => {
+        channelMessagesVar.value = messages;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
   }
 
   function channelMembers(channelId: string) {
@@ -253,6 +273,7 @@ export const chatAppStore = defineStore("chat", () => {
     settingsAdminPopUp,
     publicChannelsUserIsNotIn,
     permissionToOpenChat,
+    channelMessagesVar,
     startConection,
     checkTokenConection,
     selectChannel,
