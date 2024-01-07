@@ -55,6 +55,7 @@ export const chatAppStore = defineStore("chat", () => {
   const personalPopUpSettings = ref(false);
   const settingsAdminPopUp = ref(false);
   const selectedUserProfile = ref<User>();
+  const permissionToOpenChat = ref(false);
 
   // setup conection functions & condicional functions
 
@@ -84,6 +85,14 @@ export const chatAppStore = defineStore("chat", () => {
       window.location.reload();
     });
 
+    await getUser();
+    setupPersonalChannels();
+    await getPublicChannelsUserIsNotIn();
+    setupFriendsWithTick();
+    setupPublicChannelsUserIsNotIn();
+  }
+
+  async function getAllChatData() {
     await getUser();
     setupPersonalChannels();
     await getPublicChannelsUserIsNotIn();
@@ -243,6 +252,7 @@ export const chatAppStore = defineStore("chat", () => {
     selectedUserProfile,
     settingsAdminPopUp,
     publicChannelsUserIsNotIn,
+    permissionToOpenChat,
     startConection,
     checkTokenConection,
     selectChannel,
@@ -251,5 +261,6 @@ export const chatAppStore = defineStore("chat", () => {
     channelMembers,
     isAdmin,
     isBlockedFromChannel,
+    getAllChatData,
   };
 });

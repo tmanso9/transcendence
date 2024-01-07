@@ -23,10 +23,10 @@ const haveAllInfoNeeded = ref(false);
 function updateScroll(id: string) {
   var element = document.getElementById(id);
   if (element) element.scrollTop = element.scrollHeight;
-  console.log(store.allUsers); // test to check if var is not empty
 }
 
 onMounted(async () => {
+  await store.getAllChatData();
   if (store.currentUser && store.publicChannelsUserIsNotIn)
     haveAllInfoNeeded.value = true;
 });
