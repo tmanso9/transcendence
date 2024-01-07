@@ -85,8 +85,10 @@ export const chatAppStore = defineStore("chat", () => {
     });
 
     await getUser();
+    setupPersonalChannels();
     await getPublicChannelsUserIsNotIn();
     setupFriendsWithTick();
+    setupPublicChannelsUserIsNotIn();
   }
 
   function selectChannel(channel: string) {
@@ -100,7 +102,51 @@ export const chatAppStore = defineStore("chat", () => {
         friendsWithTick.value = [{ friend: user, added: false }];
       else friendsWithTick.value.push({ friend: user, added: false });
     });
-    console.log(friendsWithTick.value);
+  }
+
+  function setupPersonalChannels() {
+    if (!currentUser.value?.channels) return;
+    currentUser.value.channels.map((channel) => {
+      if (channel.type == "personal") {
+        channel.avatar = "mdi-account";
+        channel.members.map((member) => {
+          if (member.id != currentUser.value?.id)
+            channel.channelName = member.username;
+        });
+      }
+    });
+  }
+
+  function setupPublicChannelsUserIsNotIn() {
+    if (!currentUser.value?.friends || !publicChannelsUserIsNotIn.value) return;
+    let friendsWithChannel: string[] = [];
+    currentUser.value.channels.map((channel) => {
+      if (channel.type == "personal") {
+        channel.members.map((member) => {
+          if (member.id != currentUser.value?.id)
+            friendsWithChannel.push(member.id);
+        });
+      }
+    });
+    currentUser.value.friends.map((friend) => {
+      if (
+        friendsWithChannel.indexOf(friend.id, 0) == -1 &&
+        currentUser.value?.username
+      ) {
+        publicChannelsUserIsNotIn.value?.push({
+          id: "0",
+          creator: currentUser.value.username,
+          type: "personal",
+          avatar: "mdi-account",
+          password: "",
+          channelName: friend.username,
+          members: [currentUser.value, friend],
+          messages: [],
+          admins: [],
+          bannedUsers: [],
+        });
+      }
+    });
   }
 
   // get data functions
