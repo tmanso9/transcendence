@@ -3,10 +3,11 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { ValidationMiddleware } from 'src/auth/middleware';
 import { JwtService } from '@nestjs/jwt';
+import { AuthService } from '../auth/auth.service';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService, JwtService]
+  providers: [UserService, JwtService],
 })
 export class UserModule {
   configure(consumer: MiddlewareConsumer) {
