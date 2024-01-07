@@ -50,13 +50,13 @@ const channelIsPublic = ref(false);
       </template>
     </v-virtual-scroll>
     <v-virtual-scroll
-      :items="store.friends"
+      :items="store.currentUser?.friends"
       height="150"
       class="createChannelPopUp-friends"
     >
       <template v-slot:default="{ item }">
         <v-list-item
-          :key="item"
+          :key="item.id"
           @click="
             () => {
               // TODO
@@ -69,7 +69,7 @@ const channelIsPublic = ref(false);
           <template v-slot:prepend>
             <v-icon icon="mdi-account"></v-icon>
           </template>
-          <v-list-item-title v-text="item"></v-list-item-title>
+          <v-list-item-title v-text="item.username"></v-list-item-title>
         </v-list-item>
       </template>
     </v-virtual-scroll>
@@ -83,8 +83,10 @@ const channelIsPublic = ref(false);
         color="primary"
         @click="
           () => {
-            for (let i = 0; i < store.friendsWithTick.length; i++) {
-              store.friendsWithTick[i].added = false;
+            if (store.friendsWithTick?.length) {
+              for (let i = 0; i < store.friendsWithTick.length; i++) {
+                store.friendsWithTick[i].added = false;
+              }
             }
             newChannelPopUp = false;
           }
@@ -98,15 +100,17 @@ const channelIsPublic = ref(false);
     >
       <template v-slot:default="{ item }">
         <v-list-item
-          :key="item.name"
+          :key="item.friend.id"
           @click="
             () => {
-              const index = store.friendsWithTick
-                .map((n) => n.name)
-                .indexOf(item.name, 0);
-              if (index > -1) {
-                store.friendsWithTick[index].added =
-                  !store.friendsWithTick[index].added;
+              if (store.friendsWithTick) {
+                const index = store.friendsWithTick
+                  .map((n) => n.friend.id)
+                  .indexOf(item.friend.id, 0);
+                if (index > -1) {
+                  store.friendsWithTick[index].added =
+                    !store.friendsWithTick[index].added;
+                }
               }
             }
           "
@@ -114,7 +118,7 @@ const channelIsPublic = ref(false);
           <template v-slot:prepend>
             <v-icon icon="mdi-account"></v-icon>
           </template>
-          <v-list-item-title v-text="item.name"></v-list-item-title>
+          <v-list-item-title v-text="item.friend.username"></v-list-item-title>
           <v-icon
             v-if="item.added"
             icon="mdi-check-bold"

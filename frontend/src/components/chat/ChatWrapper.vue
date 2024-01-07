@@ -27,8 +27,8 @@ function updateScroll(id: string) {
 }
 
 onMounted(async () => {
-  await store.openChat();
-  if (store.currentUser) haveAllInfoNeeded.value = true;
+  if (store.currentUser && store.publicChannelsUserIsNotIn)
+    haveAllInfoNeeded.value = true;
 });
 </script>
 

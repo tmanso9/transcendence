@@ -69,7 +69,7 @@ const store = chatAppStore();
                 ></v-list-item-title>
               </div>
               <v-btn
-                v-if="item.password == 'yes'"
+                v-if="item.password != ''"
                 append-icon="mdi-lock"
                 :size="height > 700 ? 'small' : 'x-small'"
                 >Join</v-btn

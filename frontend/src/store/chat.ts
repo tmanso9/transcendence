@@ -46,12 +46,7 @@ export const chatAppStore = defineStore("chat", () => {
   // user's data
   const currentUser = ref<User>();
   const allUsers = ref<User[]>();
-  const friendsWithTick = ref([
-    { name: "joao", added: false },
-    { name: "gonçalo", added: false },
-    { name: "joana", added: false },
-    { name: "roberto", added: false },
-  ]);
+  const friendsWithTick = ref<{ friend: User; added: boolean }[]>();
   const publicChannelsUserIsNotIn = ref<Channel[]>();
   const selectedChannel = ref("");
 
@@ -80,7 +75,7 @@ export const chatAppStore = defineStore("chat", () => {
     return isValid.value;
   }
 
-  function startConection() {
+  async function startConection() {
     socket.on("connect", () => {
       console.log("connection id: ", socket.id);
     });
@@ -89,13 +84,23 @@ export const chatAppStore = defineStore("chat", () => {
       window.location.reload();
     });
 
-    getUser();
+    await getUser();
+    await getPublicChannelsUserIsNotIn();
+    setupFriendsWithTick();
   }
-
-  async function openChat() {}
 
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
+  }
+
+  function setupFriendsWithTick() {
+    if (!currentUser.value?.friends) return;
+    currentUser.value.friends.map((user) => {
+      if (!friendsWithTick.value)
+        friendsWithTick.value = [{ friend: user, added: false }];
+      else friendsWithTick.value.push({ friend: user, added: false });
+    });
+    console.log(friendsWithTick.value);
   }
 
   // get data functions
@@ -104,7 +109,6 @@ export const chatAppStore = defineStore("chat", () => {
     await socketSend<User>("checkTokenConection", cookies?.get("access_token"))
       .then((user) => {
         currentUser.value = user;
-        console.log(user);
       })
       .catch(() => {
         console.log("chat debug: no acessible current user");
@@ -112,16 +116,19 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   const getPublicChannelsUserIsNotIn = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/me/other-channels", {
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error();
-      const data = await response.json();
-      console.log("channels data: ", data);
-      publicChannelsUserIsNotIn.value = data;
-    } catch (error) {
-      console.error(error);
+    const token = cookies?.get("access_token");
+    if (currentUser.value) {
+      const userId = currentUser.value.id;
+      await socketSend<Channel[]>("publicChannelsUserIsNotIn", {
+        token,
+        userId,
+      })
+        .then((channels) => {
+          publicChannelsUserIsNotIn.value = channels;
+        })
+        .catch(() => {
+          console.log("chat debug: no acessible public channels");
+        });
     }
   };
 
@@ -192,7 +199,6 @@ export const chatAppStore = defineStore("chat", () => {
     publicChannelsUserIsNotIn,
     startConection,
     checkTokenConection,
-    openChat,
     selectChannel,
     getChannelInfo,
     channelMessages,
