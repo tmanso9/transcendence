@@ -93,23 +93,25 @@ export class UserService {
     sender: string,
     action: boolean,
   ) {
-    const allAlerts = (
-      await this.prisma.user.findUnique({
-        where: { id: user.id },
-      })
-    ).alerts;
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+    });
+    const allAlerts = targetUser.alerts;
+
+    const newAlerts = allAlerts.filter((alert: Alert) => {
+      const actVal = (action as unknown as string) === 'true' ? true : false;
+      return !(
+        alert.id === id &&
+        alert.message === message &&
+        alert.sender === sender &&
+        alert.action === actVal
+      );
+    });
 
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
-        alerts: allAlerts.filter((alert: Alert) => {
-          return (
-            alert.id !== id &&
-            alert.message !== message &&
-            alert.sender !== sender &&
-            alert.action !== action
-          );
-        }),
+        alerts: newAlerts,
       },
     });
 
@@ -137,7 +139,7 @@ export class UserService {
       include: { friends: true, friendOf: true },
     });
     if (!sender) throw new ForbiddenException('Something went wrong');
-	const friendIds = friend.friends.map((val) => val.id)
+    const friendIds = friend.friends.map((val) => val.id);
     if (friendIds.includes(sender.id))
       throw new ForbiddenException('Already Friends');
 

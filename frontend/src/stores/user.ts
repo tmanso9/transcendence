@@ -6,6 +6,7 @@ export const useUserStore = defineStore("user", () => {
   const isAdmin = ref(false);
   const points = ref(0);
   const alerts = ref([]);
+  const id = ref("");
 
   const signin = async (urlEncoded: BodyInit, path: URL) => {
     try {
@@ -72,6 +73,7 @@ export const useUserStore = defineStore("user", () => {
           const refreshData = await refresh.json();
           username.value = refreshData.username;
           alerts.value = refreshData.alerts;
+          id.value = refreshData.id;
           console.log(refreshData);
           return;
         }
@@ -80,6 +82,7 @@ export const useUserStore = defineStore("user", () => {
       const data = await result.json();
       username.value = data.username;
       alerts.value = data.alerts;
+      id.value = data.id;
       console.log(data);
     } catch (error) {
       if (error instanceof Error) {
@@ -90,5 +93,5 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  return { username, isAdmin, points, alerts, signin, logout, fetchUser };
+  return { username, isAdmin, points, alerts, id, signin, logout, fetchUser };
 });

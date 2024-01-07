@@ -11,6 +11,7 @@ import { VueCookies } from "vue-cookies";
 import router from "./router";
 import { fetchMe } from "./utils";
 import { chatAppStore } from "./store/chat";
+import { io } from "socket.io-client";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
@@ -23,10 +24,20 @@ const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
 chatStore.startConection();
 const interval = ref();
+const toReload = ref(0);
 
 onMounted(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
+  const s = io("http://localhost:3000");
+  s.on("connect", () => {
+    s.emit("userInfo", user.id);
+  });
+
+  s.on("newAlert", async () => {
+    await fetchMe(cookies, user);
+    toReload.value++;
+  });
 });
 
 router.beforeEach(async (to, from) => {
@@ -115,7 +126,7 @@ const handleNotificationResolve = async () => {
           handler: () => (showNotifications = false),
         }"
       />
-      <RouterView :key="`${$route.fullPath}--${user.username}`" />
+      <RouterView :key="`${$route.fullPath}--${user.username}--${toReload}`" />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
         v-if="showChat"
