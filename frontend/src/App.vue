@@ -29,7 +29,7 @@ const toReload = ref(0);
 onMounted(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  const s = io("http://localhost:3000");
+  const s = io("http://localhost:3000/notifications");
   s.on("connect", () => {
     s.emit("userInfo", user.id);
   });

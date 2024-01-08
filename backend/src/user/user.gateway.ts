@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 
-@WebSocketGateway({ cors: { origin: 'http://localhost:3001' } })
+@WebSocketGateway({ namespace: '/notifications', cors: { origin: 'http://localhost:3001' } })
 export class userGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
