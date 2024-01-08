@@ -62,12 +62,13 @@ const toggleChat = async () => {
     showChat.value = !showChat.value;
     chatText.value = showChat.value ? "Hide chat" : "Show chat";
   }
+  toggleChatPermission();
 };
 
 const toggleChatPermission = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
-  if (permissionGranted) permissionToOpenChat.value = true;
-  else permissionToOpenChat.value = false;
+  if (permissionGranted) chatStore.permissionToOpenChat = true;
+  else chatStore.permissionToOpenChat = false;
 };
 
 const toggleLogin = async () => {
@@ -145,7 +146,7 @@ const handleNotificationResolve = async () => {
       v-click-outside="toggleChatPermission()"
     >
       <v-btn
-        v-if="permissionToOpenChat"
+        v-if="chatStore.permissionToOpenChat"
         class="chat mx-auto"
         @click="toggleChat"
         >{{ chatText }}</v-btn

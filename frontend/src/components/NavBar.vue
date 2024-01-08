@@ -69,10 +69,12 @@ import { fetchMe } from "@/utils";
 import { computed, inject } from "vue";
 import { ref } from "vue";
 import { VueCookies } from "vue-cookies";
+import { chatAppStore } from "../store/chat";
 
 const props = defineProps(["user"]);
 const emit = defineEmits(["login", "logout", "notifications"]);
 const showLogin = ref(false);
+const chatStore = chatAppStore();
 
 const cookies = inject<VueCookies>("$cookies");
 
@@ -96,6 +98,7 @@ const logOut = async () => {
   await fetchMe(cookies, props.user);
   await props.user.logout();
   emit("logout");
+  chatStore.permissionToOpenChat = false;
 };
 </script>
 

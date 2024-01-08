@@ -217,6 +217,20 @@ export class AuthService {
     if (!decoded) throw new ForbiddenException('decoded error');
     const user = await this.prisma.user.findUnique({
       where: { email: decoded.email },
+      include: {
+        friends: true,
+        channels: {
+          include: {
+            members: true,
+            admins: true,
+            bannedUsers: true,
+            mutedUsers: true,
+          },
+        },
+        adminOf: true,
+        bannedFrom: true,
+        mutedOn: false,
+      },
     });
     if (!user) throw new ForbiddenException('user error');
     return user;

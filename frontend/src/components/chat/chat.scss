@@ -40,6 +40,10 @@
 
 .messageScroll {
   padding: 0 1em;
+  &-noMessages {
+    padding-top: 1em;
+    text-align: center;
+  }
 }
 
 .chatBox > .chatMessagesBox > .messageWriteBox {

@@ -1,21 +1,41 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { computed } from "vue";
+import { ref } from "vue";
+import { onMounted } from "vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 
 const store = chatAppStore();
 const { height } = useDisplay();
+const openMessages = ref(false);
+
+onMounted(async () => {
+  await store.channelMessages(store.selectedChannel, "get", "");
+  if (store.channelMessagesVar) openMessages.value = true;
+});
+
+
+function updateScroll() {
+  var element = document.getElementById("scrollMessages");
+  if (element) element.scrollTop = element.scrollHeight;
+}
 </script>
 <template>
-  <div class="messageScroll">
+  <div class="messageScroll" v-if="openMessages">
     <v-virtual-scroll
-      :items="store.channelMessages(store.selectedChannel)"
+      v-if="store.channelMessagesVar.length != 0"
+      :items="store.channelMessagesVar"
       :height="height > 700 ? 400 : 300"
       id="scrollMessages"
+      @vnode-updated="updateScroll"
     >
       <template v-slot:default="{ item }">
         <div class="messageSentOrReceived">
           <div
-            v-if="item.sender == store.currentUser"
+            v-if="
+              store.currentUser?.username &&
+              item.sender == store.currentUser?.username
+            "
             class="messageChip messageSentByCurrentUser"
           >
             <v-chip>
@@ -37,6 +57,20 @@ const { height } = useDisplay();
               {{ item.sender }}
             </v-chip>
           </div>
+        </div>
+      </template>
+    </v-virtual-scroll>
+    <v-virtual-scroll
+      v-else
+      :items="['No messages']"
+      :height="height > 700 ? 400 : 300"
+      id="scrollMessages"
+    >
+      <template v-slot:default="{ item }">
+        <div class="messageScroll-noMessages">
+          <v-chip size="x-large" color="secondary">
+            {{ item }}
+          </v-chip>
         </div>
       </template>
     </v-virtual-scroll>
