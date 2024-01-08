@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDTO } from './dto';
 import * as argon from 'argon2';
@@ -163,6 +168,7 @@ export class AuthService {
     };
   }
 
+  /***** 42 *****/
   async login42(user) {
     let profile = await this.prisma.user.findUnique({
       where: { email: user.email },
@@ -199,30 +205,6 @@ export class AuthService {
     return { ...profile, accessToken, refresh_token };
   }
 
-  /***** 42 *****/
-
-  async login42(user) {
-    const profile = await this.prisma.user.upsert({
-      create: {
-        email: user.email,
-        password: '',
-        username: user.username,
-        status: 'ONLINE',
-        avatar: user.avatar,
-      },
-      update: {
-        status: 'ONLINE',
-      },
-      where: {
-        email: user.email,
-      },
-    });
-
-    const accessToken = await this.signToken(profile.id, profile.email);
-
-    return { ...profile, accessToken };
-  }
-
   /*** USING RANDOM NAME GENERATOR API ***/
   private async getRandomName(): Promise<string> {
     const { data } = await firstValueFrom(
@@ -236,14 +218,14 @@ export class AuthService {
     return username;
   }
 
-  async signToken(id: string, email: string): Promise<string> {
+  async signToken(user: any, duration: any): Promise<string> {
     const payload = {
-      sub: id,
-      email,
+      sub: user.id,
+      email: user.email,
     };
 
     const access_token = await this.jwt.signAsync(payload, {
-      expiresIn: '15m',
+      expiresIn: duration,
       secret: this.config.get('JWT_SECRET'),
     });
 
@@ -292,6 +274,10 @@ export class AuthService {
 
     if (!refreshDecoded)
       throw new UnauthorizedException('Invalid refresh token format');
+
+    const user = await this.prisma.user.findUnique({
+      where: { email: refreshDecoded.email },
+    });
     if (!user) throw new UnauthorizedException('Invalid refresh token');
 
     //validate refresh token
@@ -424,7 +410,7 @@ export class AuthService {
         'Username must be at least 5 characters long and can only have alphanumeric characters or -/_',
       );
   }
-  
+
   async getUserFromToken(token: string) {
     const decoded = this.jwt.decode(token);
     if (!decoded) throw new ForbiddenException('decoded error');

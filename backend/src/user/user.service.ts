@@ -59,7 +59,8 @@ export class UserService {
 		const friends = requested_user.friends.map(friend => {
 			return {
 				username: friend.username,
-				avatar: friend.avatar
+				avatar: friend.avatar,
+				id: friend.id
 			}
 		});
 
@@ -71,6 +72,7 @@ export class UserService {
 			rank: requested_user.rank,
 			status: requested_user.status,
 			avatar: requested_user.avatar,
+			id: requested_user.id,
 			friends,
 		};
 	}
@@ -209,6 +211,7 @@ export class UserService {
     // Check if action is either 'accept' or 'reject'. If not, throw
     if (action != 'accept' && action != 'reject')
       throw new ForbiddenException(`Invalid Action: ${action}`);
+
 
     // Save target friend
     let friend = await this.prisma.user.findUnique({

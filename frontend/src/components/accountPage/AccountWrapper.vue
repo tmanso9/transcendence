@@ -5,7 +5,6 @@
     :isSelf="isSelf"
     @accountUpdated="updateAccount"
   />
-  />
   <interact-buttons
     :account="account"
     :isSelf="isSelf"
@@ -83,7 +82,7 @@ const handleFriendRequest = async (path: string, id: string) => {
   } catch (error) {
     if (error instanceof Error) console.error(error.message);
   }
-}
+};
 </script>
 
 <style lang="scss">

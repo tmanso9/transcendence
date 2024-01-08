@@ -88,6 +88,8 @@ export class UserController {
     const user_id = params.id;
     const action = params.action;
     await this.userService.respondFriend(user_id, action, decoded_jwt);
+    const socket = this.userGateway.usersConnected.get(user_id);
+    if (socket) socket.emit('newAlert');
     return HttpCode(201);
   }
 

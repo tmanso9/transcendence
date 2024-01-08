@@ -76,9 +76,8 @@ model User {
 }
 
 model Blacklist {
-  id        Int      @id @default(autoincrement())
-  token     String
-  sub       String
+  id        String      @id @default(uuid())
+  token     String	@unique
   email     String
   expiresIn Int
   createdAt DateTime @default(now())
