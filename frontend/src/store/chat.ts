@@ -98,7 +98,7 @@ export const chatAppStore = defineStore("chat", () => {
       channelMessagesVar.value = messages;
     });
 
-    socket.on("createChannel", () => {
+    socket.on("createChannel", (num) => {
       getAllChatData();
     });
 
