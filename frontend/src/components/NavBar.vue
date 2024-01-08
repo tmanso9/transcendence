@@ -54,6 +54,9 @@
     <div class="mr-10">
       <div v-if="user.username">
         <span class="mr-3">hi, {{ user.username }}!</span>
+        <v-icon @click="$emit('notifications')" :color="notificationColor">{{
+          notificationBell
+        }}</v-icon>
         <v-btn class="login" @click="logOut"> Logout </v-btn>
       </div>
       <v-btn class="login" v-else @click="toggleLogin">Login</v-btn>
@@ -63,17 +66,29 @@
 
 <script lang="ts" setup>
 import { fetchMe } from "@/utils";
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import { ref } from "vue";
 import { VueCookies } from "vue-cookies";
 import { chatAppStore } from "../store/chat";
 
 const props = defineProps(["user"]);
-const emit = defineEmits(["login", "logout"]);
+const emit = defineEmits(["login", "logout", "notifications"]);
 const showLogin = ref(false);
 const chatStore = chatAppStore();
 
 const cookies = inject<VueCookies>("$cookies");
+
+const notificationBell = computed(() => {
+  return props.user.alerts.length
+    ? "mdi-bell-badge-outline"
+    : "mdi-bell-outline";
+});
+
+const notificationColor = computed(() => {
+  return notificationBell.value === "mdi-bell-badge-outline"
+    ? "deep-purple"
+    : "";
+});
 
 const toggleLogin = () => {
   emit("login");

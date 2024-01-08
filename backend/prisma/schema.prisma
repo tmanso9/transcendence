@@ -43,7 +43,7 @@ enum ChannelType {
 model Connections {
   id       String           @id @default(uuid())
   status   ConnectionStatus @default(PENDING)
-  creator  String
+  creator String
   receiver String
 }
 
@@ -65,6 +65,7 @@ model User {
 
   friends  User[] @relation("Friends") // array of friends
   friendOf User[] @relation("Friends") // array of friends
+  alerts	Json[] @default([])
 
   channels   Channels[] @relation("Members") // array of channels of which the user is part
   adminOf    Channels[] @relation("Admins") // array of channels of which the user is an admin

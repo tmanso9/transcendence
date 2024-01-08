@@ -4,6 +4,13 @@ import { channel } from 'diagnostics_channel';
 import * as fs from 'fs';
 import { join } from 'path';
 
+type Alert = {
+  id: string;
+  message: string;
+  sender: string;
+  action: boolean;
+};
+
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -48,6 +55,69 @@ export class UserService {
     return requested_user;
   }
 
+  async getFriends(id: string) {
+    const friend = await this.prisma.user
+      .findUnique({
+        where: { id },
+        select: { friends: true },
+      })
+      .friends();
+    return friend.map((friend) => friend.username);
+  }
+
+  async getPending() {
+    const pending = await this.prisma.connections.findMany();
+    const allPairs = [];
+
+    await Promise.all(
+      pending.map(async (val) => {
+        const creator = (
+          await this.prisma.user.findUnique({ where: { id: val.creator } })
+        ).username;
+        const receiver = (
+          await this.prisma.user.findUnique({ where: { id: val.receiver } })
+        ).username;
+        const pair = new Array();
+        pair.push(creator);
+        pair.push(receiver);
+        allPairs.push(pair);
+      }),
+    );
+    return allPairs;
+  }
+
+  async dismissAlert(
+    user: any,
+    id: string,
+    message: string,
+    sender: string,
+    action: boolean,
+  ) {
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+    });
+    const allAlerts = targetUser.alerts;
+
+    const newAlerts = allAlerts.filter((alert: Alert) => {
+      const actVal = (action as unknown as string) === 'true' ? true : false;
+      return !(
+        alert.id === id &&
+        alert.message === message &&
+        alert.sender === sender &&
+        alert.action === actVal
+      );
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        alerts: newAlerts,
+      },
+    });
+
+    return true;
+  }
+
   // Sends friend request
   async requestFriend(id: string, sender_info: any) {
     // Save friend
@@ -69,7 +139,8 @@ export class UserService {
       include: { friends: true, friendOf: true },
     });
     if (!sender) throw new ForbiddenException('Something went wrong');
-    if (friend.friends.includes(friend))
+    const friendIds = friend.friends.map((val) => val.id);
+    if (friendIds.includes(sender.id))
       throw new ForbiddenException('Already Friends');
 
     // Check if the request was already sent (bilateral check)
@@ -91,6 +162,25 @@ export class UserService {
         creator: sender_info.sub,
         receiver: id,
       },
+    });
+
+    const receiverAlerts = (
+      await this.prisma.user.findUnique({
+        where: { id },
+        select: { alerts: true },
+      })
+    ).alerts;
+
+    receiverAlerts.push({
+      message: 'added you as friend',
+      sender: sender.username,
+      id: sender.id,
+      action: true,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: receiverAlerts },
     });
   }
 
@@ -154,6 +244,30 @@ export class UserService {
         receiver: sender_info.sub,
       },
     });
+
+    await this.prisma.user.update({
+      where: { id: sender.id },
+      data: { alerts: sender.alerts.filter((val: Alert) => val.id !== id) },
+    });
+
+    const notifyResult = friend.alerts;
+
+    notifyResult.push({
+      id: sender.id,
+      sender: sender.username,
+      message:
+        action === 'accept'
+          ? 'accepted your friend request'
+          : 'rejected your friend request',
+      action: false,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: notifyResult },
+    });
+
+    await this.prisma.user.update({ where: { id }, data: {} });
   }
 
   // Removes friend
@@ -186,9 +300,24 @@ export class UserService {
       where: { id: sender_info.sub },
       data: { friends: { disconnect: [{ id: id }] } },
     });
+
     await this.prisma.user.update({
       where: { id: id },
       data: { friends: { disconnect: [{ id: sender_info.sub }] } },
+    });
+
+    const notifyResult = friend.alerts;
+
+    notifyResult.push({
+      id: sender.id,
+      sender: sender.username,
+      message: 'is no longer your friend',
+      action: false,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: notifyResult },
     });
   }
 
