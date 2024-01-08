@@ -24,6 +24,7 @@
       text="Change avatar"
       content-class="avatar__tooltip"
       :attach="true"
+      v-if="isSelf"
     >
       <template v-slot:activator="{ props }">
         <v-icon
@@ -46,7 +47,7 @@ import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 import { ref, onMounted } from "vue";
 import { useDisplay } from "vuetify";
 const avatar = ref("");
-const props = defineProps(["account", "editAvatar"]);
+const props = defineProps(["account", "editAvatar", "isSelf"]);
 defineEmits(["edit"]);
 
 const { smAndUp, mdAndUp } = useDisplay();

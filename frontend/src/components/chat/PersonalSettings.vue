@@ -2,14 +2,13 @@
 import { chatAppStore } from "@/store/chat";
 
 const store = chatAppStore();
-const channel = store.getChannelInfo(store.selectedChannel);
 </script>
 <template>
   <div class="channelSettings">
     <div class="channelSettings-header">
       <span class="text-h6"
         ><v-icon icon="mdi-cog" size="x-small"></v-icon
-        >{{ " " + store.selectedChannel }}
+        >{{ " " + store.selectedUserProfile?.username }}
       </span>
       <v-icon
         icon="mdi-close-circle"

@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Blacklist" ALTER COLUMN "sub" SET DATA TYPE TEXT;

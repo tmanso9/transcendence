@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "alerts" SET DEFAULT ARRAY[]::JSONB[];

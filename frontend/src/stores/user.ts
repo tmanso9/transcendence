@@ -8,6 +8,8 @@ export const useUserStore = defineStore("user", () => {
   const points = ref(0);
   const tfa_enabled = ref(false);
   const loginType = ref("REGULAR");
+  const alerts = ref([]);
+  const id = ref("");
 
   const signin = async (urlEncoded: BodyInit, path: URL) => {
     try {
@@ -24,7 +26,7 @@ export const useUserStore = defineStore("user", () => {
         throw new Error(err);
       }
       const data = await result.json();
-    //   console.log(data);
+      //   console.log(data);
       return data;
     } catch (error) {
       if (error instanceof Error) {
@@ -78,17 +80,23 @@ export const useUserStore = defineStore("user", () => {
           tfa_enabled.value = refreshData.tfa_enabled;
           email.value = refreshData.email;
           loginType.value = refreshData.login;
+          alerts.value = refreshData.alerts;
+          id.value = refreshData.id;
+          console.log(refreshData);
           return;
         }
         throw new Error(JSON.stringify(error));
       }
       const data = await result.json();
-    //   console.log("data:");
-    //   console.log(data);
+      //   console.log("data:");
+      //   console.log(data);
       username.value = data.username;
       tfa_enabled.value = data.tfa_enabled;
       email.value = data.email;
       loginType.value = data.login;
+      alerts.value = data.alerts;
+      id.value = data.id;
+      console.log(data);
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;
@@ -105,6 +113,8 @@ export const useUserStore = defineStore("user", () => {
     tfa_enabled,
     email,
     loginType,
+    alerts,
+    id,
     signin,
     logout,
     fetchUser,

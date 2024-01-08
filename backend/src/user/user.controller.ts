@@ -5,7 +5,7 @@ import {
   HttpCode,
   Param,
   Post,
-  Req,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -17,9 +17,14 @@ import { decodeJwt } from './decorator';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { userGateway } from './user.gateway';
+
 @Controller('users')
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private userGateway: userGateway,
+  ) {}
 
   @Get()
   async getUsers() {
@@ -33,9 +38,34 @@ export class UserController {
   }
 
   @UseGuards(JwtGuard)
+  @Get('me/friends')
+  getMyFriends(@getUser() user: any) {
+    return this.userService.getFriends(user.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('connections')
+  async getPending() {
+    const pending = await this.userService.getPending();
+    return pending;
+  }
+
+  @UseGuards(JwtGuard)
   @Get(':username')
   getUserById(@Param('username') username: string) {
     return this.userService.getUserById(username);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('dismiss-alert/alert?')
+  dismissAlert(
+    @getUser() user: any,
+    @Query('id') id: string,
+    @Query('sender') sender: string,
+    @Query('message') message: string,
+    @Query('action') action: boolean,
+  ) {
+    return this.userService.dismissAlert(user, id, message, sender, action);
   }
 
   // Send Friend Request
@@ -46,6 +76,8 @@ export class UserController {
     @decodeJwt() decoded_jwt: any,
   ) {
     await this.userService.requestFriend(user_id, decoded_jwt);
+    const socket = this.userGateway.usersConnected.get(user_id);
+    if (socket) socket.emit('newAlert');
     return HttpCode(201);
   }
 
@@ -55,31 +87,37 @@ export class UserController {
   async respondFriend(@Param() params: any, @decodeJwt() decoded_jwt: any) {
     const user_id = params.id;
     const action = params.action;
-	await this.userService.respondFriend(user_id, action, decoded_jwt);
-	return HttpCode(201);
-}
+    await this.userService.respondFriend(user_id, action, decoded_jwt);
+    return HttpCode(201);
+  }
 
-// Remove Friends
-	@UseGuards(JwtGuard)
-	@Post('remove-friend/:id')
-	async removeFriend(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
-	await this.userService.removeFriend(user_id, decoded_jwt);
-	return HttpCode(201);
-	}
+  // Remove Friends
+  @UseGuards(JwtGuard)
+  @Post('remove-friend/:id')
+  async removeFriend(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
+    await this.userService.removeFriend(user_id, decoded_jwt);
+    const socket = this.userGateway.usersConnected.get(user_id);
+    if (socket) socket.emit('newAlert');
+    return HttpCode(201);
+  }
 
-	@UseGuards(JwtGuard)
-	@Post('change-username')
-	async changeUsername(@getUser() user: any, @Body() body: any) {
-		const updated = await this.userService.changeUsername(user, body.username);
-		return updated;
-	}
+  @UseGuards(JwtGuard)
+  @Post('change-username')
+  async changeUsername(@getUser() user: any, @Body() body: any) {
+    const updated = await this.userService.changeUsername(user, body.username);
+    return updated;
+  }
 
-	@UseGuards(JwtGuard)
-	@Post('change-password')
-	async changePassword(@getUser() user: any, @Body() body: any) {
-		const updated = await this.userService.changePassword(user, body.password, body.currentPwd);
-		return updated;
-	}
+  @UseGuards(JwtGuard)
+  @Post('change-password')
+  async changePassword(@getUser() user: any, @Body() body: any) {
+    const updated = await this.userService.changePassword(
+      user,
+      body.password,
+      body.currentPwd,
+    );
+    return updated;
+  }
 
   @UseGuards(JwtGuard)
   @Post('change-avatar')

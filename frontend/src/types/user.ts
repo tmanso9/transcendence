@@ -1,6 +1,6 @@
 export interface User {
   username?: string
-  id?: number
+  id?: string
   points?: number
   wins?: number
   losses?: number

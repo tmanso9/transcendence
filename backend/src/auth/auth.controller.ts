@@ -1,6 +1,5 @@
 import { Body, Controller, ForbiddenException, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { Response, Request, response } from "express";
-
+import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { AuthDTO } from "./dto";
 import { GoogleGuard, Guard42, JwtGuard } from "./guards";
@@ -86,7 +85,6 @@ export class AuthController {
 			const url = `http://localhost:3001/users/${logged_user.username}`;
 			response.redirect(url)
 		}
-		
 	}
 
 	/***** 42 LOGIN *****/
@@ -98,18 +96,7 @@ export class AuthController {
     @Get('callback')
     async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response) {
         const logged_user = await this.authService.login42(user);
-        
-		response.cookie('access_token', logged_user.accessToken, {
-			maxAge: 2592000000,
-			sameSite: true,
-			secure: false,
-		});
-
-		response.cookie('refresh_token', logged_user.refresh_token, {
-			maxAge: 2592000000,
-			sameSite: true,
-			secure: false,
-		});
+        response.cookie('access_token', logged_user.accessToken);
 		
 		if (logged_user.tfa_enabled)
 		{
@@ -132,7 +119,6 @@ export class AuthController {
 	async logout(@Req() req: Request, @Res({ passthrough: true }) response: Response){
 		const accessToken = req.cookies['access_token'];
 		response.cookie('access_token', '');
-		response.cookie('refresh_token', '');
 		return this.authService.logout(accessToken)
 	}
 

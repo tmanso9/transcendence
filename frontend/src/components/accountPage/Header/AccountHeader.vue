@@ -34,6 +34,7 @@
         :account="account"
         :editAvatar="editAvatar"
         @edit="toggleEditAvatar"
+        :isSelf="isSelf"
       />
     </div>
     <div class="acount__header__change-avatar w-100 mt-4">
