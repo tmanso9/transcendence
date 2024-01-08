@@ -193,12 +193,15 @@ export class ChannelsGateway {
         if (member.id == user.id)
           throw new ForbiddenException('user is already member of channel');
       });
-      await this.prisma.channels.update({
+      const updatedChannel = await this.prisma.channels.update({
         where: { id: channel.id },
         data: {
           members: {
             connect: { id: user.id },
           },
+        },
+        include: {
+          members: true,
         },
       });
       const updatedUser = await this.prisma.user.findFirst({
@@ -214,7 +217,103 @@ export class ChannelsGateway {
           },
         },
       });
+      updatedChannel.members.map((member) => {
+        if (member.id != user.id) {
+          const client = clientsMap.get(member.id);
+          if (client && client.connected) {
+            client.emit('createChannel');
+          }
+        }
+      });
       return updatedUser.channels;
+    } catch (error) {
+      this.logger.debug(error);
+      return undefined;
+    }
+  }
+
+  @SubscribeMessage('createChannel')
+  async createChannel(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      type: 'public' | 'private' | 'personal';
+      password: string;
+      channelName: string;
+      members: User[];
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user is not logged in');
+      if (data.type == 'personal' && data.members.length != 1)
+        throw new ForbiddenException(
+          'personal channel must have have exactly 2 mebers',
+        );
+      if (data.type != 'personal' && data.channelName == '')
+        throw new ForbiddenException('non personal channel must have name');
+      if (data.type != 'personal') {
+        if (data.type != 'public' && data.type != 'private')
+          throw new ForbiddenException(
+            'channel type must be: "personal", "private" or "public"',
+          );
+        const newChannel = await this.prisma.channels.create({
+          data: {
+            creator: user.username,
+            type: data.type,
+            avatar: 'mdi-account-group',
+            password: data.password,
+            channelName: data.channelName,
+            members: {
+              connect: { id: user.id },
+            },
+            admins: {
+              connect: { id: user.id },
+            },
+          },
+        });
+        data.members.map(async (member) => {
+          const updatedChannel = await this.prisma.channels.update({
+            where: { id: newChannel.id },
+            data: {
+              members: {
+                connect: { id: member.id },
+              },
+            },
+          });
+        });
+      } else {
+        const newChannel = await this.prisma.channels.create({
+          data: {
+            creator: user.username,
+            type: data.type,
+            avatar: 'mdi-account',
+            password: '',
+            channelName: '',
+            members: {
+              connect: { id: user.id },
+            },
+          },
+        });
+        const updatedChannel = await this.prisma.channels.update({
+          where: { id: newChannel.id },
+          data: {
+            members: {
+              connect: { id: data.members[0].id },
+            },
+          },
+        });
+      }
+      data.members.map((member) => {
+        if (member.id != user.id) {
+          const client = clientsMap.get(member.id);
+          if (client && client.connected) {
+            client.emit('createChannel');
+          }
+        }
+      });
+      return 1;
     } catch (error) {
       this.logger.debug(error);
       return undefined;

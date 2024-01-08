@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import CreateChannel from "./CreateChannel.vue";
 import { chatAppStore } from "@/store/chat";
+import { User } from "../../store/chat";
 
 const { height } = useDisplay();
 
@@ -77,6 +78,19 @@ const store = chatAppStore();
               <v-btn
                 v-else-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
+                @click="
+                  () => {
+                    const friend = store.currentUser?.friends.find(
+                      (friend: User) => {
+                        if (friend.username == item.channelName) return true;
+                        return false;
+                      },
+                    );
+                    if (friend) {
+                      store.createChannel('personal', '', '', [friend]);
+                    }
+                  }
+                "
                 >Talk</v-btn
               >
               <v-btn

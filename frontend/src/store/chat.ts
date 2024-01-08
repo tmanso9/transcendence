@@ -97,6 +97,14 @@ export const chatAppStore = defineStore("chat", () => {
     socket.on("channelMessages", (messages) => {
       channelMessagesVar.value = messages;
     });
+
+    socket.on("createChannel", () => {
+      getAllChatData();
+    });
+
+    socket.on("joinChannel", () => {
+      getAllChatData();
+    });
   }
 
   async function getAllChatData() {
@@ -113,6 +121,7 @@ export const chatAppStore = defineStore("chat", () => {
 
   function setupFriendsWithTick() {
     if (!currentUser.value?.friends) return;
+    friendsWithTick.value = [];
     currentUser.value.friends.map((user) => {
       if (!friendsWithTick.value)
         friendsWithTick.value = [{ friend: user, added: false }];
@@ -279,6 +288,31 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function createChannel(
+    type: "public" | "private" | "personal",
+    password: string,
+    channelName: string,
+    members: User[],
+  ) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend("createChannel", {
+      token,
+      type,
+      password,
+      channelName,
+      members,
+    })
+      .then(() => {
+        getAllChatData();
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+    await getAllChatData();
+  }
+
   return {
     currentUser,
     allUsers,
@@ -301,5 +335,6 @@ export const chatAppStore = defineStore("chat", () => {
     isBlockedFromChannel,
     getAllChatData,
     joinChannel,
+    createChannel,
   };
 });
