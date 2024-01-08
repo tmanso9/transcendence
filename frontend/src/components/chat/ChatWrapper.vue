@@ -20,13 +20,10 @@ const name = ref("");
 const members = ref([]);
 const haveAllInfoNeeded = ref(false);
 
-function updateScroll(id: string) {
-  var element = document.getElementById(id);
-  if (element) element.scrollTop = element.scrollHeight;
-  console.log(store.allUsers); // test to check if var is not empty
-}
+
 
 onMounted(async () => {
+  await store.getAllChatData();
   if (store.currentUser && store.publicChannelsUserIsNotIn)
     haveAllInfoNeeded.value = true;
 });
@@ -41,7 +38,6 @@ onMounted(async () => {
       ></channel-header>
       <messages-scroll></messages-scroll>
       <message-input
-        @scrollMessages="updateScroll('scrollMessages')"
         style="bottom: 0"
       ></message-input>
     </div>
