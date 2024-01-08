@@ -243,7 +243,7 @@ export class ChannelsGateway {
       channelName: string;
       members: User[];
     },
-  ): Promise<number> {
+  ): Promise<string> {
     try {
       const user = await this.authService.getUserFromToken(data.token);
       if (!user) throw new ForbiddenException('user is not logged in');
@@ -253,6 +253,7 @@ export class ChannelsGateway {
         );
       if (data.type != 'personal' && data.channelName == '')
         throw new ForbiddenException('non personal channel must have name');
+      let channelIdToReturn = '';
       if (data.type != 'personal') {
         if (data.type != 'public' && data.type != 'private')
           throw new ForbiddenException(
@@ -273,6 +274,7 @@ export class ChannelsGateway {
             },
           },
         });
+        channelIdToReturn = newChannel.id;
         data.members.map(async (member) => {
           const updatedChannel = await this.prisma.channels.update({
             where: { id: newChannel.id },
@@ -284,6 +286,13 @@ export class ChannelsGateway {
           });
         });
       } else {
+        const possibleChannel = await this.prisma.channels.findFirst({
+          where: {
+            type: 'personal',
+            creator: data.members[0].username || user.username,
+          },
+        });
+        if (possibleChannel) return possibleChannel.id;
         const newChannel = await this.prisma.channels.create({
           data: {
             creator: user.username,
@@ -304,6 +313,7 @@ export class ChannelsGateway {
             },
           },
         });
+        channelIdToReturn = updatedChannel.id;
       }
       data.members.map((member) => {
         if (member.id != user.id) {
@@ -313,7 +323,7 @@ export class ChannelsGateway {
           }
         }
       });
-      return 1;
+      return channelIdToReturn;
     } catch (error) {
       this.logger.debug(error);
       return undefined;

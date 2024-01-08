@@ -9,11 +9,11 @@ import { onMounted } from "vue";
 const { height } = useDisplay();
 const store = chatAppStore();
 const channelPermission = ref(false);
-const channel = ref<Channel>();
 
 onMounted(async () => {
-  channel.value = store.getChannelInfo(store.selectedChannel);
-  if (channel) channelPermission.value = true;
+  console.log("channel: ", store.selectedChannel);
+  store.channelStd = store.getChannelInfo(store.selectedChannel);
+  if (store.channelStd) channelPermission.value = true;
 });
 </script>
 <template>
@@ -25,10 +25,10 @@ onMounted(async () => {
     ></v-icon>
     <div class="channelHeader-profile">
       <v-icon
-        :icon="channel?.avatar"
+        :icon="store.channelStd?.avatar"
         class="channelHeader-profile-avatar"
       ></v-icon>
-      <div>{{ channel?.channelName }}</div>
+      <div>{{ store.channelStd?.channelName }}</div>
     </div>
     <channel-settings></channel-settings>
   </div>

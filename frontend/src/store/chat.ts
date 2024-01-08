@@ -55,6 +55,7 @@ export const chatAppStore = defineStore("chat", () => {
   const friendsWithTick = ref<{ friend: User; added: boolean }[]>();
   const publicChannelsUserIsNotIn = ref<Channel[]>();
   const selectedChannel = ref("");
+  const channelStd = ref<Channel>();
   const channelMessagesVar = ref<Message[]>([]);
 
   // condicional variables
@@ -117,6 +118,7 @@ export const chatAppStore = defineStore("chat", () => {
 
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
+    if (channel == "") channelStd.value = undefined;
   }
 
   function setupFriendsWithTick() {
@@ -210,6 +212,7 @@ export const chatAppStore = defineStore("chat", () => {
     channels.map((channel) => {
       if (channel.id == channelId) channelFound.value = channel;
     });
+    console.log("channel in getInfo: ", channelFound.value?.id);
     return channelFound.value;
   }
 
@@ -293,24 +296,24 @@ export const chatAppStore = defineStore("chat", () => {
     password: string,
     channelName: string,
     members: User[],
-  ) {
+  ): Promise<string | undefined> {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    await socketSend("createChannel", {
+    await socketSend<string>("createChannel", {
       token,
       type,
       password,
       channelName,
       members,
     })
-      .then(() => {
+      .then((channelId) => {
         getAllChatData();
+        return channelId;
       })
       .catch(() => {
         console.log("chat debug: no acessible channel messages");
       });
-    await getAllChatData();
   }
 
   return {
@@ -325,6 +328,7 @@ export const chatAppStore = defineStore("chat", () => {
     publicChannelsUserIsNotIn,
     permissionToOpenChat,
     channelMessagesVar,
+    channelStd,
     startConection,
     checkTokenConection,
     selectChannel,
