@@ -120,7 +120,7 @@ export class ChannelsGateway {
           data: {
             messages: {
               push: {
-                sender: user.id,
+                sender: user.username,
                 content: data.message,
                 date: '',
               },

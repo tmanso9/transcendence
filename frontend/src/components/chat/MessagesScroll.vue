@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { computed } from "vue";
 import { ref } from "vue";
 import { onMounted } from "vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
@@ -9,9 +10,15 @@ const { height } = useDisplay();
 const openMessages = ref(false);
 
 onMounted(async () => {
-  await store.channelMessages(store.selectedChannel);
+  await store.channelMessages(store.selectedChannel, "get", "");
   if (store.channelMessagesVar) openMessages.value = true;
 });
+
+
+function updateScroll() {
+  var element = document.getElementById("scrollMessages");
+  if (element) element.scrollTop = element.scrollHeight;
+}
 </script>
 <template>
   <div class="messageScroll" v-if="openMessages">
@@ -20,6 +27,7 @@ onMounted(async () => {
       :items="store.channelMessagesVar"
       :height="height > 700 ? 400 : 300"
       id="scrollMessages"
+      @vnode-updated="updateScroll"
     >
       <template v-slot:default="{ item }">
         <div class="messageSentOrReceived">

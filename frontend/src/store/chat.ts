@@ -208,12 +208,14 @@ export const chatAppStore = defineStore("chat", () => {
     return channelFound.value;
   }
 
-  async function channelMessages(channelId: string) {
+  async function channelMessages(
+    channelId: string,
+    option: "get" | "send",
+    message: string,
+  ) {
     if (!currentUser.value?.channels.length) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    const option = "get";
-    const message = "";
     await socketSend<Message[]>("channelMessages", {
       token,
       option,
@@ -226,6 +228,7 @@ export const chatAppStore = defineStore("chat", () => {
       .catch(() => {
         console.log("chat debug: no acessible channel messages");
       });
+    console.log(channelMessagesVar.value);
   }
 
   function channelMembers(channelId: string) {
