@@ -16,6 +16,7 @@ onMounted(async () => {
 <template>
   <div class="messageScroll" v-if="openMessages">
     <v-virtual-scroll
+      v-if="store.channelMessagesVar.length != 0"
       :items="store.channelMessagesVar"
       :height="height > 700 ? 400 : 300"
       id="scrollMessages"
@@ -48,6 +49,20 @@ onMounted(async () => {
               {{ item.sender }}
             </v-chip>
           </div>
+        </div>
+      </template>
+    </v-virtual-scroll>
+    <v-virtual-scroll
+      v-else
+      :items="['No messages']"
+      :height="height > 700 ? 400 : 300"
+      id="scrollMessages"
+    >
+      <template v-slot:default="{ item }">
+        <div class="messageScroll-noMessages">
+          <v-chip size="x-large" color="secondary">
+            {{ item }}
+          </v-chip>
         </div>
       </template>
     </v-virtual-scroll>
