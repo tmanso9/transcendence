@@ -160,4 +160,64 @@ export class ChannelsGateway {
       return [];
     }
   }
+
+  @SubscribeMessage('joinChannel')
+  async joinChannel(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+    },
+  ): Promise<Channels[]> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+        include: {
+          members: true,
+          admins: true,
+          bannedUsers: true,
+          mutedUsers: true,
+        },
+      });
+      if (!user || !channel)
+        throw new ForbiddenException('problem with user or channel');
+      channel.bannedUsers.map((bannedUser) => {
+        if (bannedUser.id == user.id)
+          throw new ForbiddenException('user is banned from this channel');
+      });
+      channel.members.map((member) => {
+        if (member.id == user.id)
+          throw new ForbiddenException('user is already member of channel');
+      });
+      await this.prisma.channels.update({
+        where: { id: channel.id },
+        data: {
+          members: {
+            connect: { id: user.id },
+          },
+        },
+      });
+      const updatedUser = await this.prisma.user.findFirst({
+        where: { id: user.id },
+        include: {
+          channels: {
+            include: {
+              members: true,
+              admins: true,
+              bannedUsers: true,
+              mutedUsers: true,
+            },
+          },
+        },
+      });
+      return updatedUser.channels;
+    } catch (error) {
+      this.logger.debug(error);
+      return undefined;
+    }
+  }
 }

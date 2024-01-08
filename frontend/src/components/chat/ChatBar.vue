@@ -79,7 +79,14 @@ const store = chatAppStore();
                 :size="height > 700 ? 'small' : 'x-small'"
                 >Talk</v-btn
               >
-              <v-btn v-else :size="height > 700 ? 'small' : 'x-small'"
+              <v-btn
+                v-else
+                :size="height > 700 ? 'small' : 'x-small'"
+                @click="
+                  () => {
+                    store.joinChannel(item.id);
+                  }
+                "
                 >Join</v-btn
               >
             </div>

@@ -92,11 +92,7 @@ export const chatAppStore = defineStore("chat", () => {
       window.location.reload();
     });
 
-    await getUser();
-    setupPersonalChannels();
-    await getPublicChannelsUserIsNotIn();
-    setupFriendsWithTick();
-    setupPublicChannelsUserIsNotIn();
+    await getAllChatData();
 
     socket.on("channelMessages", (messages) => {
       channelMessagesVar.value = messages;
@@ -228,7 +224,6 @@ export const chatAppStore = defineStore("chat", () => {
       .catch(() => {
         console.log("chat debug: no acessible channel messages");
       });
-    console.log(channelMessagesVar.value);
   }
 
   function channelMembers(channelId: string) {
@@ -265,6 +260,25 @@ export const chatAppStore = defineStore("chat", () => {
     return isBlockedFromChannel;
   }
 
+  // active database functions
+
+  async function joinChannel(channelId: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend<Channel[]>("joinChannel", {
+      token,
+      channelId,
+    })
+      .then((channels) => {
+        getAllChatData();
+        return channels;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -286,5 +300,6 @@ export const chatAppStore = defineStore("chat", () => {
     isAdmin,
     isBlockedFromChannel,
     getAllChatData,
+    joinChannel,
   };
 });
