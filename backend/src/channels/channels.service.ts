@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddToChannelDTO, CreateChannelDTO } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class ChannelsService {

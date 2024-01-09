@@ -106,6 +106,10 @@ export const chatAppStore = defineStore("chat", () => {
     socket.on("joinChannel", () => {
       getAllChatData();
     });
+
+    socket.on("updateInfo", () => {
+      getAllChatData();
+    });
   }
 
   async function getAllChatData() {
@@ -212,7 +216,6 @@ export const chatAppStore = defineStore("chat", () => {
     channels.map((channel) => {
       if (channel.id == channelId) channelFound.value = channel;
     });
-    console.log("channel in getInfo: ", channelFound.value?.id);
     return channelFound.value;
   }
 
@@ -339,6 +342,30 @@ export const chatAppStore = defineStore("chat", () => {
     }
   }
 
+  async function banMuteKickUserFromChannnel(
+    channelId: string,
+    option: "ban" | "kick" | "mute",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    console.log(channelId, " ", option, " ", userId);
+    const token = cookies?.get("access_token");
+    await socketSend<number>("banMuteKickUserFromChannnel", {
+      token,
+      channelId,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -364,5 +391,6 @@ export const chatAppStore = defineStore("chat", () => {
     joinChannel,
     createChannel,
     leaveChannel,
+    banMuteKickUserFromChannnel,
   };
 });

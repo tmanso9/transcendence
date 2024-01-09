@@ -13,6 +13,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
 import { Channels, User } from '@prisma/client';
 import { Client } from 'socket.io/dist/client';
+import { Cron } from '@nestjs/schedule';
 
 class Message {
   sender: string;
@@ -40,6 +41,27 @@ export class ChannelsGateway {
   server: Server;
 
   private logger: Logger = new Logger('Chat Log');
+
+  @Cron('0 */10 * * * *')
+  async handleBannedAndMutedCleanup() {
+    try {
+      const allChannels = await this.prisma.channels.findMany();
+      allChannels.map(async (channel) => {
+        await this.prisma.channels.update({
+          where: { id: channel.id },
+          data: { bannedUsers: { set: [] }, mutedUsers: { set: [] } },
+        });
+      });
+      clientsMap.forEach((client) => {
+        if (client && client.connected) {
+          client.emit('updateInfo');
+        }
+      });
+    } catch (error) {
+      // Handle errors if needed
+      console.error('Error during banned cleanup:', error);
+    }
+  }
 
   @SubscribeMessage('checkTokenConection')
   async checkTokenConection(
@@ -109,10 +131,21 @@ export class ChannelsGateway {
         where: {
           id: data.channelId,
         },
+        include: {
+          mutedUsers: true,
+        },
+      });
+      let userIsMuted = [];
+      channel.mutedUsers.map((mutedUser) => {
+        if (mutedUser.id == user.id) userIsMuted.push(true);
       });
       if (!channel) throw new ForbiddenException('no channel found');
       let messages: Message[] = [];
-      if (data.option == 'send' && data.message != '') {
+      if (
+        data.option == 'send' &&
+        data.message != '' &&
+        userIsMuted.length == 0
+      ) {
         const updatedChannel = await this.prisma.channels.update({
           where: {
             id: channel.id,
@@ -145,7 +178,7 @@ export class ChannelsGateway {
             }
           }
         });
-      } else if (data.option == 'get') {
+      } else if (data.option == 'get' || userIsMuted.length > 0) {
         channel.messages.map((msg: JsonValue) => {
           messages.push({
             sender: msg.sender,
@@ -399,6 +432,109 @@ export class ChannelsGateway {
           },
         });
       }
+      updatedChannel.members.map((member) => {
+        const client = clientsMap.get(member.id);
+        if (client && client.connected) {
+          client.emit('updateInfo');
+        }
+      });
+      return 1;
+    } catch (error) {
+      this.logger.debug(error);
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('banMuteKickUserFromChannnel')
+  async banMuteKickUserFromChannnel(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+      option: 'ban' | 'kick' | 'mute';
+      userId: string;
+    },
+  ): Promise<number> {
+    try {
+      this.logger.debug(data.userId);
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const userIsAdmin = await this.prisma.user.findFirst({
+        where: {
+          id: user.id,
+          adminOf: {
+            some: {
+              id: data.channelId,
+            },
+          },
+        },
+      });
+      if (!userIsAdmin) throw new ForbiddenException('user isnt admin');
+      const userToBanKickOrMute = await this.prisma.user.findFirst({
+        where: {
+          id: data.userId,
+        },
+      });
+      if (!userToBanKickOrMute)
+        throw new ForbiddenException('user to ban, kick or mute doesnt exist');
+      if (data.option == 'ban' || data.option == 'kick') {
+        await this.prisma.channels.update({
+          where: {
+            id: data.channelId,
+            NOT: {
+              creator: userToBanKickOrMute.username,
+            },
+          },
+          data: {
+            members: {
+              disconnect: { id: data.userId },
+            },
+            admins: {
+              disconnect: { id: data.userId },
+            },
+          },
+        });
+      }
+      if (data.option == 'ban') {
+        await this.prisma.channels.update({
+          where: {
+            id: data.channelId,
+          },
+          data: {
+            bannedUsers: {
+              connect: { id: data.userId },
+            },
+          },
+        });
+      } else if (data.option == 'mute') {
+        await this.prisma.channels.update({
+          where: {
+            id: data.channelId,
+          },
+          data: {
+            mutedUsers: {
+              connect: { id: data.userId },
+            },
+          },
+        });
+      }
+      const updatedChannel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+        include: {
+          members: true,
+        },
+      });
+      updatedChannel.members.map((member) => {
+        if (member.id != user.id) {
+          const client = clientsMap.get(member.id);
+          if (client && client.connected) {
+            client.emit('updateInfo');
+          }
+        }
+      });
       return 1;
     } catch (error) {
       this.logger.debug(error);
