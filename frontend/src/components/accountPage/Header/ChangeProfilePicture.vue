@@ -73,11 +73,8 @@ const upload = async () => {
       return;
     }
     const formData = new FormData();
-    console.log(newPicture.value);
     const name = (newPicture.value as File).name;
-    console.log(name);
     formData.append("avatar", newPicture.value as File, name);
-    console.log(formData.getAll("avatar"));
 
     try {
       await fetchMe(cookies, user);
@@ -92,8 +89,7 @@ const upload = async () => {
 
       if (!response.ok) throw new Error(await response.text());
       emit("avatarChange");
-      console.log(response);
-      router.go(0);
+      if (props.source !== "firstLogin") router.go(0);
     } catch (error) {
       console.error(error);
     }
