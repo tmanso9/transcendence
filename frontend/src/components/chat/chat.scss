@@ -39,7 +39,7 @@
 }
 
 .messageScroll {
-  padding: 0 1em;
+  padding: 0.5em 1em;
   &-noMessages {
     padding-top: 1em;
     text-align: center;
@@ -58,7 +58,10 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin: 0.5em 0;
+
+  &-messageSentChip {
+    margin-bottom: 0.5em;
+  }
 }
 
 .messageSentByCurrentUser {
@@ -81,8 +84,15 @@
   justify-content: center;
 }
 
-.chatBox > .chatBar > .chatConversations > .contactsScroller {
-  border-radius: 1em;
+.contactsScroller {
+  &-noChatsMessage {
+    display: inline;
+    margin-left: 1em;
+    border-radius: 0.5em;
+    border-bottom: solid 0.1em map-get($color, primary);
+    padding: 0.3em;
+    text-align: center;
+  }
 }
 
 .chatTopBar {
