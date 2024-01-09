@@ -329,4 +329,80 @@ export class ChannelsGateway {
       return undefined;
     }
   }
+
+  @SubscribeMessage('leaveChannel')
+  async leaveChannel(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+        include: {
+          members: true,
+          admins: true,
+        },
+      });
+      if (!channel) throw new ForbiddenException('channel doesnt exist');
+      // delete channel
+      if (channel.members.length == 1) {
+        await this.prisma.channels.delete({
+          where: {
+            id: data.channelId,
+          },
+        });
+        return 1;
+      }
+      // just remove the user (remove it from admins)
+      const channels = await this.prisma.channels.update({
+        where: {
+          id: data.channelId,
+        },
+        data: {
+          creator: '',
+          members: {
+            disconnect: { id: user.id },
+          },
+          admins: {
+            disconnect: { id: user.id },
+          },
+        },
+      });
+      if (!channels) throw new ForbiddenException('user not in this channel');
+      const updatedChannel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+        include: {
+          members: true,
+          admins: true,
+        },
+      });
+      if (!updatedChannel) return 1;
+      if (updatedChannel.admins.length == 0) {
+        await this.prisma.channels.update({
+          where: {
+            id: data.channelId,
+          },
+          data: {
+            admins: {
+              connect: { id: updatedChannel.members[0].id },
+            },
+          },
+        });
+      }
+      return 1;
+    } catch (error) {
+      this.logger.debug(error);
+      return 0;
+    }
+  }
 }

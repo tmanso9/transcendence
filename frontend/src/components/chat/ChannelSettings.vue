@@ -113,7 +113,17 @@ onMounted(async () => {
           </div>
         </template>
       </v-virtual-scroll>
-      <v-btn color="warning">Leave Group</v-btn>
+      <v-btn
+        color="warning"
+        @click="
+          () => {
+            if (channel?.id) store.leaveChannel(channel.id);
+            channelSettings = false;
+            store.selectChannel('');
+          }
+        "
+        >Leave Group</v-btn
+      >
       <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
       <personal-settings
         v-else-if="store.personalPopUpSettings"

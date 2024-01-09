@@ -316,6 +316,29 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function leaveChannel(channelId: string) {
+    if (!currentUser.value) return;
+    const userIsMember = ref(false);
+    currentUser.value.channels.map((channel) => {
+      if (channel.id == channelId) userIsMember.value = true;
+    });
+    if (userIsMember.value == true) {
+      const token = cookies?.get("access_token");
+      await socketSend<number>("leaveChannel", {
+        token,
+        channelId,
+      })
+        .then((number) => {
+          if (number == 1) {
+            getAllChatData();
+          }
+        })
+        .catch(() => {
+          console.log("chat debug: no acessible channel messages");
+        });
+    }
+  }
+
   return {
     currentUser,
     allUsers,
@@ -340,5 +363,6 @@ export const chatAppStore = defineStore("chat", () => {
     getAllChatData,
     joinChannel,
     createChannel,
+    leaveChannel,
   };
 });
