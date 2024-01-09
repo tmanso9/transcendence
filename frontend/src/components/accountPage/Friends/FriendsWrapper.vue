@@ -13,7 +13,12 @@
         >
           <template v-slot:prepend>
             <v-avatar size="45px" class="mx-2">
-              <v-img :src="avatar(friend.avatar)" alt="friend avatar" cover />
+              <v-img
+                :src="avatar(friend.avatar, friend.id)"
+                @error="pictureErr.push(friend.id)"
+                alt="friend avatar"
+                cover
+              />
             </v-avatar>
           </template>
           <template v-slot:append v-if="isSelf">
@@ -42,17 +47,20 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from "vue";
 import { useDisplay } from "vuetify";
 const props = defineProps(["account", "isSelf"]);
 defineEmits(["friendRequest"]);
 const { smAndUp } = useDisplay();
 
 const friends = props.account?.friends || [];
+const pictureErr = ref<string[]>([]);
 const defaultPicture =
   "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png";
 
-const avatar = (source: string) => {
-  return source.length && source !== "mdi-account" ? source : defaultPicture;
+const avatar = (source: string, id: string) => {
+  if (pictureErr.value.includes(id)) return defaultPicture;
+  return source.length && source !== "#" ? source : defaultPicture;
 };
 </script>
 
