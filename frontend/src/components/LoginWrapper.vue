@@ -80,7 +80,14 @@ const login = async () => {
     const urlEncoded = encodeFormData(values, propertyNames);
     try {
       const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
-      emit("login");
+      if (cookies?.get("access_token") === null) {
+        console.log(data);
+        user.email = data.email;
+        emit("login");
+        router.push("/2fa");
+      } else {
+        emit("login");
+      }
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;
