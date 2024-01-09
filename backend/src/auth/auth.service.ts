@@ -105,6 +105,8 @@ export class AuthService {
 
   /***** GOOGLE *****/
   async googleLogin(data: any) {
+	let firstLogin = false;
+
     // Check if the user already exists in the database
     let user = await this.prisma.user.findUnique({
       where: { email: data.email },
@@ -135,6 +137,7 @@ export class AuthService {
             tfa_secret: '',
           },
         });
+        firstLogin = true;
       } catch (error) {
         if (
           error instanceof PrismaClientKnownRequestError &&
@@ -165,11 +168,14 @@ export class AuthService {
       username: user.username,
       avatar: user.avatar,
       tfa: user.tfa_enabled,
+	  firstLogin
     };
   }
 
   /***** 42 *****/
   async login42(user) {
+	let firstLogin = false;
+
     let profile = await this.prisma.user.findUnique({
       where: { email: user.email },
     });
@@ -187,6 +193,7 @@ export class AuthService {
           tfa_secret: '',
         },
       });
+	  firstLogin = true
     } else if (!profile.tfa_enabled) {
       profile = await this.prisma.user.update({
         where: { email: user.email },
@@ -202,7 +209,7 @@ export class AuthService {
       refresh_token = await this.signToken(profile, '24h');
     }
 
-    return { ...profile, accessToken, refresh_token };
+    return { ...profile, accessToken, refresh_token, firstLogin };
   }
 
   /*** USING RANDOM NAME GENERATOR API ***/

@@ -82,7 +82,10 @@ export class AuthController {
 			response.redirect('http://localhost:3001/2fa');
 		}
 		else {
-			const url = `http://localhost:3001/users/${logged_user.username}`;
+			let url = `http://localhost:3001/users/${logged_user.username}`;
+			if (logged_user.firstLogin) {
+				url = `http://localhost:3001/firstLogin`;
+			}
 			response.redirect(url)
 		}
 	}
@@ -108,7 +111,10 @@ export class AuthController {
 			response.redirect('http://localhost:3001/2fa');
 		}
 		else {
-			const url = `http://localhost:3001/users/${logged_user.username}`;
+			let url = `http://localhost:3001/users/${logged_user.username}`;
+			if (logged_user.firstLogin) {
+				url = `http://localhost:3001/firstLogin`;
+			}
 			response.redirect(url)
 		}
 
