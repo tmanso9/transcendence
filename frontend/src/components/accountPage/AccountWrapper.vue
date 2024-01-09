@@ -3,6 +3,7 @@
     class="d-flex ma-5 mx-auto w-75 justify-space-around align-center"
     :account="account"
     :isSelf="isSelf"
+    @accountUpdated="updateAccount"
   />
   <interact-buttons
     :account="account"
@@ -36,12 +37,17 @@ import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/stores/user";
+import { User } from "@/types";
+import { fetchMe } from "@/utils";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 import { useRouter } from "vue-router";
 
 const { mdAndUp } = useDisplay();
 const user = useUserStore();
 const router = useRouter();
 
+const cookies = inject<VueCookies>("$cookies");
 const props = defineProps(["account", "myFriends", "connections"]);
 
 const computedStats = computed(() => {
@@ -56,6 +62,12 @@ const computedStats = computed(() => {
 const isSelf = computed(() => {
   return user.username && user.username === props.account.username;
 });
+
+const updateAccount = async (newUser: User) => {
+  //   console.log(newUser);
+  await fetchMe(cookies, user);
+  // if (newUser.username) user.username = newUser.username
+};
 
 const handleFriendRequest = async (path: string, id: string) => {
   try {

@@ -16,7 +16,7 @@ import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
 import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
 import { ref, onBeforeMount, computed } from "vue";
 import { useRoute } from "vue-router";
-import { fetchUser } from "@/utils";
+import { fetchOtherUser } from "@/utils";
 import { User } from "@/types";
 
 const route = useRoute();
@@ -34,7 +34,7 @@ const connections = ref<[string[]]>([[]]);
 
 onBeforeMount(async () => {
   try {
-    account.value = await fetchUser(getUsername.value);
+    account.value = await fetchOtherUser(getUsername.value);
     const result = await fetch(`http://localhost:3000/users/me/friends`, {
       credentials: "include",
     });
@@ -55,7 +55,7 @@ onBeforeMount(async () => {
       connections.value.push(pair);
     }
     // console.log(connections.value)
-    if (account.value.username) isLoaded.value = true;
+    if (account.value && account.value.username) isLoaded.value = true;
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "Unauthorized") unauthorized.value = true;

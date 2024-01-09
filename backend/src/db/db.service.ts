@@ -37,7 +37,10 @@ export class DbService {
 					password: hashed,
 					username: user.username,
 					avatar: '#',
-					status: "OFFLINE"
+					status: "OFFLINE",
+					login: "REGULAR",
+					tfa_enabled: false,
+					tfa_secret: ''
 				},
 			});
 		} catch (error) {

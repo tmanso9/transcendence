@@ -87,7 +87,6 @@ export class UserController {
   async respondFriend(@Param() params: any, @decodeJwt() decoded_jwt: any) {
     const user_id = params.id;
     const action = params.action;
-
     await this.userService.respondFriend(user_id, action, decoded_jwt);
     const socket = this.userGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
@@ -102,6 +101,24 @@ export class UserController {
     const socket = this.userGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
     return HttpCode(201);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('change-username')
+  async changeUsername(@getUser() user: any, @Body() body: any) {
+    const updated = await this.userService.changeUsername(user, body.username);
+    return updated;
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('change-password')
+  async changePassword(@getUser() user: any, @Body() body: any) {
+    const updated = await this.userService.changePassword(
+      user,
+      body.password,
+      body.currentPwd,
+    );
+    return updated;
   }
 
   @UseGuards(JwtGuard)

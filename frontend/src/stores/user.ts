@@ -3,8 +3,11 @@ import { defineStore } from "pinia";
 
 export const useUserStore = defineStore("user", () => {
   const username = ref("");
+  const email = ref("");
   const isAdmin = ref(false);
   const points = ref(0);
+  const tfa_enabled = ref(false);
+  const loginType = ref("REGULAR");
   const alerts = ref([]);
   const id = ref("");
 
@@ -22,7 +25,9 @@ export const useUserStore = defineStore("user", () => {
         const err = await result.text();
         throw new Error(err);
       }
-      return await result.json();
+      const data = await result.json();
+      //   console.log(data);
+      return data;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -72,6 +77,9 @@ export const useUserStore = defineStore("user", () => {
           }
           const refreshData = await refresh.json();
           username.value = refreshData.username;
+          tfa_enabled.value = refreshData.tfa_enabled;
+          email.value = refreshData.email;
+          loginType.value = refreshData.login;
           alerts.value = refreshData.alerts;
           id.value = refreshData.id;
           console.log(refreshData);
@@ -80,7 +88,12 @@ export const useUserStore = defineStore("user", () => {
         throw new Error(JSON.stringify(error));
       }
       const data = await result.json();
+      //   console.log("data:");
+      //   console.log(data);
       username.value = data.username;
+      tfa_enabled.value = data.tfa_enabled;
+      email.value = data.email;
+      loginType.value = data.login;
       alerts.value = data.alerts;
       id.value = data.id;
       console.log(data);
@@ -93,5 +106,17 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
-  return { username, isAdmin, points, alerts, id, signin, logout, fetchUser };
+  return {
+    username,
+    isAdmin,
+    points,
+    tfa_enabled,
+    email,
+    loginType,
+    alerts,
+    id,
+    signin,
+    logout,
+    fetchUser,
+  };
 });

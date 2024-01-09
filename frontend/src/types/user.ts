@@ -7,4 +7,5 @@ export interface User {
   position?: number
   avatar?: string
   fetchUser?: Function
+  tfa_enabled?: boolean
 }
