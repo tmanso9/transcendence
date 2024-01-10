@@ -95,13 +95,16 @@ export class UserService {
       pending.map(async (val) => {
         const creator = (
           await this.prisma.user.findUnique({ where: { id: val.creator } })
-        ).username;
+        )
         const receiver = (
           await this.prisma.user.findUnique({ where: { id: val.receiver } })
-        ).username;
+        )
+		if (!creator || !receiver) return
+		const creatorUsername = creator.username;
+		const receiverUsername = receiver.username;
         const pair = new Array();
-        pair.push(creator);
-        pair.push(receiver);
+        pair.push(creatorUsername);
+        pair.push(receiverUsername);
         allPairs.push(pair);
       }),
     );
