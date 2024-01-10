@@ -31,7 +31,6 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { defineEmits } from "vue";
 import { encodeFormData } from "@/utils";
 import { onMounted } from "vue";
 import SigninFormElements from "./SigninFormElements.vue";
