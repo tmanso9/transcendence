@@ -263,13 +263,13 @@ export const chatAppStore = defineStore("chat", () => {
     const channel = getChannelInfo(channelId);
     if (!channel || !channel.members) return false;
 
-    let isAdmin = false;
+    const isAdmin = ref(false);
 
     channel.admins.map((member) => {
-      if (member.id == userId) isAdmin = true;
+      if (member.id == userId) isAdmin.value = true;
     });
 
-    return isAdmin;
+    return isAdmin.value;
   }
 
   function isBlockedFromChannel(channelId: string, userId: string) {
@@ -372,7 +372,30 @@ export const chatAppStore = defineStore("chat", () => {
         }
       })
       .catch(() => {
-        console.log("chat debug: no acessible channel messages");
+        console.log("chat debug: cant ban, kick or mute user");
+      });
+  }
+
+  async function promoteOrDespromoteAdmin(
+    channelId: string,
+    option: "promote" | "despromote",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("promoteOrDespromoteAdmin", {
+      token,
+      channelId,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant promote or despromote admin");
       });
   }
 
@@ -404,5 +427,6 @@ export const chatAppStore = defineStore("chat", () => {
     leaveChannel,
     banMuteKickUserFromChannnel,
     isMember,
+    promoteOrDespromoteAdmin,
   };
 });

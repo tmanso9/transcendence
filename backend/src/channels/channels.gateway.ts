@@ -106,10 +106,9 @@ export class ChannelsGateway {
         });
         if (!userIsMember) channelsUserIsNotIn.push(channel);
       });
-      this.logger.debug(channelsUserIsNotIn.length);
       return channelsUserIsNotIn;
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.debug('problem in publicChannelsUserIsNotIn');
       return [];
     }
   }
@@ -189,7 +188,7 @@ export class ChannelsGateway {
       }
       return messages;
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.debug('problem in channelMessages');
       return [];
     }
   }
@@ -260,7 +259,7 @@ export class ChannelsGateway {
       });
       return updatedUser.channels;
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.debug('problem in joinChannel');
       return undefined;
     }
   }
@@ -358,7 +357,7 @@ export class ChannelsGateway {
       });
       return channelIdToReturn;
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.debug('problem in createChannel');
       return undefined;
     }
   }
@@ -440,7 +439,7 @@ export class ChannelsGateway {
       });
       return 1;
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.debug('problem in leaveChannel');
       return 0;
     }
   }
@@ -457,7 +456,6 @@ export class ChannelsGateway {
     },
   ): Promise<number> {
     try {
-      this.logger.debug(data.userId);
       const user = await this.authService.getUserFromToken(data.token);
       if (!user) throw new ForbiddenException('user not loged in');
       const userIsAdmin = await this.prisma.user.findFirst({
@@ -536,7 +534,96 @@ export class ChannelsGateway {
       });
       return 1;
     } catch (error) {
-      this.logger.debug(error);
+      this.logger.debug('problem in banMuteKickUserFromChannnel');
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('promoteOrDespromoteAdmin')
+  async promoteOrDespromoteAdmin(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+      option: 'promote' | 'despromote';
+      userId: string;
+    },
+  ): Promise<number> {
+    try {
+      this.logger.debug('hello0');
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      this.logger.debug('hello1');
+      const userIsAdmin = await this.prisma.user.findFirst({
+        where: {
+          id: user.id,
+          adminOf: {
+            some: {
+              id: data.channelId,
+            },
+          },
+        },
+      });
+      if (!userIsAdmin) throw new ForbiddenException('user isnt admin');
+      this.logger.debug('hello2');
+      const userToPromoteOrDespromote = await this.prisma.user.findFirst({
+        where: {
+          id: data.userId,
+        },
+      });
+      if (!userToPromoteOrDespromote)
+        throw new ForbiddenException(
+          'user to promote or despromote doesnt exist',
+        );
+      this.logger.debug('hello3');
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+        include: {
+          members: true,
+        },
+      });
+      if (!channel || channel.creator == userToPromoteOrDespromote.username)
+        throw new ForbiddenException(
+          'user to promote or despromote is the creator',
+        );
+      this.logger.debug('hello4');
+      if (data.option == 'promote') {
+        this.logger.debug('hello4.1');
+        await this.prisma.channels.update({
+          where: {
+            id: data.channelId,
+          },
+          data: {
+            admins: {
+              connect: { id: data.userId },
+            },
+          },
+        });
+      } else if (data.option == 'despromote') {
+        this.logger.debug('hello4.2');
+        await this.prisma.channels.update({
+          where: {
+            id: data.channelId,
+          },
+          data: {
+            admins: {
+              disconnect: { id: data.userId },
+            },
+          },
+        });
+      }
+      channel.members.map((member) => {
+        const client = clientsMap.get(member.id);
+        if (client && client.connected) {
+          client.emit('updateInfo');
+        }
+      });
+      return 1;
+    } catch (error) {
+      this.logger.debug('problem in promoteOrDespromoteAdmin');
       return 0;
     }
   }

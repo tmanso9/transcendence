@@ -70,9 +70,7 @@ onMounted(async () => {
             class="channelSettings-content-users-user"
             @click="
               () => {
-                store.channelStd?.members.map((member) => {
-                  if (member.id == item.id) store.selectedUserProfile = member;
-                });
+                store.selectedUserProfile = item;
                 if (store.selectedUserProfile?.id == store.currentUser?.id)
                   return;
                 if (
