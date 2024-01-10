@@ -108,7 +108,7 @@ export class UserService {
         allPairs.push(pair);
       }),
     );
-    return allPairs;
+    return allPairs.reverse();
   }
 
   async dismissAlert(
