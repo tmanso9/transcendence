@@ -32,7 +32,7 @@ function nextValue(index: number) {
       :items="store.channelMessagesVar"
       :height="height > 700 ? 382 : 282"
       id="scrollMessages"
-      @vnode-updated="updateScroll"
+      @vue-updated="updateScroll"
     >
       <template v-slot:default="{ item, index }">
         <div class="messageSentOrReceived">
