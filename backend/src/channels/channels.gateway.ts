@@ -254,7 +254,7 @@ export class ChannelsGateway {
         if (member.id != user.id) {
           const client = clientsMap.get(member.id);
           if (client && client.connected) {
-            client.emit('createChannel');
+            client.emit('updateInfo');
           }
         }
       });
@@ -352,7 +352,7 @@ export class ChannelsGateway {
         if (member.id != user.id) {
           const client = clientsMap.get(member.id);
           if (client && client.connected) {
-            client.emit('createChannel');
+            client.emit('updateInfo');
           }
         }
       });
@@ -527,12 +527,11 @@ export class ChannelsGateway {
           members: true,
         },
       });
+      clientsMap.get(userToBanKickOrMute.id)?.emit('updateInfo');
       updatedChannel.members.map((member) => {
-        if (member.id != user.id) {
-          const client = clientsMap.get(member.id);
-          if (client && client.connected) {
-            client.emit('updateInfo');
-          }
+        const client = clientsMap.get(member.id);
+        if (client && client.connected) {
+          client.emit('updateInfo');
         }
       });
       return 1;

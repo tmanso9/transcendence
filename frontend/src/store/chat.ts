@@ -64,6 +64,7 @@ export const chatAppStore = defineStore("chat", () => {
   const settingsAdminPopUp = ref(false);
   const selectedUserProfile = ref<User>();
   const permissionToOpenChat = ref(false);
+  const channelSettings = ref(false);
 
   // setup conection functions & condicional functions
 
@@ -99,25 +100,24 @@ export const chatAppStore = defineStore("chat", () => {
       channelMessagesVar.value = messages;
     });
 
-    socket.on("createChannel", (num) => {
-      getAllChatData();
-    });
-
-    socket.on("joinChannel", () => {
-      getAllChatData();
-    });
-
     socket.on("updateInfo", () => {
       getAllChatData();
     });
   }
 
   async function getAllChatData() {
+    console.log("get info called");
     await getUser();
     setupPersonalChannels();
     await getPublicChannelsUserIsNotIn();
     setupFriendsWithTick();
     setupPublicChannelsUserIsNotIn();
+    channelStd.value = getChannelInfo(selectedChannel.value);
+    if (!channelStd.value?.id || isMember(channelStd.value?.id) == false) {
+      personalPopUpSettings.value = false;
+      channelSettings.value = false;
+      selectChannel("");
+    }
   }
 
   function selectChannel(channel: string) {
@@ -210,7 +210,8 @@ export const chatAppStore = defineStore("chat", () => {
   };
 
   function getChannelInfo(channelId: string) {
-    if (!currentUser.value?.channels.length) return undefined;
+    if (!currentUser.value?.channels.length || channelId == "")
+      return undefined;
     const channels: Channel[] = currentUser.value.channels;
     const channelFound = ref<Channel>();
     channels.map((channel) => {
@@ -247,6 +248,15 @@ export const chatAppStore = defineStore("chat", () => {
     if (channel && channel.members) return channel.members;
 
     return undefined;
+  }
+
+  function isMember(channelId: string): boolean {
+    if (!currentUser.value?.channels) return false;
+    const isMember = ref(false);
+    currentUser.value.channels.map((channel) => {
+      if (channel.id == channelId) isMember.value = true;
+    });
+    return isMember.value;
   }
 
   function isAdmin(channelId: string, userId: string) {
@@ -379,6 +389,7 @@ export const chatAppStore = defineStore("chat", () => {
     permissionToOpenChat,
     channelMessagesVar,
     channelStd,
+    channelSettings,
     startConection,
     checkTokenConection,
     selectChannel,
@@ -392,5 +403,6 @@ export const chatAppStore = defineStore("chat", () => {
     createChannel,
     leaveChannel,
     banMuteKickUserFromChannnel,
+    isMember,
   };
 });
