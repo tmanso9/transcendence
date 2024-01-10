@@ -6,35 +6,46 @@
     label="username (optional)"
     type="text"
     autofocus
-	@update:focused="$emit('update-username', username)"
+    validateOn="submit"
+    @update:focused="$emit('update-username', username)"
   />
   <v-text-field
-  class="my-2"
+    class="my-2"
     size="30"
     v-model="email"
     label="email"
     type="email"
     :rules="rules"
-	@update:focused="$emit('update-email', email)"
+    validateOn="submit"
+    @update:focused="$emit('update-email', email)"
   />
   <v-text-field
     size="30"
     v-model="password"
+    :type="hidePwd ? 'password' : 'text'"
     label="password"
-    type="password"
     :rules="rules"
-	@update:focused="$emit('update-password', password)"
+    validateOn="submit"
+    :append-inner-icon="pwdIcon"
+    @click:append-inner="hidePwd = !hidePwd"
+    @update:focused="$emit('update-password', password)"
   />
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { ref } from "vue";
 
-defineProps(['isSignUp']);
-defineEmits(['update-username', 'update-email', 'update-password'])
+defineProps(["isSignUp"]);
+defineEmits(["update-username", "update-email", "update-password"]);
 const username = ref("");
 const email = ref("");
 const password = ref("");
+const hidePwd = ref(true);
+
+const pwdIcon = computed(() => {
+  return hidePwd.value ? "mdi-eye-outline" : "mdi-eye-off-outline";
+});
 
 const rules = [
   (input: string) => {

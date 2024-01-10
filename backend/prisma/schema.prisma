@@ -28,11 +28,11 @@ enum Rank {
   NOOBIE
 }
 
-// enum Login {
-//   REGULAR
-//   FORTYTWO
-//   GOOGLE
-// }
+enum Login {
+  REGULAR
+  FORTYTWO
+  GOOGLE
+}
 
 enum ChannelType {
   PERSONAL
@@ -43,7 +43,7 @@ enum ChannelType {
 model Connections {
   id       String           @id @default(uuid())
   status   ConnectionStatus @default(PENDING)
-  creator  String
+  creator String
   receiver String
 }
 
@@ -57,7 +57,9 @@ model User {
   status    Status // user status
   avatar    String // user avatar
   rank Rank @default(NOOBIE) // player rank
-//   login Login //user login method
+  login Login //user login method
+  tfa_secret String // secret string associated with two factor authentication
+  tfa_enabled Boolean // does the user have tfa enabled
 
   points Int @default(0) // Total points of the user
   wins   Int @default(0) // Number of wins
@@ -65,6 +67,7 @@ model User {
 
   friends  User[] @relation("Friends") // array of friends
   friendOf User[] @relation("Friends") // array of friends
+  alerts	Json[] @default([])
 
   channels   Channels[] @relation("Members") // array of channels of which the user is part
   adminOf    Channels[] @relation("Admins") // array of channels of which the user is an admin
@@ -73,9 +76,8 @@ model User {
 }
 
 model Blacklist {
-  id        Int      @id @default(autoincrement())
-  token     String
-  sub       String
+  id        String      @id @default(uuid())
+  token     String	@unique
   email     String
   expiresIn Int
   createdAt DateTime @default(now())

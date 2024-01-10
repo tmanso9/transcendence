@@ -8,6 +8,9 @@ CREATE TYPE "ConnectionStatus" AS ENUM ('PENDING', 'ACCEPTED');
 CREATE TYPE "Rank" AS ENUM ('GURU', 'PRO', 'NOOBIE');
 
 -- CreateEnum
+CREATE TYPE "Login" AS ENUM ('REGULAR', 'FORTYTWO', 'GOOGLE');
+
+-- CreateEnum
 CREATE TYPE "ChannelType" AS ENUM ('PERSONAL', 'PRIVATE', 'PUBLIC');
 
 -- CreateTable
@@ -31,9 +34,13 @@ CREATE TABLE "User" (
     "status" "Status" NOT NULL,
     "avatar" TEXT NOT NULL,
     "rank" "Rank" NOT NULL DEFAULT 'NOOBIE',
+    "login" "Login" NOT NULL,
+    "tfa_secret" TEXT NOT NULL,
+    "tfa_enabled" BOOLEAN NOT NULL,
     "points" INTEGER NOT NULL DEFAULT 0,
     "wins" INTEGER NOT NULL DEFAULT 0,
     "losses" INTEGER NOT NULL DEFAULT 0,
+    "alerts" JSONB[] DEFAULT ARRAY[]::JSONB[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

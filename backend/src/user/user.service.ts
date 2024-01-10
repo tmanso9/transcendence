@@ -1,8 +1,17 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as argon from 'argon2';
 import { channel } from 'diagnostics_channel';
 import * as fs from 'fs';
 import { join } from 'path';
+import { AuthService } from '../auth/auth.service';
+
+type Alert = {
+  id: string;
+  message: string;
+  sender: string;
+  action: boolean;
+};
 
 @Injectable()
 export class UserService {
@@ -34,18 +43,101 @@ export class UserService {
     return user;
   }
 
-  // Get user by username
-  async getUserById(username: string) {
-    const requested_user = await this.prisma.user.findFirst({
-      where: {
-        username,
-      },
-      include: {
-        friends: true,
+	// Get user by username
+	async getUserById(username: string) {
+		const requested_user = await this.prisma.user.findFirst({
+			where: {
+				username,
+			},
+			include: {
+				friends: true,
+			}
+		});
+		if (!requested_user)
+			throw new ForbiddenException(`User ${username} does not exist`);
+
+		const friends = requested_user.friends.map(friend => {
+			return {
+				username: friend.username,
+				avatar: friend.avatar,
+				id: friend.id
+			}
+		});
+
+		return {
+			username: requested_user.username,
+			wins: requested_user.wins,
+			losses: requested_user.losses,
+			points: requested_user.points,
+			rank: requested_user.rank,
+			status: requested_user.status,
+			avatar: requested_user.avatar,
+			id: requested_user.id,
+			friends,
+		};
+	}
+
+  async getFriends(id: string) {
+    const friend = await this.prisma.user
+      .findUnique({
+        where: { id },
+        select: { friends: true },
+      })
+      .friends();
+    return friend.map((friend) => friend.username);
+  }
+
+  async getPending() {
+    const pending = await this.prisma.connections.findMany();
+    const allPairs = [];
+
+    await Promise.all(
+      pending.map(async (val) => {
+        const creator = (
+          await this.prisma.user.findUnique({ where: { id: val.creator } })
+        ).username;
+        const receiver = (
+          await this.prisma.user.findUnique({ where: { id: val.receiver } })
+        ).username;
+        const pair = new Array();
+        pair.push(creator);
+        pair.push(receiver);
+        allPairs.push(pair);
+      }),
+    );
+    return allPairs;
+  }
+
+  async dismissAlert(
+    user: any,
+    id: string,
+    message: string,
+    sender: string,
+    action: boolean,
+  ) {
+    const targetUser = await this.prisma.user.findUnique({
+      where: { id: user.id },
+    });
+    const allAlerts = targetUser.alerts;
+
+    const newAlerts = allAlerts.filter((alert: Alert) => {
+      const actVal = (action as unknown as string) === 'true' ? true : false;
+      return !(
+        alert.id === id &&
+        alert.message === message &&
+        alert.sender === sender &&
+        alert.action === actVal
+      );
+    });
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        alerts: newAlerts,
       },
     });
 
-    return requested_user;
+    return true;
   }
 
   // Sends friend request
@@ -69,7 +161,8 @@ export class UserService {
       include: { friends: true, friendOf: true },
     });
     if (!sender) throw new ForbiddenException('Something went wrong');
-    if (friend.friends.includes(friend))
+    const friendIds = friend.friends.map((val) => val.id);
+    if (friendIds.includes(sender.id))
       throw new ForbiddenException('Already Friends');
 
     // Check if the request was already sent (bilateral check)
@@ -92,6 +185,25 @@ export class UserService {
         receiver: id,
       },
     });
+
+    const receiverAlerts = (
+      await this.prisma.user.findUnique({
+        where: { id },
+        select: { alerts: true },
+      })
+    ).alerts;
+
+    receiverAlerts.push({
+      message: 'added you as friend',
+      sender: sender.username,
+      id: sender.id,
+      action: true,
+    });
+
+    await this.prisma.user.update({
+      where: { id },
+      data: { alerts: receiverAlerts },
+    });
   }
 
   // Responds to friend request (accept or reject)
@@ -99,6 +211,7 @@ export class UserService {
     // Check if action is either 'accept' or 'reject'. If not, throw
     if (action != 'accept' && action != 'reject')
       throw new ForbiddenException(`Invalid Action: ${action}`);
+
 
     // Save target friend
     let friend = await this.prisma.user.findUnique({
@@ -141,56 +254,119 @@ export class UserService {
         data: { friends: { connect: [{ id: id }] } },
       });
 
-      await this.prisma.user.update({
-        where: { id: id },
-        data: { friends: { connect: [{ id: sender_info.sub }] } },
-      });
-    }
+	  await this.prisma.user.update({
+		where: { id: id },
+		data: { friends: { connect: [{ id: sender_info.sub }] } },
+	  });
+	  }
+	  
+	  // Remove connection from DB.
+	  await this.prisma.connections.deleteMany({
+	  where: {
+		creator: id,
+		receiver: sender_info.sub,
+	  },
+	  });
 
-    // Remove connection from DB.
-    await this.prisma.connections.deleteMany({
-      where: {
-        creator: id,
-        receiver: sender_info.sub,
-      },
+	  await this.prisma.user.update({
+      where: { id: sender.id },
+      data: { alerts: sender.alerts.filter((val: Alert) => val.id !== id) },
     });
-  }
 
-  // Removes friend
-  async removeFriend(id: string, sender_info: any) {
-    // Save target friend
-    let friend = await this.prisma.user.findUnique({
+    const notifyResult = friend.alerts;
+
+    notifyResult.push({
+      id: sender.id,
+      sender: sender.username,
+      message:
+        action === 'accept'
+          ? 'accepted your friend request'
+          : 'rejected your friend request',
+      action: false,
+    });
+
+    await this.prisma.user.update({
       where: { id },
+      data: { alerts: notifyResult },
     });
 
-    // Check if the friend exists. If it doesn't, throw.
-    if (!friend) throw new ForbiddenException('User does not exist');
+    await this.prisma.user.update({ where: { id }, data: {} });
+	}
+	
+	// Removes friend
+	async removeFriend(id: string, sender_info: any) {
+	  // Save target friend
+	  let friend = await this.prisma.user.findUnique({
+		where: { id },
+	  });
+	
+	  // Check if the friend exists. If it doesn't, throw.
+	  if (!friend) throw new ForbiddenException('User does not exist');
+	
+	  // Check that sender != receiver. If same, throw.
+	  if (id == sender_info.sub)
+		throw new ForbiddenException('Sender is same as Receiver');
+	
+	  // Check that sender and receiver are friends. If not, throw.
+	  let sender = await this.prisma.user.findUnique({
+		where: { id: sender_info.sub },
+		include: { friends: true, friendOf: true },
+	  });
+	
+	  if (!sender) throw new ForbiddenException('Something went wrong');
+	
+	  if (!sender.friends.map((user) => user.id).includes(id))
+		throw new ForbiddenException('Not Friends');
+	
+	  // Remove connection from DB.
+	  await this.prisma.user.update({
+		where: { id: sender_info.sub },
+		data: { friends: { disconnect: [{ id: id }] } },
+	  });
+	  await this.prisma.user.update({
+		where: { id: id },
+		data: { friends: { disconnect: [{ id: sender_info.sub }] } },
+	  });
 
-    // Check that sender != receiver. If same, throw.
-    if (id == sender_info.sub)
-      throw new ForbiddenException('Sender is same as Receiver');
+	  const notifyResult = friend.alerts;
 
-    // Check that sender and receiver are friends. If not, throw.
-    let sender = await this.prisma.user.findUnique({
-      where: { id: sender_info.sub },
-      include: { friends: true, friendOf: true },
+    notifyResult.push({
+      id: sender.id,
+      sender: sender.username,
+      message: 'is no longer your friend',
+      action: false,
     });
 
-    if (!sender) throw new ForbiddenException('Something went wrong');
-
-    if (!sender.friends.map((user) => user.id).includes(id))
-      throw new ForbiddenException('Not Friends');
-
-    // Remove connection from DB.
     await this.prisma.user.update({
-      where: { id: sender_info.sub },
-      data: { friends: { disconnect: [{ id: id }] } },
+      where: { id },
+      data: { alerts: notifyResult },
     });
-    await this.prisma.user.update({
-      where: { id: id },
-      data: { friends: { disconnect: [{ id: sender_info.sub }] } },
-    });
-  }
+	}
+
+/* CHANGE USER DETAILS */
+	async changeUsername(user: any, username: string) {
+		this.validareUsername(username);
+		const unique = await this.prisma.user.findUnique({where: {username: username}});
+
+		if (unique)
+			throw new ForbiddenException("Username already taken");
+
+		const updated = await this.prisma.user.update({where: {email: user.email}, data: {username: username}})
+		return updated;
+	}
+
+	async changePassword(user: any, password: string, oldPass: string) {
+		this.validatePassword(password);
+		const trueUser = await this.prisma.user.findUnique({where: {email: user.email}});
+		if (trueUser.login !== "REGULAR")
+			throw new ForbiddenException('This user can\'t change password');
+		const verifyPass = await argon.verify(trueUser.password, oldPass);
+		if (!verifyPass)
+			throw new ForbiddenException('Wrong password');
+		const hashed = await argon.hash(password); 
+		const updated = await this.prisma.user.update({where: {email: user.email}, data: {password: hashed }})
+		return updated;
+	}
 
   // Returns all channels user is part of
   async getUserChannels(id: string) {
@@ -277,4 +453,14 @@ export class UserService {
       data: { avatar: newPath },
     });
   }
+  
+	validatePassword(pass: string) {
+		if (pass.length < 8 || pass === pass.toLowerCase() || pass === pass.toUpperCase() || !/\d/.test(pass))
+			throw new ForbiddenException('Password must contain at least 8 characters, 1 Uppercase, 1 Lowercase and 1 digit');
+	}
+
+	validareUsername(username: string) {
+		if (username.length <= 4 || !/^[a-zA-Z0-9_-]+$/.test(username))
+			throw new ForbiddenException('Username must be at least 5 characters long and can only have alphanumeric characters or -/_');
+	}
 }
