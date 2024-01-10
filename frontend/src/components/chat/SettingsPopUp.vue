@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { onMounted } from "vue";
 import { ref } from "vue";
 
 const store = chatAppStore();
 const channel = store.getChannelInfo(store.selectedChannel);
+onMounted(async () => {
+  console.log(store.selectedUserProfile);
+});
 </script>
 <template>
   <div class="userSettingPopUp">
@@ -40,7 +44,10 @@ const channel = store.getChannelInfo(store.selectedChannel);
           v-if="
             channel &&
             store.selectedUserProfile &&
-            !store.isAdmin(channel.name, store.selectedUserProfile.username)
+            !store.isAdmin(
+              channel.channelName,
+              store.selectedUserProfile.username,
+            )
           "
           color="primary"
           class="userSettingPopUp-content-info-btn"
@@ -57,16 +64,52 @@ const channel = store.getChannelInfo(store.selectedChannel);
         <v-btn
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-volume-mute"
+          @click="
+            () => {
+              if (channel && store.selectedUserProfile) {
+                store.banMuteKickUserFromChannnel(
+                  channel.id,
+                  'mute',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Mute</v-btn
         >
         <v-btn
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-karate"
+          @click="
+            () => {
+              if (channel && store.selectedUserProfile) {
+                store.banMuteKickUserFromChannnel(
+                  channel.id,
+                  'kick',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Kick</v-btn
         >
         <v-btn
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-cancel"
+          @click="
+            () => {
+              if (channel && store.selectedUserProfile) {
+                store.banMuteKickUserFromChannnel(
+                  channel.id,
+                  'ban',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Ban</v-btn
         >
         <v-btn

@@ -2,11 +2,14 @@
 import { ref } from "vue";
 import { chatAppStore } from "@/store/chat";
 import { count } from "console";
+import { User } from "../../store/chat";
 
 const store = chatAppStore();
 const newChannelPopUp = ref(false);
 const createChannelFinal = ref(false);
 const channelIsPublic = ref(false);
+const password = ref("");
+const channelName = ref("");
 </script>
 <template>
   <!-- CHOOSE CHANNEL TYPE -->
@@ -58,10 +61,13 @@ const channelIsPublic = ref(false);
         <v-list-item
           :key="item.id"
           @click="
-            () => {
-              // TODO
-              // - create personal channel with user
-              // - select channel
+            async () => {
+              store
+                .createChannel('personal', '', '', [item])
+                .then((channelId: string | undefined) => {
+                  console.log('test: ', channelId);
+                  if (channelId) store.selectChannel(channelId);
+                });
               store.createChannelPopUp = false;
             }
           "
@@ -154,24 +160,51 @@ const channelIsPublic = ref(false);
       ></v-icon>
     </div>
     <v-text-field
+      v-model="channelName"
       label="Group Name"
       color="secondary"
       variant="outlined"
     ></v-text-field>
     <v-text-field
       v-if="channelIsPublic"
-      label="Password (opcional)"
+      v-model="password"
+      label="Password (optional)"
       color="secondary"
       variant="outlined"
     ></v-text-field>
     <v-text-field
       v-else
-      label="Password (opcional)"
+      v-model="password"
+      label="Password (optional)"
       color="primary"
       variant="outlined"
       disabled
     ></v-text-field>
-    <v-btn style="float: right; margin-top: 1em" color="primary" @click=""
+    <v-btn
+      style="float: right; margin-top: 1em"
+      color="primary"
+      @click="
+        () => {
+          let members: User[] = [];
+          store.friendsWithTick?.map((user) => {
+            if (user.added == true) members.push(user.friend);
+          });
+          if (channelIsPublic && members.length > 0)
+            store.createChannel('public', password, channelName, members);
+          else if (members.length > 0)
+            store.createChannel('private', '', channelName, members);
+
+          if (store.friendsWithTick?.length) {
+            for (let i = 0; i < store.friendsWithTick.length; i++) {
+              store.friendsWithTick[i].added = false;
+            }
+          }
+          store.getAllChatData();
+          store.createChannelPopUp = false;
+          newChannelPopUp = false;
+          createChannelFinal = false;
+        }
+      "
       >Create</v-btn
     >
   </div>

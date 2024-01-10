@@ -14,10 +14,15 @@ onMounted(async () => {
   if (store.channelMessagesVar) openMessages.value = true;
 });
 
-
 function updateScroll() {
   var element = document.getElementById("scrollMessages");
   if (element) element.scrollTop = element.scrollHeight;
+}
+
+function nextValue(index: number) {
+  if (index < 0 || index >= store.channelMessagesVar.length) return undefined;
+  const nextItem = store.channelMessagesVar[index];
+  return nextItem;
 }
 </script>
 <template>
@@ -25,11 +30,11 @@ function updateScroll() {
     <v-virtual-scroll
       v-if="store.channelMessagesVar.length != 0"
       :items="store.channelMessagesVar"
-      :height="height > 700 ? 400 : 300"
+      :height="height > 700 ? 382 : 282"
       id="scrollMessages"
       @vnode-updated="updateScroll"
     >
-      <template v-slot:default="{ item }">
+      <template v-slot:default="{ item, index }">
         <div class="messageSentOrReceived">
           <div
             v-if="
@@ -42,9 +47,13 @@ function updateScroll() {
               {{ item.content }}
             </v-chip>
             <v-chip
+              v-if="
+                nextValue(index + 1)?.sender != item.sender &&
+                item.sender != store.currentUser.username
+              "
               size="x-small"
               color="secondary"
-              class="messageSentByCurrentUser"
+              class="messageSentByCurrentUser messageChip-messageSentChip"
             >
               {{ item.sender }}
             </v-chip>
@@ -53,7 +62,12 @@ function updateScroll() {
             <v-chip>
               {{ item.content }}
             </v-chip>
-            <v-chip size="x-small" color="secondary">
+            <v-chip
+              v-if="nextValue(index + 1)?.sender != item.sender"
+              size="x-small"
+              color="secondary"
+              class="messageChip-messageSentChip"
+            >
               {{ item.sender }}
             </v-chip>
           </div>

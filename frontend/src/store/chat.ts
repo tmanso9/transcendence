@@ -55,6 +55,7 @@ export const chatAppStore = defineStore("chat", () => {
   const friendsWithTick = ref<{ friend: User; added: boolean }[]>();
   const publicChannelsUserIsNotIn = ref<Channel[]>();
   const selectedChannel = ref("");
+  const channelStd = ref<Channel>();
   const channelMessagesVar = ref<Message[]>([]);
 
   // condicional variables
@@ -92,14 +93,22 @@ export const chatAppStore = defineStore("chat", () => {
       window.location.reload();
     });
 
-    await getUser();
-    setupPersonalChannels();
-    await getPublicChannelsUserIsNotIn();
-    setupFriendsWithTick();
-    setupPublicChannelsUserIsNotIn();
+    await getAllChatData();
 
     socket.on("channelMessages", (messages) => {
       channelMessagesVar.value = messages;
+    });
+
+    socket.on("createChannel", (num) => {
+      getAllChatData();
+    });
+
+    socket.on("joinChannel", () => {
+      getAllChatData();
+    });
+
+    socket.on("updateInfo", () => {
+      getAllChatData();
     });
   }
 
@@ -113,10 +122,12 @@ export const chatAppStore = defineStore("chat", () => {
 
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
+    if (channel == "") channelStd.value = undefined;
   }
 
   function setupFriendsWithTick() {
     if (!currentUser.value?.friends) return;
+    friendsWithTick.value = [];
     currentUser.value.friends.map((user) => {
       if (!friendsWithTick.value)
         friendsWithTick.value = [{ friend: user, added: false }];
@@ -228,7 +239,6 @@ export const chatAppStore = defineStore("chat", () => {
       .catch(() => {
         console.log("chat debug: no acessible channel messages");
       });
-    console.log(channelMessagesVar.value);
   }
 
   function channelMembers(channelId: string) {
@@ -265,6 +275,97 @@ export const chatAppStore = defineStore("chat", () => {
     return isBlockedFromChannel;
   }
 
+  // active database functions
+
+  async function joinChannel(channelId: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend<Channel[]>("joinChannel", {
+      token,
+      channelId,
+    })
+      .then((channels) => {
+        getAllChatData();
+        return channels;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
+  async function createChannel(
+    type: "public" | "private" | "personal",
+    password: string,
+    channelName: string,
+    members: User[],
+  ): Promise<string | undefined> {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend<string>("createChannel", {
+      token,
+      type,
+      password,
+      channelName,
+      members,
+    })
+      .then((channelId) => {
+        getAllChatData();
+        return channelId;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
+  async function leaveChannel(channelId: string) {
+    if (!currentUser.value) return;
+    const userIsMember = ref(false);
+    currentUser.value.channels.map((channel) => {
+      if (channel.id == channelId) userIsMember.value = true;
+    });
+    if (userIsMember.value == true) {
+      const token = cookies?.get("access_token");
+      await socketSend<number>("leaveChannel", {
+        token,
+        channelId,
+      })
+        .then((number) => {
+          if (number == 1) {
+            getAllChatData();
+          }
+        })
+        .catch(() => {
+          console.log("chat debug: no acessible channel messages");
+        });
+    }
+  }
+
+  async function banMuteKickUserFromChannnel(
+    channelId: string,
+    option: "ban" | "kick" | "mute",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    console.log(channelId, " ", option, " ", userId);
+    const token = cookies?.get("access_token");
+    await socketSend<number>("banMuteKickUserFromChannnel", {
+      token,
+      channelId,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -277,6 +378,7 @@ export const chatAppStore = defineStore("chat", () => {
     publicChannelsUserIsNotIn,
     permissionToOpenChat,
     channelMessagesVar,
+    channelStd,
     startConection,
     checkTokenConection,
     selectChannel,
@@ -286,5 +388,9 @@ export const chatAppStore = defineStore("chat", () => {
     isAdmin,
     isBlockedFromChannel,
     getAllChatData,
+    joinChannel,
+    createChannel,
+    leaveChannel,
+    banMuteKickUserFromChannnel,
   };
 });

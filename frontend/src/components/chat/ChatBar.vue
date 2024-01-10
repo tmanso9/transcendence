@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
 import CreateChannel from "./CreateChannel.vue";
 import { chatAppStore } from "@/store/chat";
+import { User } from "../../store/chat";
 
 const { height } = useDisplay();
 
@@ -25,6 +26,7 @@ const store = chatAppStore();
     </div>
     <div class="chatConversations">
       <v-virtual-scroll
+        v-if="store.currentUser?.channels.length != 0"
         :items="store.currentUser?.channels"
         :height="height > 700 ? 200 : 150"
         class="contactsScroller"
@@ -45,12 +47,25 @@ const store = chatAppStore();
           </v-list-item>
         </template>
       </v-virtual-scroll>
+      <v-virtual-scroll
+        v-else
+        :items="['No Conversations']"
+        :height="height > 700 ? 200 : 150"
+        class="contactsScroller"
+      >
+        <template v-slot:default="{ item }"
+          ><div class="contactsScroller-noChatsMessage">
+            {{ item }}
+          </div></template
+        >
+      </v-virtual-scroll>
     </div>
     <div class="chatTopBar">
       <h4>Public Channels</h4>
     </div>
     <div class="chatConversations">
       <v-virtual-scroll
+        v-if="store.publicChannelsUserIsNotIn?.length != 0"
         :items="store.publicChannelsUserIsNotIn"
         :height="height > 700 ? 200 : 150"
         class="contactsScroller"
@@ -77,14 +92,46 @@ const store = chatAppStore();
               <v-btn
                 v-else-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
+                @click="
+                  () => {
+                    const friend = store.currentUser?.friends.find(
+                      (friend: User) => {
+                        if (friend.username == item.channelName) return true;
+                        return false;
+                      },
+                    );
+                    if (friend) {
+                      store.createChannel('personal', '', '', [friend]);
+                    }
+                  }
+                "
                 >Talk</v-btn
               >
-              <v-btn v-else :size="height > 700 ? 'small' : 'x-small'"
+              <v-btn
+                v-else
+                :size="height > 700 ? 'small' : 'x-small'"
+                @click="
+                  () => {
+                    store.joinChannel(item.id);
+                  }
+                "
                 >Join</v-btn
               >
             </div>
           </v-list-item>
         </template>
+      </v-virtual-scroll>
+      <v-virtual-scroll
+        v-else
+        :items="['No Conversations']"
+        :height="height > 700 ? 200 : 150"
+        class="contactsScroller"
+      >
+        <template v-slot:default="{ item }"
+          ><div class="contactsScroller-noChatsMessage">
+            {{ item }}
+          </div></template
+        >
       </v-virtual-scroll>
     </div>
     <create-channel v-if="store.createChannelPopUp"></create-channel>
