@@ -12,6 +12,21 @@ const openMessages = ref(false);
 onMounted(async () => {
   await store.channelMessages(store.selectedChannel, "get", "");
   if (store.channelMessagesVar) openMessages.value = true;
+  store.channelMessagesVar.forEach((msg) => {
+    let newMessage = "";
+    let j = 0;
+    let lineMaxWight = 24;
+    if (msg.sender != store.currentUser?.username) lineMaxWight = 19;
+    for (let i = 0; i < msg.content.length; i++) {
+      newMessage = newMessage + msg.content[i];
+      if (msg.content[i] != " ") j++;
+      if (j == lineMaxWight) {
+        newMessage = newMessage + "\n";
+        j = 0;
+      }
+    }
+    msg.content = newMessage;
+  });
 });
 
 function updateScroll() {
@@ -24,6 +39,8 @@ function nextValue(index: number) {
   const nextItem = store.channelMessagesVar[index];
   return nextItem;
 }
+// aaaaaaaaaaaaaaaaaaaaaaaaa 25
+// aaaaaaaaaaaaaaaaaaa 19
 </script>
 <template>
   <div class="messageScroll" v-if="openMessages">
@@ -43,7 +60,17 @@ function nextValue(index: number) {
             "
             class="messageChip messageSentByCurrentUser"
           >
-            <v-chip>
+            <v-chip
+              style="
+                max-width: 15em;
+                height: auto !important;
+                white-space: normal !important;
+                line-height: 1.2;
+                border-radius: 1em;
+                padding-top: 0.5em;
+                padding-bottom: 0.5em;
+              "
+            >
               {{ item.content }}
             </v-chip>
             <v-chip
@@ -59,7 +86,17 @@ function nextValue(index: number) {
             </v-chip>
           </div>
           <div v-else class="messageChip">
-            <v-chip>
+            <v-chip
+              style="
+                max-width: 12em;
+                height: auto !important;
+                white-space: normal !important;
+                line-height: 1.2;
+                border-radius: 1em;
+                padding-top: 0.5em;
+                padding-bottom: 0.5em;
+              "
+            >
               {{ item.content }}
             </v-chip>
             <v-chip
