@@ -1,5 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
+import AboutView from '../views/AboutView.vue';
+import PlayView from '../views/PlayView.vue';
+import RankingView from '@/views/RankingView.vue';
+import TwoFAView from '../views/TwoFAView.vue';
+import FirstLoginView from '../views/FirstLoginView.vue';
+import AccountView from '../views/AccountView.vue';
+import NotFound from '../views/NotFound.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,34 +19,37 @@ const router = createRouter({
     {
       path: "/about",
       name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import("../views/AboutView.vue"),
+      component: AboutView,
     },
     {
       path: "/play",
-      component: () => import("../views/PlayView.vue"),
+	  name: "play",
+      component: PlayView,
     },
     {
       path: "/ranking",
-      component: () => import("../views/RankingView.vue"),
+	  name: "ranking",
+      component: RankingView,
     },
     {
       path: "/2fa",
-      component: () => import("../views/TwoFAView.vue"),
+	  name: "2fa",
+      component: TwoFAView,
     },
     {
       path: "/firstLogin",
-      component: () => import("../views/FirstLoginView.vue"),
+	  name: "firstLogin",
+      component: FirstLoginView,
     },
     {
       path: "/users/:username",
-      component: () => import("../views/AccountView.vue"),
+	  name: "account",
+      component: AccountView,
     },
     {
       path: "/:catchAll(.*)",
-      component: () => import("../views/NotFound.vue"),
+	  name: "catchAll",
+      component: NotFound,
     },
   ],
 });
