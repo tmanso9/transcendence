@@ -15,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import { User } from '@prisma/client';
+import * as fs from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -123,14 +124,21 @@ export class AuthService {
         });
         // If the username is already taken, generate a random one
         if (taken_user_name) user_name = await this.getRandomName();
-
+        const avatar = `${user_name}_${Date.now()
+          .toLocaleString()
+          .replaceAll(',', '_')}.png`;
+        await this.downloadImage(data.picture, `./public/${avatar}`)
+          .then(() => {})
+          .catch((error) => {
+            console.error('Error:', error);
+          });
         // Add user to the db
         user = await this.prisma.user.create({
           data: {
             email: data.email,
             password: '',
             username: user_name,
-            avatar: data.picture,
+            avatar: `http://localhost:3000/${avatar}`,
             status: 'ONLINE',
             login: 'GOOGLE',
             tfa_enabled: false,
@@ -181,19 +189,27 @@ export class AuthService {
     });
 
     if (!profile) {
+      const avatar = `${user.username}_${Date.now()
+        .toLocaleString()
+        .replaceAll(',', '_')}.png`;
+      await this.downloadImage(user.avatar, `./public/${avatar}`)
+        .then(() => {})
+        .catch((error) => {
+          console.error('Error:', error);
+        });
       profile = await this.prisma.user.create({
         data: {
           email: user.email,
           password: '',
           username: user.username,
           status: 'ONLINE',
-          avatar: user.avatar,
+          avatar: `http://localhost:3000/${avatar}`,
           login: 'FORTYTWO',
           tfa_enabled: false,
           tfa_secret: '',
         },
       });
-	  firstLogin = true
+      firstLogin = true;
     } else if (!profile.tfa_enabled) {
       profile = await this.prisma.user.update({
         where: { email: user.email },
@@ -440,5 +456,22 @@ export class AuthService {
     });
     if (!user) throw new ForbiddenException('user error');
     return user;
+  }
+
+  async downloadImage(url: string, filename: string) {
+    const writer = fs.createWriteStream(filename);
+
+    const response = await this.httpService.axiosRef({
+      url,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    response.data.pipe(writer);
+
+    return new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
   }
 }
