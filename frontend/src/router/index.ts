@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import {createRouter, createWebHistory} from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import AboutView from '../views/AboutView.vue';
 import PlayView from '../views/PlayView.vue';
@@ -23,32 +23,32 @@ const router = createRouter({
     },
     {
       path: "/play",
-      name: "play",
+    name: "play",
       component: PlayView,
     },
     {
       path: "/ranking",
-      name: "ranking",
+    name: "ranking",
       component: RankingView,
     },
     {
       path: "/2fa",
-      name: "2fa",
+    name: "2fa",
       component: TwoFAView,
     },
     {
       path: "/firstLogin",
-      name: "firstLogin",
+    name: "firstLogin",
       component: FirstLoginView,
     },
     {
       path: "/users/:username",
-      name: "account",
+    name: "account",
       component: AccountView,
     },
     {
       path: "/:catchAll(.*)",
-      name: "catchAll",
+    name: "catchAll",
       component: NotFound,
     },
     {
