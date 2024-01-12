@@ -1,0 +1,9 @@
+Implementar Login e Logout com sockets
+Implementar streak e achievement
+Implementar blocking de users fora de chat
+Implementar password no channel (channel owner, etc)
+So poder convidar para jogo se o outro user estiver online
+Implementar customization para o jogo
+Quando o jogo acaba, fazer qualquer coisa
+Watch game no chat e no perfil
+Acrescentar powerups no backend e frontend

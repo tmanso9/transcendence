@@ -10,7 +10,7 @@ export class ValidationMiddleware implements NestMiddleware {
     async use(@Req() req: Request, @Res({passthrough: true}) res: Response, next: NextFunction) {
         
         // Verify if access token is not blacklisted
-        const tokenBlacklisted = await this.prisma.blacklist.findUnique({where: {token: req.cookies['access_token']}});
+        const tokenBlacklisted = await this.prisma.blacklist.findFirst({where: {token: req.cookies['access_token']}});
         if (tokenBlacklisted)
             throw new ForbiddenException('Invalid access token');
     

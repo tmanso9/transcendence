@@ -6,8 +6,9 @@ import { UserModule } from './user/user.module';
 import { DbController } from './db/db.controller';
 import { DbService } from './db/db.service';
 import { DbModule } from './db/db.module';
-import { GameModule } from './game/game.module';
 import { ChannelsModule } from './channels/channels.module';
+import { GameBackendModule } from './gameBackend/gameBackend.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ChannelsModule } from './channels/channels.module';
     UserModule,
     DbModule,
     ChannelsModule,
+    GameBackendModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

@@ -31,17 +31,37 @@ export class UserController {
     return this.userService.getUsers();
   }
 
-  @UseGuards(JwtGuard)
-  @Get('me')
-  getMe(@getUser() user: any) {
-    return this.userService.getMe(user);
-  }
+	@UseGuards(JwtGuard)
+	@Get('gamestats/:username')
+	getUserGamestats(@Param('username') username: string, @decodeJwt() decoded_jwt: any) {
+		return this.userService.getUserGamestats(username, decodeJwt);
+	}
 
-  @UseGuards(JwtGuard)
-  @Get('me/friends')
-  getMyFriends(@getUser() user: any) {
-    return this.userService.getFriends(user.id);
-  }
+	@UseGuards(JwtGuard)
+	@Get('me')
+	getMe(@getUser() user: any) {
+		return this.userService.getMe(user);
+	}
+
+	@UseGuards(JwtGuard)
+	@Get('me/friends')
+	getFriends(@decodeJwt() decoded_jwt: any) {
+		return this.userService.getFriends(decoded_jwt);
+	}
+
+	// Get user channels
+	@UseGuards(JwtGuard)
+	@Get('me/channels')
+	async getUserChannels(@decodeJwt('sub') id: string) {
+		return this.userService.getUserChannels(id);
+	}
+
+	// Get user channels
+	@UseGuards(JwtGuard)
+	@Get('me/other-channels')
+	async getNonUserChannels(@decodeJwt('sub') id: string) {
+		return this.userService.getNonUserChannels(id);
+	}
 
   @UseGuards(JwtGuard)
   @Get('connections')
