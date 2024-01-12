@@ -101,23 +101,6 @@ onMounted(async () => {
         >
         <v-btn
           class="userSettingPopUp-content-info-btn"
-          append-icon="mdi-karate"
-          @click="
-            () => {
-              if (channel && store.selectedUserProfile) {
-                store.banMuteKickUserFromChannnel(
-                  channel.id,
-                  'kick',
-                  store.selectedUserProfile.id,
-                );
-              }
-              store.settingsAdminPopUp = false;
-            }
-          "
-          >Kick</v-btn
-        >
-        <v-btn
-          class="userSettingPopUp-content-info-btn"
           append-icon="mdi-cancel"
           @click="
             () => {
@@ -137,6 +120,18 @@ onMounted(async () => {
           color="warning"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-minus-circle-outline"
+          @click="
+            () => {
+              if (channel && store.selectedUserProfile) {
+                store.banMuteKickUserFromChannnel(
+                  channel.id,
+                  'kick',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Remove from channel</v-btn
         >
       </div>
