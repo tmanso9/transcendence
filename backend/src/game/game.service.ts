@@ -12,13 +12,7 @@ class rectangle extends baseObject{
   constructor(public x: number, public y: number, public width: number, public height: number, public color:string, public orientation: string) {
     super(x, y, color);
   }
-  draw(ctx: CanvasRenderingContext2D) {
-    ctx.beginPath();
-    ctx.rect(this.x, this.y, this.width, this.height);
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.closePath();
-  }
+
   collision(ball) {
     if (ball.x + ball.radius > this.x && ball.x - ball.radius < this.x + this.width) {
       if (ball.y + ball.radius > this.y && ball.y - ball.radius < this.y + this.height) {
@@ -33,21 +27,21 @@ class paddle extends rectangle{
   constructor(public x: number, public y: number, public width: number, public height: number, public color:string, public orientation: string) {
     super(x, y, width, height, color, orientation);
   }
-  moveUp() {
-    if (this.y == 10)
+  moveUp(lineWidth: number) {
+    if (this.y == lineWidth)
         return;
-    else if (this.y - 30 < 10) {
-      this.y = 10;
+    else if (this.y - 30 < lineWidth) {
+      this.y = lineWidth;
     }
     else
         this.y -= 30;
 
   }
-  moveDown() {
-    if (this.y + this.height == 690)
+  moveDown(lineWidth: number, height: number) {
+    if (this.y + this.height == height - lineWidth)
         return;
-    else if (this.y + this.height + 30 > 690)
-        this.y = 690 - this.height;
+    else if (this.y + this.height + 30 > height - lineWidth)
+        this.y = height - lineWidth - this.height;
     else
         this.y += 30;
   }
@@ -56,15 +50,15 @@ class paddle extends rectangle{
 class Ball extends baseObject {
   constructor(public x: number, public y: number, public radius: number, public dx: number, public dy: number, public color: string, collidable: boolean = false) {
     super(x, y, color, collidable);
-    this.dy = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
-    this.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
+    this.dy = this.dy * ((Math.random() - 0.5) < 0 ? 1:-1);
+    this.dx = this.dx * ((Math.random() - 0.5) < 0 ? 1:-1);
   }
   move() {
     this.x += this.dx;
     this.y += this.dy;
   }
 
-  checkCollision(elements: baseObject[]) {
+  checkCollision(elements: baseObject[], width: number, height: number, dx: number, dy: number) {
     for (const e of elements) {
       if (e.collidable && e.collision(this)) {
         if (e.orientation == 'horizontal') {
@@ -72,10 +66,10 @@ class Ball extends baseObject {
         } else if (e instanceof paddle) {
           this.dx = -this.dx;
         } else {
-          this.x = 500;
-          this.y = 350;
-          this.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
-          this.dy = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
+          this.x = width / 2;
+          this.y = height / 2;
+          this.dx = dx * ((Math.random() - 0.5) < 0 ? 1:-1);
+          this.dy = dy * ((Math.random() - 0.5) < 0 ? 1:-1);
           return e;
         }
       }
@@ -85,30 +79,55 @@ class Ball extends baseObject {
 @Injectable()
 export class GameService {
 
-    private ball = new Ball(500, 350, 15, 5, 5, 'white');
-    private paddle1 = new paddle(20, 275, 10 , 150, 'white', 'vertical');
-    private paddle2 = new paddle(960, 275, 10 , 150, 'white', 'vertical');
-    private hTop = new rectangle(0, 0, 1000, 10, '#ffffff', 'horizontal');
-    private hBottom = new rectangle(0, 690, 1000, 10, '#ffffff', 'horizontal');
-    private vLeft = new rectangle(0, 0, 10, 700, '#ffffff', 'vertical');
-    private vRight = new rectangle(990, 0, 10, 700, '#ffffff', 'vertical');
-    private elements = [this.hTop, this.hBottom, this.vLeft, this.vRight, this.paddle1, this.paddle2];
+    private ball;
+    private paddle1;
+    private paddle2;
+    private hTop;
+    private hBottom;
+    private vLeft;
+    private vRight;
+    private elements: baseObject[];
     public map = new Map<string, paddle>();
     private intervalId = null;
     public spectators: string[] = [];
     public score = new Map<string, number>();
+    private lineWidth;
+    private paddleWidth;
+    private paddleHeight;
+    private paddleStartY;
+    private width;
+    private height;
 
     constructor() {
+    }
+
+    initGame(width: number, height: number) {
+      this.width = width;
+      this.height = height;
+      this.lineWidth = width / 100;
+      this.paddleWidth = width / 50;
+      this.paddleHeight = height / 5;
+      this.paddleStartY = height / 2 - this.paddleHeight / 2;
+      this.hTop = new rectangle(0, 0, width, this.lineWidth, '#ffffff', 'horizontal');
+      this.hBottom = new rectangle(0, height - this.lineWidth, width, this.lineWidth, '#ffffff', 'horizontal');
+      this.vLeft = new rectangle(0, 0, this.lineWidth, height, '#ffffff', 'vertical');
+      this.vRight = new rectangle(width - this.lineWidth, 0, this.lineWidth, height, '#ffffff', 'vertical');
+      this.paddle1 = new paddle(this.paddleWidth, this.paddleStartY, this.paddleWidth, this.paddleHeight, 'red', 'vertical');
+      this.paddle2 = new paddle(width - 2 * this.paddleWidth, this.paddleStartY, this.paddleWidth, this.paddleHeight, 'red', 'vertical');
+      this.ball = new Ball(width / 2, height / 2, width / 200 * 3, width / 200, width / 200, 'white');
+      this.elements = [this.hTop, this.hBottom, this.vLeft, this.vRight, this.paddle1, this.paddle2, this.ball];
       this.score.set('paddle1', 0);
       this.score.set('paddle2', 0);
     }
     checkCollision() {
-      return this.ball.checkCollision(this.elements);
+      return (this.ball as Ball).checkCollision(this.elements, this.width, this.height, this.width / 200, this.width / 200);
     }
 
     registerPlayer(id: string) {
       if (this.map.size == 0) {
+        console.log('player1: ', id);
         this.map.set(id, this.paddle1);
+        console.log(this.map)
       } else if (this.map.size == 1){
         this.map.set(id, this.paddle2);
       } else {
@@ -125,9 +144,10 @@ export class GameService {
 
     movePaddle(id: string, payload: string) {
       if (payload == 'w') {
-        this.map.get(id).moveUp();
+        console.log(id, this.map);
+        this.map.get(id).moveUp(this.lineWidth);
       } else if (payload == 's'){
-        this.map.get(id).moveDown();
+        this.map.get(id).moveDown(this.lineWidth, this.height);
       }
     }
 
@@ -187,14 +207,14 @@ export class GameService {
 
 
     reset() {
-      this.ball.x = 500;
-      this.ball.y = 350;
-      this.paddle1.x = 20;
-      this.paddle1.y = 275;
-      this.paddle2.x = 960;
-      this.paddle2.y = 275;
-      this.ball.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
-      this.ball.dy = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
+      this.ball.x = this.width / 2;
+      this.ball.y = this.height / 2;
+      this.paddle1.x = this.paddleWidth;
+      this.paddle1.y = this.paddleStartY
+      this.paddle2.x = this.width - 2 * this.paddleWidth;
+      this.paddle2.y = this.paddleStartY;
+      this.ball.dx = this.width / 200 * ((Math.random() - 0.5) < 0 ? 1:-1);
+      this.ball.dy = this.width / 200 * ((Math.random() - 0.5) < 0 ? 1:-1);
     }
     getHello(): string {
         return 'Hello World from game service!';
