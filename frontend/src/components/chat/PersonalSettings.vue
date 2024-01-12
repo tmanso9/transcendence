@@ -48,10 +48,36 @@ const store = chatAppStore();
           >Play Game</v-btn
         >
         <v-btn
+          v-if="
+            store.selectedUserProfile &&
+            store.userIsBlocked(store.selectedUserProfile?.username) == false
+          "
           class="channelSettings-content-buttons-btn"
           color="warning"
           append-icon="mdi-cancel"
+          @click="
+            () => {
+              if (store.selectedUserProfile)
+                store.blockOrUnblockUser('block', store.selectedUserProfile.id);
+            }
+          "
           >Block</v-btn
+        >
+        <v-btn
+          v-else
+          class="channelSettings-content-buttons-btn"
+          color="warning"
+          append-icon="mdi-cancel"
+          @click="
+            () => {
+              if (store.selectedUserProfile)
+                store.blockOrUnblockUser(
+                  'unblock',
+                  store.selectedUserProfile.id,
+                );
+            }
+          "
+          >Unblock</v-btn
         >
       </div>
     </div>

@@ -36,6 +36,7 @@ export interface User {
   channels: Channel[];
   adminOf: Channel[];
   bannedFrom: Channel[];
+  blockedUsers: string[];
 }
 
 export interface Message {
@@ -113,6 +114,7 @@ export const chatAppStore = defineStore("chat", () => {
         }
         msg.content = newMessage;
       });
+      removeMessagesFromBlockeUsers();
     });
 
     socket.on("updateInfo", () => {
@@ -121,7 +123,6 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   async function getAllChatData() {
-    console.log("get info called");
     await getUser();
     setupPersonalChannels();
     await getPublicChannelsUserIsNotIn();
@@ -195,6 +196,19 @@ export const chatAppStore = defineStore("chat", () => {
     });
   }
 
+  function removeMessagesFromBlockeUsers() {
+    const messagesWithoutBlockUsers = ref<Message[]>([]);
+    channelMessagesVar.value.map((msg) => {
+      const userIsBlocked = ref(false);
+      currentUser.value?.blockedUsers.map((user) => {
+        if (user == msg.sender) userIsBlocked.value = true;
+      });
+      if (userIsBlocked.value == false)
+        messagesWithoutBlockUsers.value.push(msg);
+    });
+    channelMessagesVar.value = messagesWithoutBlockUsers.value;
+  }
+
   // get data functions
 
   async function getUser() {
@@ -266,6 +280,7 @@ export const chatAppStore = defineStore("chat", () => {
           }
           msg.content = newMessage;
         });
+        removeMessagesFromBlockeUsers();
       })
       .catch(() => {
         console.log("chat debug: no acessible channel messages");
@@ -313,6 +328,15 @@ export const chatAppStore = defineStore("chat", () => {
     });
 
     return isBlockedFromChannel;
+  }
+
+  function userIsBlocked(userName: string) {
+    const isBlocked = ref(false);
+
+    currentUser.value?.blockedUsers.map((user) => {
+      if (user == userName) isBlocked.value = true;
+    });
+    return isBlocked.value;
   }
 
   // active database functions
@@ -429,6 +453,29 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function blockOrUnblockUser(
+    option: "block" | "unblock",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("blockOrUnblockUser", {
+      token,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+          if (selectedChannel.value)
+            channelMessages(selectedChannel.value, "get", "");
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant block or unblock users");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -452,11 +499,13 @@ export const chatAppStore = defineStore("chat", () => {
     isAdmin,
     isBlockedFromChannel,
     getAllChatData,
+    userIsBlocked,
     joinChannel,
     createChannel,
     leaveChannel,
     banMuteKickUserFromChannnel,
     isMember,
     promoteOrDespromoteAdmin,
+    blockOrUnblockUser,
   };
 });

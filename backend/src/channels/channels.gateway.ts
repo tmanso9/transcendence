@@ -551,10 +551,8 @@ export class ChannelsGateway {
     },
   ): Promise<number> {
     try {
-      this.logger.debug('hello0');
       const user = await this.authService.getUserFromToken(data.token);
       if (!user) throw new ForbiddenException('user not loged in');
-      this.logger.debug('hello1');
       const userIsAdmin = await this.prisma.user.findFirst({
         where: {
           id: user.id,
@@ -566,7 +564,6 @@ export class ChannelsGateway {
         },
       });
       if (!userIsAdmin) throw new ForbiddenException('user isnt admin');
-      this.logger.debug('hello2');
       const userToPromoteOrDespromote = await this.prisma.user.findFirst({
         where: {
           id: data.userId,
@@ -576,7 +573,6 @@ export class ChannelsGateway {
         throw new ForbiddenException(
           'user to promote or despromote doesnt exist',
         );
-      this.logger.debug('hello3');
       const channel = await this.prisma.channels.findFirst({
         where: {
           id: data.channelId,
@@ -624,6 +620,62 @@ export class ChannelsGateway {
       return 1;
     } catch (error) {
       this.logger.debug('problem in promoteOrDespromoteAdmin');
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('blockOrUnblockUser')
+  async blockUser(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      option: 'block' | 'unblock';
+      userId: string;
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const userToBlockOrUnblock = await this.prisma.user.findFirst({
+        where: {
+          id: data.userId,
+        },
+      });
+      if (!userToBlockOrUnblock)
+        throw new ForbiddenException('user to block doesnt exist');
+      if (data.option == 'block') {
+        await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            blockedUsers: {
+              push: userToBlockOrUnblock.username,
+            },
+          },
+        });
+      } else {
+        let newList = [];
+        userToBlockOrUnblock.blockedUsers.map((usr) => {
+          if (usr != userToBlockOrUnblock.username) newList.push(usr);
+        });
+        await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            blockedUsers: newList,
+          },
+        });
+      }
+      const client = clientsMap.get(user.id);
+      if (client && client.connected) {
+        client.emit('updateInfo');
+      }
+      return 1;
+    } catch (error) {
+      this.logger.debug('problem in blockOrUnblockUser');
       return 0;
     }
   }
