@@ -1,14 +1,21 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import PersonalSettings from "./PersonalSettings.vue";
 import SettingsPopUp from "./SettingsPopUp.vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
+import { Channel } from "../../store/chat";
 
 const store = chatAppStore();
 const channelSettings = ref(false);
-const channel = ref(store.getChannelInfo(store.selectedChannel));
+const channelPermission = ref(false);
+const channel = ref<Channel>();
 const { height } = useDisplay();
+
+onMounted(async () => {
+  channel.value = store.getChannelInfo(store.selectedChannel);
+  if (channel) channelPermission.value = true;
+});
 </script>
 <template>
   <v-icon
@@ -17,18 +24,23 @@ const { height } = useDisplay();
     @click="
       () => {
         if (channel?.type == 'personal') {
-          store.selectedUserProfile = store.findUserByUsername(channel.name);
+          channel.members.map((member) => {
+            if (member.id != store.currentUser?.id)
+              store.selectedUserProfile = member;
+          });
           store.personalPopUpSettings = true;
         } else channelSettings = true;
       }
     "
   ></v-icon>
-  <personal-settings v-if="store.personalPopUpSettings"></personal-settings>
+  <personal-settings
+    v-if="store.personalPopUpSettings && store.selectedUserProfile"
+  ></personal-settings>
   <div v-else-if="channelSettings" class="channelSettings">
     <div class="channelSettings-header">
       <span class="text-h6"
         ><v-icon icon="mdi-cog" size="x-small"></v-icon
-        >{{ " " + store.selectedChannel }}
+        >{{ " " + channel?.channelName }}
       </span>
       <v-icon
         icon="mdi-close-circle"
@@ -38,7 +50,7 @@ const { height } = useDisplay();
             channelSettings = false;
           }
         "
-				:size="height > 700 ? 'large' : 'medium'"
+        :size="height > 700 ? 'large' : 'medium'"
       ></v-icon>
     </div>
     <div class="channelSettings-content">
@@ -52,7 +64,7 @@ const { height } = useDisplay();
       </div>
       <v-virtual-scroll
         v-if="channel"
-        :items="store.channelMembers(channel.name)"
+        :items="channel.members"
         height="150"
         class="channelSettings-content-users"
       >
@@ -61,13 +73,16 @@ const { height } = useDisplay();
             class="channelSettings-content-users-user"
             @click="
               () => {
-                store.selectedUserProfile = store.findUserByUsername(
-                  item.username
-                );
+                channel?.members.map((member) => {
+                  if (member.id == item.id) store.selectedUserProfile = member;
+                });
+                if (store.selectedUserProfile?.id == store.currentUser?.id)
+                  return;
                 if (
                   channel &&
+                  store.currentUser &&
                   store.selectedUserProfile &&
-                  store.isAdmin(channel.name, store.currentUser) &&
+                  store.isAdmin(channel.id, store.currentUser.id) &&
                   channel.creator != store.selectedUserProfile.username
                 )
                   store.settingsAdminPopUp = true;
@@ -91,14 +106,24 @@ const { height } = useDisplay();
             </div>
             <div
               class="channelSettings-content-users-user-operator"
-              v-else-if="store.isAdmin(channel.name, item.username)"
+              v-else-if="store.isAdmin(channel.id, item.id)"
             >
               Admin
             </div>
           </div>
         </template>
       </v-virtual-scroll>
-			<v-btn color="warning">Leave Group</v-btn>
+      <v-btn
+        color="warning"
+        @click="
+          () => {
+            if (channel?.id) store.leaveChannel(channel.id);
+            channelSettings = false;
+            store.selectChannel('');
+          }
+        "
+        >Leave Group</v-btn
+      >
       <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
       <personal-settings
         v-else-if="store.personalPopUpSettings"

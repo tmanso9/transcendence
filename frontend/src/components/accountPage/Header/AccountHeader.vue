@@ -23,12 +23,18 @@
         <p class="text-overline text-sm-button text-deep-purple-lighten-3">
           Rank: <span class="text-white">{{ account.rank }}</span>
         </p>
+        <user-settings
+          v-if="isSelf"
+          :account="account"
+          @accountUpdated="updateAccount"
+        />
       </div>
       <v-divider vertical class=""></v-divider>
       <avatar-wrapper
         :account="account"
         :editAvatar="editAvatar"
         @edit="toggleEditAvatar"
+        :isSelf="isSelf"
       />
     </div>
     <div class="acount__header__change-avatar w-100 mt-4">
@@ -42,8 +48,11 @@ import { computed, ref } from "vue";
 import { useDisplay } from "vuetify";
 import AvatarWrapper from "./AvatarWrapper.vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
+import UserSettings from "@/components/accountPage/Settings/UserSettings.vue";
+import { User } from "@/types";
 
-const props = defineProps(["account"]);
+const props = defineProps(["account", "isSelf"]);
+const emits = defineEmits(["accountUpdated"]);
 const { sm, mdAndUp } = useDisplay();
 const editAvatar = ref(false);
 
@@ -60,5 +69,9 @@ const mapColor = computed(() => {
 
 const toggleEditAvatar = () => {
   editAvatar.value = !editAvatar.value;
+};
+
+const updateAccount = (user: User) => {
+  emits("accountUpdated", user);
 };
 </script>

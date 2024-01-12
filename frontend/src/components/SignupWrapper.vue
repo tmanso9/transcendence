@@ -1,5 +1,5 @@
 <template>
-  <div class="signin border rounded-lg" @click="fetchError = ''">
+  <div class="signin border rounded-lg">
     <div class="ml-auto mr-2">
       <v-icon @click="emit('signup')">mdi-close</v-icon>
     </div>
@@ -31,7 +31,6 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { defineEmits } from "vue";
 import { encodeFormData } from "@/utils";
 import { onMounted } from "vue";
 import SigninFormElements from "./SigninFormElements.vue";

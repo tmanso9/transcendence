@@ -1,315 +1,396 @@
 // Utilities
+// import { useUserStore } from "@/stores/user";
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { Socket, io } from "socket.io-client";
+import { ref, onMounted, inject } from "vue";
+import { VueCookies } from "vue-cookies";
+
+export interface Channel {
+  id: string;
+  creator: string;
+  type: string;
+  avatar: string;
+  password: string;
+  channelName: string;
+  members: User[];
+  messages: { sender: string; content: string; date: string }[];
+  admins: User[];
+  bannedUsers: User[];
+}
+
+export interface User {
+  id: string;
+  email: string;
+  password: string;
+  username: string;
+  status: string;
+  avatar: string;
+  rank: string;
+
+  points: number;
+  wins: number;
+  losses: number;
+
+  friends: User[];
+
+  channels: Channel[];
+  adminOf: Channel[];
+  bannedFrom: Channel[];
+}
+
+export interface Message {
+  sender: string;
+  content: string;
+  date: string;
+}
 
 export const chatAppStore = defineStore("chat", () => {
-  // Data
+  // conection's variables
+  const cookies = inject<VueCookies>("$cookies");
+  const socket = io("http://localhost:3000");
 
-  const friends = ref(["joao", "gonçalo", "joana", "roberto"]);
-
-  const allUsers = ref([
-    { id: 0, username: "joao", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 1,
-      username: "gonçalo",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 2, username: "joana", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 3,
-      username: "roberto",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 4, username: "rui", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 5,
-      username: "francisco",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 6, username: "Pedro", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 7,
-      username: "matilde",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-    { id: 8, username: "luis", avatar: "mdi-account-cowboy-hat", blocked: [] },
-    {
-      id: 9,
-      username: "anastacia",
-      avatar: "mdi-account-cowboy-hat",
-      blocked: [],
-    },
-  ]);
-
-  const friendsWithTick = ref([
-    { name: "joao", added: false },
-    { name: "gonçalo", added: false },
-    { name: "joana", added: false },
-    { name: "roberto", added: false },
-  ]);
-
-  const publicChannelsUserIsNotIn = ref([
-    {
-      id: 0,
-      creator: "joao",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Football",
-      members: ["joao", "roberto", "francisco", "gonçalo", "Pedro"],
-      admins: ["joao", "roberto"],
-      blocked: [],
-      messages: [
-        { sender: "joao", content: "ola rui" },
-        { sender: "roberto", content: "ola" },
-        { sender: "gonçalo", content: "hello world" },
-        { sender: "Pedro", content: "ola ola" },
-      ],
-    },
-    {
-      id: 0,
-      creator: "gonçalo",
-      type: "public",
-      password: "yes",
-      avatar: "mdi-account-group-outline",
-      name: "Chess Team",
-    },
-    {
-      id: 0,
-      creator: "joana",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Choir",
-      members: ["luis", "joana", "Pedro", "matilde"],
-      admins: ["joana", "Pedro", "matilde"],
-      blocked: [],
-      messages: [
-        { sender: "luis", content: "do" },
-        { sender: "matilde", content: "re" },
-        { sender: "joana", content: "mi" },
-        { sender: "Pedro", content: "fa" },
-      ],
-    },
-  ]);
-
-  const allChannelsUserIsIn = ref([
-    {
-      id: 1,
-      creator: "joao",
-      type: "private",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "Second Channel",
-      members: ["joao", "rui", "anastacia"],
-      admins: ["joao", "rui"],
-      blocked: [],
-      messages: [
-        { sender: "joao", content: "este é o segundo channel" },
-        { sender: "rui", content: "já tinhas criado um joao" },
-        { sender: "anastacia", content: "este é o meu primeiro canal" },
-        { sender: "joao", content: "mas este é private" },
-      ],
-    },
-    {
-      id: 2,
-      creator: "",
-      type: "personal",
-      password: "",
-      avatar: "mdi-account-cowboy-hat-outline",
-      name: "joao",
-      members: ["joao", "rui"],
-      admins: [],
-      blocked: [],
-      messages: [
-        { sender: "rui", content: "primeira mensagem privada" },
-        { sender: "joao", content: "ola rui" },
-      ],
-    },
-    {
-      id: 0,
-      creator: "joao",
-      type: "public",
-      password: "",
-      avatar: "mdi-account-group-outline",
-      name: "First Channel",
-      members: ["joao", "rui", "roberto", "francisco", "anastacia"],
-      admins: ["joao", "roberto"],
-      blocked: [],
-      messages: [
-        { sender: "rui", content: "ola a todos" },
-        { sender: "joao", content: "ola rui" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-        { sender: "roberto", content: "ola" },
-      ],
-    },
-  ]);
-
-  const userFriends = ref(["joao", "anastacia"]);
-
-  const currentUser = ref("rui");
-
+  // user's data
+  const currentUser = ref<User>();
+  const allUsers = ref<User[]>();
+  const friendsWithTick = ref<{ friend: User; added: boolean }[]>();
+  const publicChannelsUserIsNotIn = ref<Channel[]>();
   const selectedChannel = ref("");
+  const channelStd = ref<Channel>();
+  const channelMessagesVar = ref<Message[]>([]);
 
+  // condicional variables
   const createChannelPopUp = ref(false);
-
-  const selectedUserProfile = ref<{
-    id: number;
-    username: string;
-    avatar: string;
-    blocked: string[];
-  }>();
-
   const personalPopUpSettings = ref(false);
-
   const settingsAdminPopUp = ref(false);
+  const selectedUserProfile = ref<User>();
+  const permissionToOpenChat = ref(false);
 
-  // Functions
+  // setup conection functions & condicional functions
 
-  function createNewChannel(
-    creator: string,
-    type: string,
-    password: string,
-    avatar: string,
-    name: string,
-    members: string[]
-  ) {
-    if (
-      (type != "personal" && type != "public" && type != "private") ||
-      (type == "personal" && members.length > 1)
-    )
-      return;
-    const id = allChannelsUserIsIn.value.length;
-    allChannelsUserIsIn.value.push({
-      id: allChannelsUserIsIn.value.length,
-      creator: creator,
-      type: type,
-      password: password,
-      avatar: avatar,
-      name: name,
-      members: members,
-      admins: [creator],
-      blocked: [],
-      messages: [],
+  function socketSend<T>(event: string, ...args: any[]): Promise<T> {
+    return new Promise((r) => socket.emit(event, ...args, r));
+  }
+
+  async function checkTokenConection() {
+    const payload = socketSend(
+      "checkTokenConection",
+      cookies?.get("access_token"),
+    );
+    const isValid = ref(0);
+    await payload.then((value) => {
+      if (value == 0) isValid.value = 0;
+      else isValid.value = 1;
+    });
+    return isValid.value;
+  }
+
+  async function startConection() {
+    socket.on("connect", () => {
+      console.log("connection id: ", socket.id);
+    });
+    socket.on("disconnect", () => {
+      socket.close();
+      window.location.reload();
+    });
+
+    await getAllChatData();
+
+    socket.on("channelMessages", (messages) => {
+      channelMessagesVar.value = messages;
+    });
+
+    socket.on("createChannel", (num) => {
+      getAllChatData();
+    });
+
+    socket.on("joinChannel", () => {
+      getAllChatData();
+    });
+
+    socket.on("updateInfo", () => {
+      getAllChatData();
     });
   }
 
-  function channelMessages(channel: any) {
-    for (let i = 0; i < allChannelsUserIsIn.value.length; i++) {
-      if (allChannelsUserIsIn.value[i].name == channel)
-        return allChannelsUserIsIn.value[i].messages;
-    }
+  async function getAllChatData() {
+    await getUser();
+    setupPersonalChannels();
+    await getPublicChannelsUserIsNotIn();
+    setupFriendsWithTick();
+    setupPublicChannelsUserIsNotIn();
   }
 
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
+    if (channel == "") channelStd.value = undefined;
   }
 
-  function getChannelInfo(channel: string) {
-    const index = allChannelsUserIsIn.value
-      .map((n) => n.name)
-      .indexOf(channel, 0);
-    if (index > -1) return allChannelsUserIsIn.value[index];
+  function setupFriendsWithTick() {
+    if (!currentUser.value?.friends) return;
+    friendsWithTick.value = [];
+    currentUser.value.friends.map((user) => {
+      if (!friendsWithTick.value)
+        friendsWithTick.value = [{ friend: user, added: false }];
+      else friendsWithTick.value.push({ friend: user, added: false });
+    });
   }
 
-  function channelMembers(channel: string) {
-    let memberUsers: { id: number; username: string; avatar: string }[] = [];
+  function setupPersonalChannels() {
+    if (!currentUser.value?.channels) return;
+    currentUser.value.channels.map((channel) => {
+      if (channel.type == "personal") {
+        channel.avatar = "mdi-account";
+        channel.members.map((member) => {
+          if (member.id != currentUser.value?.id)
+            channel.channelName = member.username;
+        });
+      }
+    });
+  }
 
-    allUsers.value.map((user) => {
-      let userIsMember = 0;
+  function setupPublicChannelsUserIsNotIn() {
+    if (!currentUser.value?.friends || !publicChannelsUserIsNotIn.value) return;
+    let friendsWithChannel: string[] = [];
+    currentUser.value.channels.map((channel) => {
+      if (channel.type == "personal") {
+        channel.members.map((member) => {
+          if (member.id != currentUser.value?.id)
+            friendsWithChannel.push(member.id);
+        });
+      }
+    });
+    currentUser.value.friends.map((friend) => {
+      if (
+        friendsWithChannel.indexOf(friend.id, 0) == -1 &&
+        currentUser.value?.username
+      ) {
+        publicChannelsUserIsNotIn.value?.push({
+          id: "0",
+          creator: currentUser.value.username,
+          type: "personal",
+          avatar: "mdi-account",
+          password: "",
+          channelName: friend.username,
+          members: [currentUser.value, friend],
+          messages: [],
+          admins: [],
+          bannedUsers: [],
+        });
+      }
+    });
+  }
 
-      getChannelInfo(channel)?.members.map((mem) => {
-        if (mem == user.username) userIsMember = 1;
+  // get data functions
+
+  async function getUser() {
+    await socketSend<User>("checkTokenConection", cookies?.get("access_token"))
+      .then((user) => {
+        currentUser.value = user;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible current user");
       });
-
-      if (userIsMember) {
-        memberUsers.push(user);
-      }
-
-      return true;
-    });
-
-    return memberUsers;
   }
 
-  function isAdmin(channelName: string, username: string) {
-    let isAdmin = 0;
-
-    allChannelsUserIsIn.value.map((channel) => {
-      if (channel.name == channelName) {
-        channel.admins.map((admin) => {
-          if (admin == username) isAdmin = 1;
+  const getPublicChannelsUserIsNotIn = async () => {
+    const token = cookies?.get("access_token");
+    if (currentUser.value) {
+      const userId = currentUser.value.id;
+      await socketSend<Channel[]>("publicChannelsUserIsNotIn", {
+        token,
+        userId,
+      })
+        .then((channels) => {
+          publicChannelsUserIsNotIn.value = channels;
+        })
+        .catch(() => {
+          console.log("chat debug: no acessible public channels");
         });
-      }
-    });
+    }
+  };
 
-    if (isAdmin == 1) return true;
-    return false;
+  function getChannelInfo(channelId: string) {
+    if (!currentUser.value?.channels.length) return undefined;
+    const channels: Channel[] = currentUser.value.channels;
+    const channelFound = ref<Channel>();
+    channels.map((channel) => {
+      if (channel.id == channelId) channelFound.value = channel;
+    });
+    return channelFound.value;
   }
 
-  function isBlockedFromChannel(channelName: string, username: string) {
-    let isBlockedFromChannel = 0;
-
-    allChannelsUserIsIn.value.map((channel) => {
-      if (channel.name == channelName) {
-        channel.blocked.map((user) => {
-          if (user == username) isBlockedFromChannel = 1;
-        });
-      }
-    });
-
-    if (isBlockedFromChannel == 1) return true;
-    return false;
+  async function channelMessages(
+    channelId: string,
+    option: "get" | "send",
+    message: string,
+  ) {
+    if (!currentUser.value?.channels.length) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend<Message[]>("channelMessages", {
+      token,
+      option,
+      channelId,
+      message,
+    })
+      .then((messages) => {
+        channelMessagesVar.value = messages;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
   }
 
-  function findUserByUsername(username: string) {
-    const foundedUser = ref<{
-      id: number;
-      username: string;
-      avatar: string;
-      blocked: string[];
-    }>();
-    let foundUser = 0;
-    allUsers.value.map((user) => {
-      if (user.username == username) foundedUser.value = user;
-    });
-    if (foundedUser) return foundedUser.value;
+  function channelMembers(channelId: string) {
+    const channel = getChannelInfo(channelId);
+
+    if (channel && channel.members) return channel.members;
+
     return undefined;
   }
 
+  function isAdmin(channelId: string, userId: string) {
+    const channel = getChannelInfo(channelId);
+    if (!channel || !channel.members) return false;
+
+    let isAdmin = false;
+
+    channel.admins.map((member) => {
+      if (member.id == userId) isAdmin = true;
+    });
+
+    return isAdmin;
+  }
+
+  function isBlockedFromChannel(channelId: string, userId: string) {
+    const channel = getChannelInfo(channelId);
+    if (!channel || !channel.bannedUsers) return false;
+
+    let isBlockedFromChannel = false;
+
+    channel.bannedUsers.map((member) => {
+      if (member.id == userId) isBlockedFromChannel = true;
+    });
+
+    return isBlockedFromChannel;
+  }
+
+  // active database functions
+
+  async function joinChannel(channelId: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend<Channel[]>("joinChannel", {
+      token,
+      channelId,
+    })
+      .then((channels) => {
+        getAllChatData();
+        return channels;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
+  async function createChannel(
+    type: "public" | "private" | "personal",
+    password: string,
+    channelName: string,
+    members: User[],
+  ): Promise<string | undefined> {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    const userId = currentUser.value.id;
+    await socketSend<string>("createChannel", {
+      token,
+      type,
+      password,
+      channelName,
+      members,
+    })
+      .then((channelId) => {
+        getAllChatData();
+        return channelId;
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
+  async function leaveChannel(channelId: string) {
+    if (!currentUser.value) return;
+    const userIsMember = ref(false);
+    currentUser.value.channels.map((channel) => {
+      if (channel.id == channelId) userIsMember.value = true;
+    });
+    if (userIsMember.value == true) {
+      const token = cookies?.get("access_token");
+      await socketSend<number>("leaveChannel", {
+        token,
+        channelId,
+      })
+        .then((number) => {
+          if (number == 1) {
+            getAllChatData();
+          }
+        })
+        .catch(() => {
+          console.log("chat debug: no acessible channel messages");
+        });
+    }
+  }
+
+  async function banMuteKickUserFromChannnel(
+    channelId: string,
+    option: "ban" | "kick" | "mute",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    console.log(channelId, " ", option, " ", userId);
+    const token = cookies?.get("access_token");
+    await socketSend<number>("banMuteKickUserFromChannnel", {
+      token,
+      channelId,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: no acessible channel messages");
+      });
+  }
+
   return {
-    friends,
-    allUsers,
-    publicChannelsUserIsNotIn,
-    allChannelsUserIsIn,
-    userFriends,
     currentUser,
+    allUsers,
     selectedChannel,
     createChannelPopUp,
     friendsWithTick,
     personalPopUpSettings,
     selectedUserProfile,
     settingsAdminPopUp,
-    createNewChannel,
-    channelMessages,
+    publicChannelsUserIsNotIn,
+    permissionToOpenChat,
+    channelMessagesVar,
+    channelStd,
+    startConection,
+    checkTokenConection,
     selectChannel,
     getChannelInfo,
+    channelMessages,
     channelMembers,
     isAdmin,
     isBlockedFromChannel,
-    findUserByUsername,
+    getAllChatData,
+    joinChannel,
+    createChannel,
+    leaveChannel,
+    banMuteKickUserFromChannnel,
   };
 });

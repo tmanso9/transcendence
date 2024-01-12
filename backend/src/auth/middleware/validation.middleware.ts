@@ -16,10 +16,12 @@ export class ValidationMiddleware implements NestMiddleware {
     
         // Verify if user is not blocked
         const tokenDecoded = await this.jwt.decode(req.cookies['access_token']);
-        const user = await this.prisma.user.findUnique({where: {email: tokenDecoded.email}});
-        if (user.status === "BLOCKED")
-            throw new ForbiddenException('Account blocked for safety reasons');
-
+        if (tokenDecoded)
+        {
+            const user = await this.prisma.user.findUnique({where: {email: tokenDecoded.email}});
+            if (user.status === "BLOCKED")
+                throw new ForbiddenException('Account blocked for safety reasons');
+        }
         next();
     }
 }

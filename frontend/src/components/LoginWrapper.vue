@@ -49,6 +49,9 @@ import { defineEmits } from "vue";
 import { encodeFormData } from "@/utils";
 import SigninFormElements from "./SigninFormElements.vue";
 import { useUserStore } from "@/stores/user";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
+import { useRouter } from "vue-router";
 
 const emit = defineEmits(["login", "showSignUp"]);
 const email = ref("");
@@ -57,6 +60,8 @@ const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
 const form = ref<HTMLFormElement>();
 const user = useUserStore();
+const cookies = inject<VueCookies>("$cookies");
+const router = useRouter();
 
 onMounted(() => {
   if (form.value) form.value.focus();
@@ -75,8 +80,14 @@ const login = async () => {
     const urlEncoded = encodeFormData(values, propertyNames);
     try {
       const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
-      console.log(data);
-      emit("login");
+      if (cookies?.get("access_token") === null) {
+        console.log(data);
+        user.email = data.email;
+        emit("login");
+        router.push("/2fa");
+      } else {
+        emit("login");
+      }
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;
