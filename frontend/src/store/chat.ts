@@ -98,6 +98,21 @@ export const chatAppStore = defineStore("chat", () => {
 
     socket.on("channelMessages", (messages) => {
       channelMessagesVar.value = messages;
+      channelMessagesVar.value.forEach((msg) => {
+        let newMessage = "";
+        let j = 0;
+        let lineMaxWight = 24;
+        if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+        for (let i = 0; i < msg.content.length; i++) {
+          newMessage = newMessage + msg.content[i];
+          if (msg.content[i] != " ") j++;
+          if (j == lineMaxWight) {
+            newMessage = newMessage + "\n";
+            j = 0;
+          }
+        }
+        msg.content = newMessage;
+      });
     });
 
     socket.on("updateInfo", () => {
@@ -236,6 +251,21 @@ export const chatAppStore = defineStore("chat", () => {
     })
       .then((messages) => {
         channelMessagesVar.value = messages;
+        channelMessagesVar.value.forEach((msg) => {
+          let newMessage = "";
+          let j = 0;
+          let lineMaxWight = 24;
+          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          for (let i = 0; i < msg.content.length; i++) {
+            newMessage = newMessage + msg.content[i];
+            if (msg.content[i] != " ") j++;
+            if (j == lineMaxWight) {
+              newMessage = newMessage + "\n";
+              j = 0;
+            }
+          }
+          msg.content = newMessage;
+        });
       })
       .catch(() => {
         console.log("chat debug: no acessible channel messages");

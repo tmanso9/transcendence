@@ -12,21 +12,6 @@ const openMessages = ref(false);
 onMounted(async () => {
   await store.channelMessages(store.selectedChannel, "get", "");
   if (store.channelMessagesVar) openMessages.value = true;
-  store.channelMessagesVar.forEach((msg) => {
-    let newMessage = "";
-    let j = 0;
-    let lineMaxWight = 24;
-    if (msg.sender != store.currentUser?.username) lineMaxWight = 19;
-    for (let i = 0; i < msg.content.length; i++) {
-      newMessage = newMessage + msg.content[i];
-      if (msg.content[i] != " ") j++;
-      if (j == lineMaxWight) {
-        newMessage = newMessage + "\n";
-        j = 0;
-      }
-    }
-    msg.content = newMessage;
-  });
 });
 
 function updateScroll() {
@@ -69,6 +54,7 @@ function nextValue(index: number) {
                 border-radius: 1em;
                 padding-top: 0.5em;
                 padding-bottom: 0.5em;
+                text-align: left;
               "
             >
               {{ item.content }}
@@ -95,6 +81,7 @@ function nextValue(index: number) {
                 border-radius: 1em;
                 padding-top: 0.5em;
                 padding-bottom: 0.5em;
+                text-align: left;
               "
             >
               {{ item.content }}
