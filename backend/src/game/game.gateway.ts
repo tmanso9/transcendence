@@ -1,14 +1,13 @@
-import {Server} from 'socket.io';
+import {Server, Socket} from 'socket.io';
 import {SubscribeMessage, WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect} from '@nestjs/websockets';
 import {GameService} from "./game.service";
-// import type {Socket} from "socket.io-client";
-import {clearInterval} from "timers";
-import {Socket} from "net";
+
 
 @WebSocketGateway({cors: {origin: 'http://localhost:3001'}})
 export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
     @WebSocketServer()
     server: Server;
+    activeConnections = new Set();
 
     private intervalId = null;
     private games = new Map<string, GameService>();
@@ -29,13 +28,13 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
 
     @SubscribeMessage('pause')
     pauseGame(client: any, payload: any) {
-        this.games.get(this.rooms.get(client.id)).pauseG()
+        this.games.get(this.rooms.get(client.id))?.pauseG()
     }
 
     @SubscribeMessage('reset')
     resetGame(client: any, payload: any) {
-        this.games.get(this.rooms.get(client.id)).reset();
-        this.server.to(this.rooms.get(client.id)).emit('positions', this.games.get(this.rooms.get(client.id)).getPositions() as any);
+        this.games.get(this.rooms.get(client.id))?.reset();
+        this.server.to(this.rooms.get(client.id)).emit('gameState', this.games.get(this.rooms.get(client.id))?.getGameState() as any);
     }
 
     @SubscribeMessage('movePaddle')
@@ -43,38 +42,59 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
         if (this.games.size > 0) {
             const room = this.rooms.get(client.id);
             const game = this.games.get(room);
-            game.movePaddle(client.id, payload);
-            this.server.to(room).emit('positions', game.getPositions() as any);
+            if (game.map.has(client.id))
+                game.movePaddle(client.id, payload);
+            this.server.to(room).emit('gameState', game.getGameState() as any);
+        }
+    }
+
+    @SubscribeMessage('createRoom')
+    createRoom(client: any, payload: string) {
+        client.join(payload);
+        this.games.set(payload, new GameService());
+        this.games.get(payload).registerPlayer(client.id);
+        this.rooms.set(client.id, payload);
+        this.server.emit('availableRooms',Array.from(this.games.keys()) as any);
+    }
+
+    @SubscribeMessage('joinRoom')
+    joinRoom(client: Socket, payload: string) {
+        if (this.games.has(payload)) {
+            client.join(payload);
+            if (!this.games.get(payload).registerPlayer(client.id)) {
+                client.emit('spectator', true);
+            }
+            this.rooms.set(client.id, payload);
+            if (this.games.get(payload).map.size == 2 && this.games.get(payload).spectators.length == 0)
+                this.games.get(payload).playG(this.server, payload)
+            this.server.to(payload).emit('gameState', this.games.get(payload).getGameState() as any);
         }
     }
 
     handleDisconnect(client: any): any {
         const room = this.rooms.get(client.id);
-        const game = this.games.get(room);
-        this.pauseGame(client, null);
-        game.map.delete(client.id);
+        if (room) {
+            const game = this.games.get(room);
+            if (game.map.has(client.id)) {
+                this.pauseGame(client, null);
+                if (game.spectators.length > 0) {
+                    this.server.sockets.sockets.get(game.spectators[0]).emit('spectator', false as any);
+                    game.promoteToPlayer(client.id, game.spectators[0]);
+                }
+                game.map.delete(client.id);
+            } else {
+                game.spectators.splice(game.spectators.indexOf(client.id), 1);
+            }
+            this.rooms.delete(client.id);
+            if (game.map.size == 0) {
+                this.games.delete(room);
+            }
+        }
+        this.server.emit('availableRooms',Array.from(this.games.keys()) as any);
     }
 
     handleConnection(client: any, ...args: any[]): any {
-        if (this.games.size == 0) {
-            client.join('room1');
-            this.games.set('room1', new GameService());
-            this.games.get('room1').registerPlayer(client.id);
-            this.rooms.set(client.id, 'room1');
-        } else {
-            const lastGame = Array.from(this.games.values())[this.games.size - 1];
-            if (lastGame.map.size < 2) {
-                client.join('room' + this.games.size);
-                this.rooms.set(client.id, 'room' + this.games.size);
-                lastGame.registerPlayer(client.id);
-                if (lastGame.map.size == 2)
-                    lastGame.playG(this.server, 'room' + this.games.size)
-            } else {
-                client.join('room' + (this.games.size + 1));
-                this.rooms.set(client.id, 'room' + (this.games.size + 1));
-                this.games.set('room' + (this.games.size + 1), new GameService());
-                this.games.get('room' + (this.games.size)).registerPlayer(client.id);
-            }
-        }
+        this.server.emit('availableRooms',Array.from(this.games.keys()) as any);
+
     }
 }
