@@ -28,16 +28,31 @@ export class AuthService {
 
 		try {
 			// Add user to the db
+			const achievements = {
+				social: "",
+				games_played: "",
+				ratio: "",
+				streak: ""
+			};
+
 			const user = await this.prisma.user.create({
 				data: {
 					email: dto.email,
 					password: hashed,
 					username: dto.username,
 					avatar: '#',
-					status: "OFFLINE"
+					status: "OFFLINE",
+					achievements: achievements
 				},
 			});
 			delete user.password;
+
+			// Create gamestats for each
+			const gamestat = await this.prisma.gamestats.create({
+				data: {
+					userId: user.id
+				}
+			})
 
 			// Return useer
 			return { user };
@@ -105,7 +120,13 @@ export class AuthService {
 				if (taken_user_name)
 					user_name = await this.getRandomName();
 
-					// Add user to the db
+				// Add user to the db
+				const achievements = {
+					social: "",
+					games_played: "",
+					ratio: "",
+					streak: ""
+				};
 				user = await this.prisma.user.create({
 					data: {
 						email: data.email,
@@ -113,6 +134,7 @@ export class AuthService {
 						username: user_name,
 						avatar: data.picture,
 						status: "ONLINE",
+						achievements: achievements
 					}
 				});
 			} catch (error) {
@@ -140,6 +162,12 @@ export class AuthService {
 
 	async login42(user)
     {
+		const achievements = {
+			social: "",
+			games_played: "",
+			ratio: "",
+			streak: ""
+		};
         const profile = await this.prisma.user.upsert({
             create: {
                 email: user.email,
@@ -147,6 +175,7 @@ export class AuthService {
                 username: user.username,
                 status: 'ONLINE',
                 avatar: user.avatar,
+				achievements: achievements
             },
             update: {
                 status: 'ONLINE',

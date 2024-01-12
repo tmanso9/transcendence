@@ -43,10 +43,10 @@ model User {
   username String @unique // username
   status Status // user status
   avatar String // user avatar
+  rank  String @default("NOOBIE") // User rank
+  achievements Json
 
-  points Int @default(0)  // Total points of the user
-  wins Int @default(0)  // Number of wins
-  losses Int @default(0)  // Number of losses
+  gamestats Gamestats?
 
   friends User[]  @relation("Friends") // array of friends
   friendOf User[]  @relation("Friends") // array of friends
@@ -66,8 +66,22 @@ model Blacklist {
   createdAt DateTime @default(now())
 }
 
+model Games {
+  id String @id @default(uuid())
+  winnerId String // ID of the winner
+  loserId String  // ID of the loser
+  loserScore Int  // Score of the loser
+  playedAt DateTime @default(now()) // Date at which the game was played
+}
+
 model Gamestats {
   id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique // ID of the user
+  points Int @default(0)  // Total points of the user
+  wins Int @default(0)  // Number of wins
+  losses Int @default(0)  // Number of losses
+  streak Int @default(0)  // Win Streak of the player
 }
 
 model Channels {

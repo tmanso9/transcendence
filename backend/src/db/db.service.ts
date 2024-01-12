@@ -4,12 +4,15 @@ import { catchError, firstValueFrom } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { AuthService } from 'src/auth/auth.service';
+import { AuthDTO } from 'src/auth/dto';
 
 @Injectable()
 export class DbService {
 	constructor(
 		private prisma: PrismaService,
-		private httpService: HttpService
+		private httpService: HttpService,
+		private authService: AuthService
 	) {}
 
 	async populate(num: number) {
@@ -20,8 +23,8 @@ export class DbService {
 			throw new ForbiddenException('Number too large');
 
 		for (let i = 0; i < num; i++) {
-			const user = await this.getRandomUser();
-			await this.addToDb(user);
+			const user: AuthDTO = await this.getRandomUser();
+			await this.authService.signup(user);
 		}
 	}
 
@@ -31,13 +34,20 @@ export class DbService {
 
 		try {
 			// Add user to the db
+			const achievements = {
+				social: "",
+				games_played: "",
+				ratio: "",
+				streak: ""
+			};
 			const new_user = await this.prisma.user.create({
 				data: {
 					email: user.email,
 					password: hashed,
 					username: user.username,
 					avatar: '#',
-					status: "OFFLINE"
+					status: "OFFLINE",
+					achievements: achievements
 				},
 			});
 		} catch (error) {
@@ -49,7 +59,7 @@ export class DbService {
 		}
 	}
 
-	private async getRandomUser(): Promise<{}> {
+	private async getRandomUser(): Promise<AuthDTO> {
 		const { data }: any = await firstValueFrom(
 			this.httpService.get('https://randomuser.me/api/').pipe(
 			  catchError(() => {

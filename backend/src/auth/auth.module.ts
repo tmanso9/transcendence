@@ -12,5 +12,6 @@ import { GoogleStrategy, JwtStrategy, Strategy42 } from "./strategy";
 	],
 	providers: [AuthService, JwtStrategy, GoogleStrategy, Strategy42],
 	controllers: [AuthController],
+	exports: [AuthService]
 })
 export class AuthModule {}

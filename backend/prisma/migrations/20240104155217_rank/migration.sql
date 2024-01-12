@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "rank" TEXT NOT NULL DEFAULT 'NOOBIE';

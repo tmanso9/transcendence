@@ -13,13 +13,37 @@ export class UserService {
 		const all_users = await this.prisma.user.findMany({
 			select: {
 				username: true,
-				wins: true,
-				losses: true,
-				points: true
+				gamestats: true
 			}
 		});
 
 		return all_users;
+	}
+
+	// Returns gamestats of a specific player
+	async getUserGamestats(username: string, decoded_jwt: any) {
+		const user = await this.prisma.user.findFirst({
+			where: {
+				username: username
+			},
+			select: {
+				gamestats: true,
+				rank: true
+			}
+		});
+
+		if (!user)
+			throw new ForbiddenException(`User ${username} does not exist`);
+
+		return {
+			rank: user.rank,
+			points: user.gamestats.points,
+			wins: user.gamestats.wins,
+			losses: user.gamestats.losses,
+			streak: user.gamestats.streak,
+			total_games: user.gamestats.wins + user.gamestats.losses,
+			win_ratio: user.gamestats.wins / (user.gamestats.wins + user.gamestats.losses)
+		}
 	}
 
 	// Returns User Info
