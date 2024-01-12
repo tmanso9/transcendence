@@ -3,8 +3,13 @@ import { defineStore } from "pinia";
 
 export const useUserStore = defineStore("user", () => {
   const username = ref("");
+  const email = ref("");
   const isAdmin = ref(false);
   const points = ref(0);
+  const tfa_enabled = ref(false);
+  const loginType = ref("REGULAR");
+  const alerts = ref([]);
+  const id = ref("");
 
   const signin = async (urlEncoded: BodyInit, path: URL) => {
     try {
@@ -20,7 +25,9 @@ export const useUserStore = defineStore("user", () => {
         const err = await result.text();
         throw new Error(err);
       }
-      return await result.json();
+      const data = await result.json();
+      //   console.log(data);
+      return data;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -41,28 +48,75 @@ export const useUserStore = defineStore("user", () => {
     }
   };
 
+  const getMe = async () => {
+    return await fetch("http://localhost:3000/users/me", {
+      credentials: "include",
+    });
+  };
+
+  const getRefreshMe = async () => {
+    return await fetch("http://localhost:3000/auth/refresh-token", {
+      credentials: "include",
+    });
+  };
+
   const fetchUser = async (jwt: string) => {
     if (!jwt || !jwt.length) {
       username.value = "";
       return;
     }
     try {
-      const result = await fetch("http://localhost:3000/users/me", {
-        credentials: "include",
-      });
+      const result = await getMe();
       if (!result.ok) {
-		const data = await result.text()
-		throw new Error(data)
-	  }
+        const error = await result.json();
+        if (error.statusCode === 401) {
+          const refresh = await getRefreshMe();
+          if (!refresh.ok) {
+            const refreshError = await refresh.text();
+            throw new Error(refreshError);
+          }
+          const refreshData = await refresh.json();
+          username.value = refreshData.username;
+          tfa_enabled.value = refreshData.tfa_enabled;
+          email.value = refreshData.email;
+          loginType.value = refreshData.login;
+          alerts.value = refreshData.alerts;
+          id.value = refreshData.id;
+          console.log(refreshData);
+          return;
+        }
+        throw new Error(JSON.stringify(error));
+      }
       const data = await result.json();
+      //   console.log("data:");
+      //   console.log(data);
       username.value = data.username;
+      tfa_enabled.value = data.tfa_enabled;
+      email.value = data.email;
+      loginType.value = data.login;
+      alerts.value = data.alerts;
+      id.value = data.id;
+      console.log(data);
     } catch (error) {
-		if (error instanceof Error) {
-			const message = JSON.parse(error.message).message;
-			console.error(message);
-		}
+      if (error instanceof Error) {
+        const message = JSON.parse(error.message).message;
+        console.error(message);
+        username.value = "";
+      }
     }
   };
 
-  return { username, isAdmin, points, signin, logout, fetchUser };
+  return {
+    username,
+    isAdmin,
+    points,
+    tfa_enabled,
+    email,
+    loginType,
+    alerts,
+    id,
+    signin,
+    logout,
+    fetchUser,
+  };
 });

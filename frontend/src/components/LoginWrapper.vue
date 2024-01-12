@@ -16,25 +16,15 @@
         {{ fetchError }}
       </p>
       <div style="width: 200px" class="d-flex align-center mt-3">
-        <hr
-          width="30%"
-          height="1"
-          class="border mx-3"
-          style="color: rgb(20, 19, 19)"
-        />
+        <v-divider length="45%" class="mx-3"></v-divider>
         <span class="text-caption text-center"> or </span>
-        <hr
-          width="30%"
-          height="1"
-          class="border mx-3"
-          style="color: rgb(20, 19, 19)"
-        />
+        <v-divider length="45%" class="mx-3"></v-divider>
       </div>
 
       <v-form
         @submit.prevent="login()"
         class="my-4 d-flex flex-column align-center"
-		ref="form"
+        ref="form"
       >
         <signin-form-elements
           :isSignUp="false"
@@ -59,14 +49,19 @@ import { defineEmits } from "vue";
 import { encodeFormData } from "@/utils";
 import SigninFormElements from "./SigninFormElements.vue";
 import { useUserStore } from "@/stores/user";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
+import { useRouter } from "vue-router";
 
 const emit = defineEmits(["login", "showSignUp"]);
 const email = ref("");
 const password = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
-const form = ref(null);
-const user = useUserStore()
+const form = ref<HTMLFormElement>();
+const user = useUserStore();
+const cookies = inject<VueCookies>("$cookies");
+const router = useRouter();
 
 onMounted(() => {
   if (form.value) form.value.focus();
@@ -74,23 +69,31 @@ onMounted(() => {
 
 const login = async () => {
   //frontend validation
-  const isValid = await form.value.validate();
-  if (!isValid.valid) return;
+  if (form.value) {
+    const isValid = await form.value.validate();
+    if (!isValid.valid) return;
 
-  fetchError.value = "";
-  const values = [email, password];
-  const propertyNames = ["email", "password"];
+    fetchError.value = "";
+    const values = [email, password];
+    const propertyNames = ["email", "password"];
 
-  const urlEncoded = encodeFormData(values, propertyNames);
-  try {
-    const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
-    console.log(data);
-    emit("login");
-  } catch (error) {
-    if (error instanceof Error) {
-      const message = JSON.parse(error.message).message;
-      fetchError.value = message instanceof Array ? message[0] : message;
-      console.error(message);
+    const urlEncoded = encodeFormData(values, propertyNames);
+    try {
+      const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
+      if (cookies?.get("access_token") === null) {
+        console.log(data);
+        user.email = data.email;
+        emit("login");
+        router.push("/2fa");
+      } else {
+        emit("login");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = JSON.parse(error.message).message;
+        fetchError.value = message instanceof Array ? message[0] : message;
+        console.error(message);
+      }
     }
   }
 };

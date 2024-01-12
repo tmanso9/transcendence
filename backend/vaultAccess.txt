@@ -1,0 +1,4 @@
+follow this tutorial to install vault, including the non-interactive login part in the bottom of the page
+https://developer.hashicorp.com/vault/tutorials/hcp-vault-secrets-get-started/hcp-vault-secrets-install-cli
+
+set the generated HCP_CLIENT_ID and HCP_CLIENT_SECRET in your bash env variables

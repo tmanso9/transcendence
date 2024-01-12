@@ -47,7 +47,10 @@ export class DbService {
 					username: user.username,
 					avatar: '#',
 					status: "OFFLINE",
-					achievements: achievements
+					achievements: achievements,
+					login: "REGULAR",
+					tfa_enabled: false,
+					tfa_secret: ''
 				},
 			});
 		} catch (error) {

@@ -14,11 +14,24 @@ enum Status {
   OFFLINE
   ONLINE
   IN_GAME
+  BLOCKED
 }
 
 enum ConnectionStatus {
   PENDING
   ACCEPTED
+}
+
+enum Rank {
+  GURU
+  PRO
+  NOOBIE
+}
+
+enum Login {
+  REGULAR
+  FORTYTWO
+  GOOGLE
 }
 
 enum ChannelType {
@@ -28,8 +41,8 @@ enum ChannelType {
 }
 
 model Connections {
-  id String @id @default(uuid())
-  status ConnectionStatus @default(PENDING)
+  id       String           @id @default(uuid())
+  status   ConnectionStatus @default(PENDING)
   creator String
   receiver String
 }
@@ -45,6 +58,10 @@ model User {
   avatar String // user avatar
   rank  String @default("NOOBIE") // User rank
   achievements Json
+  login Login //user login method
+  tfa_secret String // secret string associated with two factor authentication
+  tfa_enabled Boolean // does the user have tfa enabled
+  alerts	Json[] @default([])
 
   gamestats Gamestats?
 
@@ -60,7 +77,6 @@ model User {
 model Blacklist {
   id Int @id @default(autoincrement())
   token String
-  sub String
   email String
   expiresIn Int
   createdAt DateTime @default(now())
@@ -88,7 +104,7 @@ model Channels {
   id String @id @default(uuid())  // id of the channel
   creator String  // id of the User who created the chat
   password String @default("")  // hashed password to access the chat (optional - empty of not desired)
-  type ChannelType  // type of the channel
+  type String  // type of the channel
   channelName String  // name of the channel
   messages Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
   members User[] @relation("Members") // array of members who are part of the channel

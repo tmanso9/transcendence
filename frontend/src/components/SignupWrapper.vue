@@ -1,5 +1,5 @@
 <template>
-  <div class="signin border rounded-lg" @click="fetchError = ''">
+  <div class="signin border rounded-lg">
     <div class="ml-auto mr-2">
       <v-icon @click="emit('signup')">mdi-close</v-icon>
     </div>
@@ -31,7 +31,6 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { defineEmits } from "vue";
 import { encodeFormData } from "@/utils";
 import { onMounted } from "vue";
 import SigninFormElements from "./SigninFormElements.vue";
@@ -43,8 +42,8 @@ const password = ref("");
 const username = ref("");
 const authUrl = "http://localhost:3000/auth/";
 const fetchError = ref("");
-const form = ref(null);
-const user = useUserStore()
+const form = ref<HTMLFormElement>();
+const user = useUserStore();
 
 onMounted(() => {
   if (form.value) form.value.focus();
@@ -52,23 +51,25 @@ onMounted(() => {
 
 async function signup() {
   //frontend validation
-  const isValid = await form.value.validate();
-  if (!isValid.valid) return;
+  if (form.value) {
+    const isValid = await form.value.validate();
+    if (!isValid.valid) return;
 
-  fetchError.value = "";
-  const values = [email, password, username];
-  const propertyNames = ["email", "password", "username"];
+    fetchError.value = "";
+    const values = [email, password, username];
+    const propertyNames = ["email", "password", "username"];
 
-  const urlEncoded = encodeFormData(values, propertyNames);
-  try {
-    const data = await user.signin(urlEncoded, new URL(authUrl + "signup"));
-    console.log(data);
-    emit("signup");
-  } catch (error) {
-    if (error instanceof Error) {
-      const message = JSON.parse(error.message).message;
-      fetchError.value = message instanceof Array ? message[0] : message;
-      console.error(message);
+    const urlEncoded = encodeFormData(values, propertyNames);
+    try {
+      const data = await user.signin(urlEncoded, new URL(authUrl + "signup"));
+      console.log(data);
+      emit("signup");
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = JSON.parse(error.message).message;
+        fetchError.value = message instanceof Array ? message[0] : message;
+        console.error(message);
+      }
     }
   }
 }

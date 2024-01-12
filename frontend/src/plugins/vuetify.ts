@@ -12,14 +12,28 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
+// export default createVuetify({
+//   theme: {
+//     themes: {
+//       light: {
+//         colors: {
+//           primary: '#1867C0',
+//           secondary: '#5CBBF6',
+//         },
+//       },
+//     },
+//   },
+// })
+
 export default createVuetify({
   theme: {
-	defaultTheme: 'dark',
+    defaultTheme: "dark",
     themes: {
-      light: {
+      dark: {
         colors: {
-          primary: '#1867C0',
-          secondary: '#5CBBF6',
+          primary: "#582258",
+          secondary: "#ffadff",
+          warning: "#630438",
         },
       },
     },

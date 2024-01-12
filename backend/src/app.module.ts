@@ -8,6 +8,7 @@ import { DbService } from './db/db.service';
 import { DbModule } from './db/db.module';
 import { ChannelsModule } from './channels/channels.module';
 import { GameBackendModule } from './gameBackend/gameBackend.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -20,6 +21,10 @@ import { GameBackendModule } from './gameBackend/gameBackend.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    UserModule,
+    DbModule,
+    GameModule,
+    ChannelsModule,
   ],
 })
 export class AppModule {}

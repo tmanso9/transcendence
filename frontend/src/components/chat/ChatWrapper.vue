@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import "./chat.scss";
 import { chatAppStore } from "@/store/chat";
 import MessageInput from "./MessageInput.vue";
@@ -18,15 +18,19 @@ const type = ref("public");
 const password = ref("");
 const name = ref("");
 const members = ref([]);
+const haveAllInfoNeeded = ref(false);
 
-function updateScroll(id: string) {
-  var element = document.getElementById(id);
-  if (element) element.scrollTop = element.scrollHeight;
-}
+
+
+onMounted(async () => {
+  await store.getAllChatData();
+  if (store.currentUser && store.publicChannelsUserIsNotIn)
+    haveAllInfoNeeded.value = true;
+});
 </script>
 
 <template>
-  <div class="chatBox">
+  <div v-if="haveAllInfoNeeded" class="chatBox">
     <chat-bar v-if="store.selectedChannel == ''"></chat-bar>
     <div class="chatMessagesBox" v-if="store.selectedChannel">
       <channel-header
@@ -34,7 +38,7 @@ function updateScroll(id: string) {
       ></channel-header>
       <messages-scroll></messages-scroll>
       <message-input
-        @scrollMessages="updateScroll('scrollMessages')"
+        style="bottom: 0"
       ></message-input>
     </div>
   </div>

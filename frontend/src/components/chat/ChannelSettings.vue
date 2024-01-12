@@ -1,39 +1,134 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { onMounted, ref } from "vue";
+import PersonalSettings from "./PersonalSettings.vue";
+import SettingsPopUp from "./SettingsPopUp.vue";
+import { useDisplay } from "vuetify/lib/framework.mjs";
+import { Channel } from "../../store/chat";
 
 const store = chatAppStore();
+const channelSettings = ref(false);
+const channelPermission = ref(false);
+const channel = ref<Channel>();
+const { height } = useDisplay();
+
+onMounted(async () => {
+  channel.value = store.getChannelInfo(store.selectedChannel);
+  if (channel) channelPermission.value = true;
+});
 </script>
 <template>
-  <v-col cols="auto">
-    <v-dialog transition="dialog-top-transition" width="auto">
-      <template v-slot:activator="{ props }">
-        <v-icon icon="mdi-cog" size="x-small" v-bind="props"></v-icon>
-      </template>
-      <template v-slot:default="{ isActive }">
-        <v-card class="channelSettingsPopUp">
-          <v-toolbar
-            color="primary"
-            :title="store.selectedChannel + ' - Settings'"
-          ></v-toolbar>
-          <v-card-text>
-            <v-text-field
-              label="Change Password"
-              placeholder="New"
-              variant="outlined"
-            ></v-text-field>
-            <v-autocomplete
-              :items="store.getChannelInfo(store.selectedChannel)?.members"
-              label="Blocked"
-              color="primary"
-              multiple
-            ></v-autocomplete>
-          </v-card-text>
-          <v-card-actions class="justify-end">
-            <v-btn variant="text" @click="isActive.value = false">Close</v-btn>
-          </v-card-actions>
-        </v-card>
-      </template>
-    </v-dialog>
-  </v-col>
+  <v-icon
+    icon="mdi-cog"
+    size="x-small"
+    @click="
+      () => {
+        if (channel?.type == 'personal') {
+          channel.members.map((member) => {
+            if (member.id != store.currentUser?.id)
+              store.selectedUserProfile = member;
+          });
+          store.personalPopUpSettings = true;
+        } else channelSettings = true;
+      }
+    "
+  ></v-icon>
+  <personal-settings
+    v-if="store.personalPopUpSettings && store.selectedUserProfile"
+  ></personal-settings>
+  <div v-else-if="channelSettings" class="channelSettings">
+    <div class="channelSettings-header">
+      <span class="text-h6"
+        ><v-icon icon="mdi-cog" size="x-small"></v-icon
+        >{{ " " + channel?.channelName }}
+      </span>
+      <v-icon
+        icon="mdi-close-circle"
+        color="primary"
+        @click="
+          () => {
+            channelSettings = false;
+          }
+        "
+        :size="height > 700 ? 'large' : 'medium'"
+      ></v-icon>
+    </div>
+    <div class="channelSettings-content">
+      <div class="channelSettings-content-profile">
+        <v-icon :icon="channel?.avatar" size="x-large"></v-icon>
+      </div>
+      <div class="channelSettings-content-info">
+        {{ channel?.type + " - " }}
+        {{ channel?.members.length + " " }}
+        members
+      </div>
+      <v-virtual-scroll
+        v-if="channel"
+        :items="channel.members"
+        height="150"
+        class="channelSettings-content-users"
+      >
+        <template v-slot:default="{ item }"
+          ><div
+            class="channelSettings-content-users-user"
+            @click="
+              () => {
+                channel?.members.map((member) => {
+                  if (member.id == item.id) store.selectedUserProfile = member;
+                });
+                if (store.selectedUserProfile?.id == store.currentUser?.id)
+                  return;
+                if (
+                  channel &&
+                  store.currentUser &&
+                  store.selectedUserProfile &&
+                  store.isAdmin(channel.id, store.currentUser.id) &&
+                  channel.creator != store.selectedUserProfile.username
+                )
+                  store.settingsAdminPopUp = true;
+                else store.personalPopUpSettings = true;
+              }
+            "
+          >
+            <div class="channelSettings-content-users-user-profile">
+              <v-icon
+                class="channelSettings-content-users-user-profile-icon"
+                :icon="item.avatar"
+              ></v-icon>
+              <div>{{ item.username }}</div>
+            </div>
+            <div
+              class="channelSettings-content-users-user-operator"
+              v-if="item.username == channel.creator"
+            >
+              <v-icon icon="mdi-crown" size="x-small"></v-icon>
+              Admin
+            </div>
+            <div
+              class="channelSettings-content-users-user-operator"
+              v-else-if="store.isAdmin(channel.id, item.id)"
+            >
+              Admin
+            </div>
+          </div>
+        </template>
+      </v-virtual-scroll>
+      <v-btn
+        color="warning"
+        @click="
+          () => {
+            if (channel?.id) store.leaveChannel(channel.id);
+            channelSettings = false;
+            store.selectChannel('');
+          }
+        "
+        >Leave Group</v-btn
+      >
+      <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
+      <personal-settings
+        v-else-if="store.personalPopUpSettings"
+      ></personal-settings>
+    </div>
+  </div>
 </template>
 <style scoped lang="scss"></style>
