@@ -65,7 +65,7 @@ const store = chatAppStore();
           v-else
           class="channelSettings-content-buttons-btn"
           color="warning"
-          append-icon="mdi-cancel"
+          append-icon="mdi-arrow-u-left-top"
           @click="
             () => {
               if (store.selectedUserProfile)
