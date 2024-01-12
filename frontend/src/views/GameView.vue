@@ -16,8 +16,6 @@ let s: Socket = null as any;
 const width = mdAndDown.value ? 500 : 1000;
 const height = mdAndDown.value ? 350 : 700;
 
-console.log("mdAndDown: ", mdAndDown.value, width, height);
-
 
 onMounted(async () => {
   await nextTick();
