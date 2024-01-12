@@ -24,6 +24,8 @@ function nextValue(index: number) {
   const nextItem = store.channelMessagesVar[index];
   return nextItem;
 }
+// aaaaaaaaaaaaaaaaaaaaaaaaa 25
+// aaaaaaaaaaaaaaaaaaa 19
 </script>
 <template>
   <div class="messageScroll" v-if="openMessages">
@@ -43,7 +45,18 @@ function nextValue(index: number) {
             "
             class="messageChip messageSentByCurrentUser"
           >
-            <v-chip>
+            <v-chip
+              style="
+                max-width: 15em;
+                height: auto !important;
+                white-space: normal !important;
+                line-height: 1.2;
+                border-radius: 1em;
+                padding-top: 0.5em;
+                padding-bottom: 0.5em;
+                text-align: left;
+              "
+            >
               {{ item.content }}
             </v-chip>
             <v-chip
@@ -59,7 +72,18 @@ function nextValue(index: number) {
             </v-chip>
           </div>
           <div v-else class="messageChip">
-            <v-chip>
+            <v-chip
+              style="
+                max-width: 12em;
+                height: auto !important;
+                white-space: normal !important;
+                line-height: 1.2;
+                border-radius: 1em;
+                padding-top: 0.5em;
+                padding-bottom: 0.5em;
+                text-align: left;
+              "
+            >
               {{ item.content }}
             </v-chip>
             <v-chip
