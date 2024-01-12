@@ -83,7 +83,7 @@ const toggleSignUp = async () => {
 };
 
 function include() {
-  return [document.querySelector(".included")];
+  return Array.from(document.querySelectorAll(".included"));
 }
 
 const handleNotificationResolve = async () => {
@@ -99,7 +99,7 @@ const handleNotificationResolve = async () => {
       @login="toggleLogin"
       @logout="fetchMe(cookies, user)"
       @notifications="showNotifications = !showNotifications"
-      class="navbar"
+      class="navbar included"
     />
     <div class="loginWrapper" v-if="showLogin" @click.self="showLogin = false">
       <login-wrapper
@@ -125,6 +125,7 @@ const handleNotificationResolve = async () => {
         @notification-resolve="handleNotificationResolve"
         v-click-outside="{
           handler: () => (showNotifications = false),
+          include,
         }"
       />
       <RouterView :key="`${$route.fullPath}--${user.username}--${toReload}`" />
