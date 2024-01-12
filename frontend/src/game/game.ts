@@ -80,14 +80,15 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
   const lineWidth = width / 100;
   const paddleWidth = width / 50;
   const paddleHeight = height / 5;
+  const paddleStartY = height / 2 - paddleHeight / 2;
   const ctx = canvas.getContext('2d');
   const hTop = new rectangle(0, 0, width, lineWidth, '#ffffff', 'horizontal');
   const hBottom = new rectangle(0, height - lineWidth, width, lineWidth, '#ffffff', 'horizontal');
   const vLeft = new rectangle(0, 0, lineWidth, height, '#ffffff', 'vertical');
   const vRight = new rectangle(width - lineWidth, 0, lineWidth, height, '#ffffff', 'vertical');
-  const pL = new paddle(paddleWidth, 275, paddleWidth, paddleHeight, 'red', 'vertical');
-  const pR = new paddle(width - 2 * paddleWidth, 275, paddleWidth, paddleHeight, 'red', 'vertical');
-  const ball = new Ball(width / 2, height / 2, 15, 5, 5, 'white');
+  const pL = new paddle(paddleWidth, paddleStartY, paddleWidth, paddleHeight, 'red', 'vertical');
+  const pR = new paddle(width - 2 * paddleWidth, paddleStartY, paddleWidth, paddleHeight, 'red', 'vertical');
+  const ball = new Ball(width / 2, height / 2, width / 200 * 3, width / 200, width / 200, 'white');
   const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
   window.addEventListener("keydown", keyDownHandler);
   socket.on('gameState', (data: any) => {
@@ -104,7 +105,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
     for (const e of elements) {
       e.draw(ctx)
     }
-    drawBoard(ctx, 500, 10, 500, 690);
+    drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
     requestAnimationFrame(drawFrame)
   }
 
