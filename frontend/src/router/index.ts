@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import RankingView from '@/views/RankingView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,8 +27,9 @@ const router = createRouter({
       component: () => import('../views/GameView.vue')
     },
     {
-      path: '/ranking',
-      component: () => import('../views/RankingView.vue')
+      path: "/ranking",
+      name: "ranking",
+      component: RankingView,
     },
     {
       path: '/users/:username',
