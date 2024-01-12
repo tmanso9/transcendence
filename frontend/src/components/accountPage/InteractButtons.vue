@@ -22,7 +22,6 @@
 <script lang="ts" setup>
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
@@ -74,6 +73,16 @@ const friendAction = computed(() => {
   }
 });
 
+const playAction = computed(() => {
+  switch (props.account.status) {
+    case "ONLINE":
+      //implement endpoint here
+      return () => {};
+    default:
+      return null;
+  }
+});
+
 const headerButtons = [
   {
     text: "Chat",
@@ -86,7 +95,7 @@ const headerButtons = [
     text: "Play pong",
     icon: "mdi-sword-cross",
     color: "deep-purple-darken-3",
-    action: () => {},
+    action: playAction.value,
   },
 ];
 
