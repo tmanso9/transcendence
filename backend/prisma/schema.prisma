@@ -43,22 +43,22 @@ enum ChannelType {
 model Connections {
   id       String           @id @default(uuid())
   status   ConnectionStatus @default(PENDING)
-  creator String
+  creator  String
   receiver String
 }
 
 model User {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) // user creation time
-  editedAt  DateTime @updatedAt() // last user edit
-  email     String   @unique // user email
-  password  String // hashed password
-  username  String   @unique // username
-  status    Status // user status
-  avatar    String // user avatar
-  rank Rank @default(NOOBIE) // player rank
-  login Login //user login method
-  tfa_secret String // secret string associated with two factor authentication
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now()) // user creation time
+  editedAt    DateTime @updatedAt() // last user edit
+  email       String   @unique // user email
+  password    String // hashed password
+  username    String   @unique // username
+  status      Status // user status
+  avatar      String // user avatar
+  rank        Rank     @default(NOOBIE) // player rank
+  login       Login //user login method
+  tfa_secret  String // secret string associated with two factor authentication
   tfa_enabled Boolean // does the user have tfa enabled
 
   points Int @default(0) // Total points of the user
@@ -67,17 +67,18 @@ model User {
 
   friends  User[] @relation("Friends") // array of friends
   friendOf User[] @relation("Friends") // array of friends
-  alerts	Json[] @default([])
+  alerts   Json[] @default([])
 
-  channels   Channels[] @relation("Members") // array of channels of which the user is part
-  adminOf    Channels[] @relation("Admins") // array of channels of which the user is an admin
-  bannedFrom Channels[] @relation("Banned") //array of channels from which the user is banned
-  mutedOn    Channels[] @relation("Muted") // array of channels on which the user is muted
+  channels     Channels[] @relation("Members") // array of channels of which the user is part
+  adminOf      Channels[] @relation("Admins") // array of channels of which the user is an admin
+  bannedFrom   Channels[] @relation("Banned") //array of channels from which the user is banned
+  mutedOn      Channels[] @relation("Muted") // array of channels on which the user is muted
+  blockedUsers String[]
 }
 
 model Blacklist {
-  id        String      @id @default(uuid())
-  token     String	@unique
+  id        String   @id @default(uuid())
+  token     String   @unique
   email     String
   expiresIn Int
   createdAt DateTime @default(now())

@@ -11,9 +11,14 @@ const store = chatAppStore();
 const channelPermission = ref(false);
 
 onMounted(async () => {
-  console.log("channel: ", store.selectedChannel);
   store.channelStd = store.getChannelInfo(store.selectedChannel);
-  if (store.channelStd) channelPermission.value = true;
+  if (store.channelStd?.id && store.isMember(store.channelStd.id) == true)
+    channelPermission.value = true;
+  else {
+    store.personalPopUpSettings = false;
+    store.channelSettings = false;
+    channelPermission.value = false;
+  }
 });
 </script>
 <template>
