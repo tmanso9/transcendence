@@ -43,10 +43,6 @@ function pause() {
 function reset() {
   s.emit("reset", "reset");
 }
-
-function test() {
-  s.emit("message", "reset");
-}
 </script>
 
 <template>

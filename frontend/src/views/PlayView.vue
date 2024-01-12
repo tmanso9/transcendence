@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import {ref, onMounted, nextTick, onUnmounted, Ref} from "vue";
-import { Socket, io } from "socket.io-client";
-import { game } from "@/game/game";
+import { Socket } from "socket.io-client";
 import router from "@/router";
-import {connectSocket, disconnectSocket, getSocket} from "@/utils/socket/socketManager";
+import {connectSocket, disconnectSocket} from "@/utils/socket/socketManager";
+import {useDisplay} from "vuetify";
+
+const {mdAndDown} = useDisplay();
+const width = mdAndDown.value ? 500 : 1000;
+const height = mdAndDown.value ? 350 : 700;
 
 const roomsList: Ref<string[]> = ref([]);
 let s: Socket = null as any;
@@ -14,7 +18,7 @@ router.beforeEach((to, from, next) => {
   next();
 });
 function goToGame() {
-  s.emit("createRoom", "room" + roomsList.value.length.toString());
+  s.emit("createRoom", {room: "room" +roomsList.value.length.toString(), width: width, height: height});
   router.push("/game");
 }
 
