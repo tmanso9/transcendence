@@ -63,14 +63,6 @@ export class UserController {
 		return this.userService.getNonUserChannels(id);
 	}
 
-	// Send Friend Request
-	@UseGuards(JwtGuard)
-	@Post('friend-request/:id')
-	async requestFriend(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
-		await this.userService.requestFriend(user_id, decoded_jwt);
-		return HttpCode(201);
-	}
-
   @UseGuards(JwtGuard)
   @Get('connections')
   async getPending() {

@@ -106,6 +106,7 @@ model Channels {
   password String @default("")  // hashed password to access the chat (optional - empty of not desired)
   type String  // type of the channel
   channelName String  // name of the channel
+  avatar      String
   messages Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
   members User[] @relation("Members") // array of members who are part of the channel
   admins User[] @relation("Admins") // array of IDs of the admins

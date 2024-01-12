@@ -140,6 +140,12 @@ export class AuthService {
             console.error('Error:', error);
           });
         // Add user to the db
+        const achievements = {
+          social: "",
+          games_played: "",
+          ratio: "",
+          streak: ""
+        }
         user = await this.prisma.user.create({
           data: {
             email: data.email,
@@ -150,6 +156,7 @@ export class AuthService {
             login: 'GOOGLE',
             tfa_enabled: false,
             tfa_secret: '',
+            achievements: achievements
           },
         });
         firstLogin = true;
@@ -204,6 +211,12 @@ export class AuthService {
         .catch((error) => {
           console.error('Error:', error);
         });
+      const achievements = {
+        social: "",
+        games_played: "",
+        ratio: "",
+        streak: ""
+      };
       profile = await this.prisma.user.create({
         data: {
           email: user.email,
@@ -214,6 +227,7 @@ export class AuthService {
           login: 'FORTYTWO',
           tfa_enabled: false,
           tfa_secret: '',
+          achievements: achievements
         },
       });
       firstLogin = true;
@@ -265,7 +279,7 @@ export class AuthService {
   async logout(accessToken: string) {
     if (!accessToken) throw new ForbiddenException('No access token');
     const decoded = this.jwt.decode(accessToken);
-    const check = await this.prisma.blacklist.findUnique({
+    const check = await this.prisma.blacklist.findFirst({
       where: { token: accessToken },
     });
     if (!check) {
@@ -323,7 +337,7 @@ export class AuthService {
       where: { expiresIn: { lte: now } },
     });
 
-    const blacklisted = await this.prisma.blacklist.findUnique({
+    const blacklisted = await this.prisma.blacklist.findFirst({
       where: { token: refreshToken },
     });
 

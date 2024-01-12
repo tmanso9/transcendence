@@ -24,9 +24,6 @@ export class UserService {
         id: true,
         username: true,
         avatar: true,
-        points: true,
-        wins: true,
-        losses: true,
         friends: true,
         channels: true,
         adminOf: true,
@@ -70,71 +67,6 @@ export class UserService {
 		return user;
 	}
 
-	// Returns Friends of User
-	async getFriends(decoded_jwt: any) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				id: decoded_jwt.sub
-			},
-			include: {
-				friends: true,
-			},		
-		});
-
-		return user.friends.map((friend) => {
-			delete friend.password;
-			return friend;
-		});
-	}
-
-	// Sends friend request
-	async requestFriend(id: string, sender_info: any) {
-		// Save friend
-		const friend = await this.prisma.user.findUnique({
-			where: { id },
-			include: { friends: true, friendOf: true },
-		});
-
-		// Check if the friend exists. If it doesn't, throw.
-		if (!friend)
-			throw new ForbiddenException('User does not exist');
-
-		// Check that sender != receiver. If same, throw.
-		if (id == sender_info.sub)
-			throw new ForbiddenException('Sender is same as Receiver')
-		
-		// Check that sender and receiver are not already friends. If they are, throw.
-		const sender = await this.prisma.user.findUnique({
-			where: { id: sender_info.sub },
-			include: { friends: true, friendOf: true },
-		});
-		if (!sender)
-			throw new ForbiddenException('Something went wrong');
-		if (friend.friends.includes(friend))
-			throw new ForbiddenException('Already Friends');
-
-		// Check if the request was already sent (bilateral check)
-		const already_sent = await this.prisma.connections.findFirst({
-			where: {
-				OR: [
-					{ creator: sender_info.sub, receiver: id },
-					{ creator: id, receiver: sender_info.sub }
-				]
-			}
-		});
-
-		if (already_sent)
-			throw new ForbiddenException('Friend Request already sent');
-
-		// Add new connection to database
-		const connection = await this.prisma.connections.create({
-			data: {
-				creator: sender_info.sub,
-				receiver: id
-			}
-		});
-	}
-
 	// Get user by username
 	async getUserById(username: string) {
 		const requested_user = await this.prisma.user.findFirst({
@@ -143,6 +75,7 @@ export class UserService {
 			},
 			include: {
 				friends: true,
+        gamestats: true
 			}
 		});
 		if (!requested_user)
@@ -158,9 +91,9 @@ export class UserService {
 
 		return {
 			username: requested_user.username,
-			wins: requested_user.wins,
-			losses: requested_user.losses,
-			points: requested_user.points,
+			wins: requested_user.gamestats.wins,
+			losses: requested_user.gamestats.losses,
+			points: requested_user.gamestats.points,
 			rank: requested_user.rank,
 			status: requested_user.status,
 			avatar: requested_user.avatar,
@@ -557,70 +490,5 @@ export class UserService {
 	validareUsername(username: string) {
 		if (username.length <= 4 || !/^[a-zA-Z0-9_-]+$/.test(username))
 			throw new ForbiddenException('Username must be at least 5 characters long and can only have alphanumeric characters or -/_');
-	}
-
-	// Returns all channels user is part of
-	async getUserChannels(id: string) {
-		// Get user from db
-		const user = await this.prisma.user.findUnique({
-			where: {
-				id,
-			},
-			include: {
-				channels: {
-					include: {
-						members: true
-					},
-				}
-			}
-		});
-
-		const channels = user.channels.map(channel => {
-			return {
-				...channel,
-				members: channel.members.map(member => {
-					return member.username;
-				}),
-			};
-		});
-
-		return channels;
-	}
-
-	// Returns all channels user is NOT part of
-	async getNonUserChannels(id: string) {
-		// Get the IDs of the channels the user is part of
-		const user = await this.prisma.user.findUnique({
-			where: {
-				id,
-			},
-			include: {
-				channels: {
-					include: {
-						members: true
-					}
-				}
-			}
-		});
-		const included_channels = user.channels.map(channel => channel.id);
-
-		// Get all channels
-		const all_channels = await this.prisma.channels.findMany({
-			include: {
-				members: true
-			}
-		});
-
-		// Build excluded channels
-		const excluded_channels = all_channels.filter(channel => !included_channels.includes(channel.id)).map(channel => {
-			return {
-				...channel,
-				members: channel.members.map(member => {
-					return member.username;
-				}),
-			};
-		});;
-
-		return excluded_channels;
 	}
 }

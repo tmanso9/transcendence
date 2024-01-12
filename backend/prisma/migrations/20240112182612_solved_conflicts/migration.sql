@@ -33,13 +33,11 @@ CREATE TABLE "User" (
     "username" TEXT NOT NULL,
     "status" "Status" NOT NULL,
     "avatar" TEXT NOT NULL,
-    "rank" "Rank" NOT NULL DEFAULT 'NOOBIE',
+    "rank" TEXT NOT NULL DEFAULT 'NOOBIE',
+    "achievements" JSONB NOT NULL,
     "login" "Login" NOT NULL,
     "tfa_secret" TEXT NOT NULL,
     "tfa_enabled" BOOLEAN NOT NULL,
-    "points" INTEGER NOT NULL DEFAULT 0,
-    "wins" INTEGER NOT NULL DEFAULT 0,
-    "losses" INTEGER NOT NULL DEFAULT 0,
     "alerts" JSONB[] DEFAULT ARRAY[]::JSONB[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -49,7 +47,6 @@ CREATE TABLE "User" (
 CREATE TABLE "Blacklist" (
     "id" SERIAL NOT NULL,
     "token" TEXT NOT NULL,
-    "sub" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "expiresIn" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,8 +55,24 @@ CREATE TABLE "Blacklist" (
 );
 
 -- CreateTable
+CREATE TABLE "Games" (
+    "id" TEXT NOT NULL,
+    "winnerId" TEXT NOT NULL,
+    "loserId" TEXT NOT NULL,
+    "loserScore" INTEGER NOT NULL,
+    "playedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Games_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Gamestats" (
     "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "points" INTEGER NOT NULL DEFAULT 0,
+    "wins" INTEGER NOT NULL DEFAULT 0,
+    "losses" INTEGER NOT NULL DEFAULT 0,
+    "streak" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "Gamestats_pkey" PRIMARY KEY ("id")
 );
@@ -68,9 +81,8 @@ CREATE TABLE "Gamestats" (
 CREATE TABLE "Channels" (
     "id" TEXT NOT NULL,
     "creator" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "avatar" TEXT NOT NULL,
     "password" TEXT NOT NULL DEFAULT '',
+    "type" TEXT NOT NULL,
     "channelName" TEXT NOT NULL,
     "messages" JSONB[],
 
@@ -114,6 +126,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Gamestats_userId_key" ON "Gamestats"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_Friends_AB_unique" ON "_Friends"("A", "B");
 
 -- CreateIndex
@@ -142,6 +157,9 @@ CREATE UNIQUE INDEX "_Muted_AB_unique" ON "_Muted"("A", "B");
 
 -- CreateIndex
 CREATE INDEX "_Muted_B_index" ON "_Muted"("B");
+
+-- AddForeignKey
+ALTER TABLE "Gamestats" ADD CONSTRAINT "Gamestats_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_Friends" ADD CONSTRAINT "_Friends_A_fkey" FOREIGN KEY ("A") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
