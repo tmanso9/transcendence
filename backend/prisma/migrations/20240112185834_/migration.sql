@@ -39,13 +39,14 @@ CREATE TABLE "User" (
     "tfa_secret" TEXT NOT NULL,
     "tfa_enabled" BOOLEAN NOT NULL,
     "alerts" JSONB[] DEFAULT ARRAY[]::JSONB[],
+    "blockedUsers" TEXT[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "Blacklist" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "expiresIn" INTEGER NOT NULL,
@@ -84,6 +85,7 @@ CREATE TABLE "Channels" (
     "password" TEXT NOT NULL DEFAULT '',
     "type" TEXT NOT NULL,
     "channelName" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL,
     "messages" JSONB[],
 
     CONSTRAINT "Channels_pkey" PRIMARY KEY ("id")
