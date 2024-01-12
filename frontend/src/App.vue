@@ -25,16 +25,27 @@ const chatStore = chatAppStore();
 chatStore.startConection();
 const interval = ref();
 const toReload = ref(0);
+const ready = ref(false);
 
 onMounted(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  const s = io("http://localhost:3000/notifications");
+  const s = io("http://localhost:3000/login");
+
   s.on("connect", () => {
-    s.emit("userInfo", user.id);
+    s.emit("setOnline", user.username);
   });
 
-  s.on("newAlert", async () => {
+  setTimeout(() => {
+    ready.value = true;
+  }, 2);
+
+  const notifications = io("http://localhost:3000/notifications");
+  notifications.on("connect", () => {
+    notifications.emit("userInfo", user.id);
+  });
+
+  notifications.on("newAlert", async () => {
     await fetchMe(cookies, user);
     toReload.value++;
   });
@@ -128,7 +139,10 @@ const handleNotificationResolve = async () => {
           include,
         }"
       />
-      <RouterView :key="`${$route.fullPath}--${user.username}--${toReload}`" />
+      <RouterView
+        :key="`${$route.fullPath}--${user.username}--${toReload}`"
+        v-if="ready"
+      />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
         v-if="showChat"

@@ -8,7 +8,7 @@
   <h2 v-else-if="unauthorized">
     You must be logged in to see {{ getUsername }}'s profile
   </h2>
-  <not-found-wrapper v-else />
+  <not-found-wrapper v-else-if="notFound" />
 </template>
 
 <script lang="ts" setup>
@@ -29,6 +29,7 @@ const getUsername = computed(() => {
 const account = ref<User>({});
 const isLoaded = ref(false);
 const unauthorized = ref(false);
+const notFound = ref(false);
 const myFriends = ref<string[]>([]);
 const connections = ref<[string[]]>([[]]);
 
@@ -59,6 +60,7 @@ onBeforeMount(async () => {
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === "Unauthorized") unauthorized.value = true;
+      else if (error.message === "Forbidden") notFound.value = true;
       console.log(error);
     }
   }
