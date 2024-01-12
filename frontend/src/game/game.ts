@@ -1,8 +1,12 @@
 import type {Socket} from "socket.io-client";
+import {gameStore} from "@/store/game";
+
+
+const gStore = gameStore();
 
 class object {
     constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {}
-    collision(ball) {
+    collision() {
         return false;
     }
 }
@@ -78,11 +82,13 @@ export function game(canvas: HTMLCanvasElement, socket: Socket) {
     const ball = new Ball(500, 350, 15, 5, 5, 'white');
     const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
     window.addEventListener("keydown", keyDownHandler);
-    socket.on('positions', (data: any) => {
+    socket.on('gameState', (data: any) => {
       pL.y = data.paddle1.y;
       pR.y = data.paddle2.y;
       ball.x = data.ball.x;
       ball.y = data.ball.y;
+      gStore.score.set('paddle1', data.score.paddle1);
+      gStore.score.set('paddle2', data.score.paddle2);
     });
     function drawFrame() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
