@@ -7,31 +7,29 @@ import router from "@/router";
 import { gameStore } from "@/store/game";
 import {useDisplay} from "vuetify";
 
-const {height, width} = useDisplay();
-const useGameStore = gameStore();
+const {mdAndDown} = useDisplay();
 
 const canvas = ref(null);
+
 let s: Socket = null as any;
+
+const width = mdAndDown.value ? 500 : 1000;
+const height = mdAndDown.value ? 350 : 700;
+
+console.log("mdAndDown: ", mdAndDown.value, width, height);
+
 
 onMounted(async () => {
   await nextTick();
   s = getSocket();
 
   if (s) {
-    game(canvas.value as any, s);
+    game(canvas.value as any, s, width, height);
   }
   else {
     await router.push("/play");
   }
-  useGameStore.canvasWidth = width.value * 0.45;
-  useGameStore.canvasHeight = width.value * 0.45 * 0.7;
 });
-
-watch(width, () => {
-  useGameStore.canvasWidth = width.value * 0.45;
-  useGameStore.canvasHeight = width.value * 0.45 * 0.7;
-});
-
 
 onUnmounted(() => {
   disconnectSocket();
@@ -58,7 +56,7 @@ function test() {
     <h2>Score</h2>
     <p>{{ gameStore().score.get("paddle1")}} : {{ gameStore().score.get("paddle2") }}</p>
   </div>
-  <canvas :width="1000" :height="700" id="game-canvas" ref="canvas"></canvas>
+  <canvas :width="width" :height="height" id="game-canvas" ref="canvas"></canvas>
   <h4>Move left paddle up and down with the arrow keys</h4>
   <div v-if="!gameStore().isSpectator">
     <v-btn variant="outlined" color="white" @click="play" style="margin: 10px"
