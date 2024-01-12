@@ -36,6 +36,13 @@ const store = chatAppStore();
           >Profile</v-btn
         >
         <v-btn
+          v-if="store.selectedUserProfile?.status == 'ONLINE'"
+          class="channelSettings-content-buttons-btn"
+          append-icon="mdi-table-tennis"
+          >Play Game</v-btn
+        >
+        <v-btn
+          v-else
           class="channelSettings-content-buttons-btn"
           append-icon="mdi-table-tennis"
           >Play Game</v-btn
