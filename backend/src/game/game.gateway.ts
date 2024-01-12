@@ -52,6 +52,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection{
     createRoom(client: any, payload: string) {
         client.join(payload);
         this.games.set(payload, new GameService());
+        this.games.get(payload).initGame(500, 350);
         this.games.get(payload).registerPlayer(client.id);
         this.rooms.set(client.id, payload);
         this.server.emit('availableRooms',Array.from(this.games.keys()) as any);
