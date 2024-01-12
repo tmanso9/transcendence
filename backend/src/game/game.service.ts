@@ -76,6 +76,7 @@ class Ball extends baseObject {
           this.y = 350;
           this.dx = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
           this.dy = 5 * ((Math.random() - 0.5) < 0 ? 1:-1);
+          return e;
         }
       }
     }
@@ -94,19 +95,32 @@ export class GameService {
     private elements = [this.hTop, this.hBottom, this.vLeft, this.vRight, this.paddle1, this.paddle2];
     public map = new Map<string, paddle>();
     private intervalId = null;
+    public spectators: string[] = [];
+    public score = new Map<string, number>();
 
     constructor() {
+      this.score.set('paddle1', 0);
+      this.score.set('paddle2', 0);
     }
     checkCollision() {
-      this.ball.checkCollision(this.elements);
+      return this.ball.checkCollision(this.elements);
     }
 
     registerPlayer(id: string) {
       if (this.map.size == 0) {
         this.map.set(id, this.paddle1);
-      } else {
+      } else if (this.map.size == 1){
         this.map.set(id, this.paddle2);
+      } else {
+        this.spectators.push(id);
+        return false;
       }
+      return true;
+    }
+
+    promoteToPlayer(oldPlayer: string, newPlayer: string) {
+      this.map.set(newPlayer, this.map.get(oldPlayer));
+      this.spectators.splice(this.spectators.indexOf(newPlayer), 1);
     }
 
     movePaddle(id: string, payload: string) {
@@ -127,7 +141,14 @@ export class GameService {
     }
 
     moveBall() {
-      this.checkCollision();
+      const collidedObject = this.checkCollision();
+      if (collidedObject instanceof rectangle && collidedObject.orientation == 'vertical') {
+        if (collidedObject.x == 0) {
+          this.score.set('paddle2', this.score.get('paddle2') + 1);
+        } else {
+          this.score.set('paddle1', this.score.get('paddle1') + 1);
+        }
+      }
       this.ball.x += this.ball.dx;
       this.ball.y += this.ball.dy;
     }
@@ -136,14 +157,22 @@ export class GameService {
         return {x: this.ball.x, y: this.ball.y};
     }
 
-    getPositions() {
-      return {ball: this.getBallPosition(), paddle1: this.getPaddlePosition(1), paddle2: this.getPaddlePosition(2)};
+    getGameState() {
+      return {
+        ball: this.getBallPosition(),
+        paddle1: this.getPaddlePosition(1),
+        paddle2: this.getPaddlePosition(2),
+        score: {
+          paddle1: this.score.get('paddle1'),
+          paddle2: this.score.get('paddle2')
+        }
+      };
     }
 
     playG(server, room) {
       if (this.intervalId == null) {
         this.intervalId = setInterval( () => {
-          server.to(room).emit('positions', this.getPositions() as any);
+          server.to(room).emit('gameState', this.getGameState() as any);
           this.moveBall();
         }, 1000 / 60);
       }
