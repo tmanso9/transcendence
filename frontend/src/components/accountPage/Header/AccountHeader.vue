@@ -28,6 +28,15 @@
           :account="account"
           @accountUpdated="updateAccount"
         />
+        <v-btn
+          v-else-if="friendVal.alreadyFriends"
+          @click="blockFriend.action"
+          width="150px"
+          class="block-button"
+        >
+          <v-icon>{{ blockFriend.icon }}</v-icon>
+          <span class="ml-2">{{ blockFriend.text }}</span>
+        </v-btn>
       </div>
       <v-divider vertical class=""></v-divider>
       <avatar-wrapper
@@ -50,11 +59,40 @@ import AvatarWrapper from "./AvatarWrapper.vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 import UserSettings from "@/components/accountPage/Settings/UserSettings.vue";
 import { User } from "@/types";
+import { useUserStore } from "@/stores/user";
+import { chatAppStore } from "@/store/chat";
+import { isFriend } from "@/utils";
 
-const props = defineProps(["account", "isSelf"]);
+const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
 const emits = defineEmits(["accountUpdated"]);
 const { sm, mdAndUp } = useDisplay();
 const editAvatar = ref(false);
+const user = useUserStore();
+const chat = chatAppStore();
+const friendVal = ref(
+  isFriend(props.myFriends, props.connections, user, props.account),
+);
+
+const blockFriend = computed(() => {
+  const { alreadyFriends } = friendVal.value;
+  if (alreadyFriends) {
+    if (chat.userIsBlocked(props.account.username)) {
+      return {
+        text: "Unblock",
+        icon: "mdi-cancel",
+        action: () => chat.blockOrUnblockUser("unblock", props.account.id),
+      };
+    }
+    return {
+      text: "Block",
+      icon: "mdi-cancel",
+      action: () => chat.blockOrUnblockUser("block", props.account.id),
+    };
+  }
+  return {
+    text: "",
+  };
+});
 
 const mapColor = computed(() => {
   switch (props.account.status) {
@@ -75,3 +113,9 @@ const updateAccount = (user: User) => {
   emits("accountUpdated", user);
 };
 </script>
+
+<style lang="scss">
+.block-button {
+  border: 1px solid #b39ddb;
+}
+</style>

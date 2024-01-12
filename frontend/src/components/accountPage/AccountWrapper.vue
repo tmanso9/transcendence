@@ -4,6 +4,8 @@
     :account="account"
     :isSelf="isSelf"
     @accountUpdated="updateAccount"
+    :myFriends="myFriends"
+    :connections="connections"
   />
   <interact-buttons
     :account="account"
