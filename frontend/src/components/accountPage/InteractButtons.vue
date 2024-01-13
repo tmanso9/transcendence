@@ -71,15 +71,42 @@ const playAction = computed(() => {
   }
 });
 
+const openChatChannel = async () => {
+  try {
+    const result = await fetch("http://localhost:3000/channels", {
+      credentials: "include",
+    });
+    if (!result.ok) throw new Error(await result.text());
+    const data = await result.json();
+    const personalChat = data.filter((val: any) => {
+      const { type, members } = val;
+      const memberUsernames = members.map((val: any) => val.username);
+      return (
+        type === "personal" &&
+        memberUsernames.includes(user.username) &&
+        memberUsernames.includes(props.account.username)
+      );
+    });
+    if (personalChat.length) {
+      chat.selectChannel(personalChat[0].id);
+    } else {
+      const newChat = await chat.createChannel("personal", "", "", [
+        props.account,
+      ]);
+      newChat && chat.selectChannel(newChat);
+    }
+  } catch (error) {
+    error instanceof Error && console.log(error.message);
+  }
+  emit("chat");
+};
+
 const headerButtons = computed(() => {
   return [
     {
       text: "Chat",
       icon: "mdi-chat-outline",
-      action: () => {
-        console.log("how do I select correct channel");
-        emit("chat");
-      },
+      action: openChatChannel,
       color: "",
     },
     friendAction.value,
