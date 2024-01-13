@@ -29,7 +29,7 @@ export class UserService {
         adminOf: true,
         bannedFrom: true,
         mutedOn: true,
-				gamestats: true
+		gamestats: true
       },
     });
 
@@ -75,7 +75,7 @@ export class UserService {
 			},
 			include: {
 				friends: true,
-        gamestats: true
+        		gamestats: true
 			}
 		});
 		if (!requested_user)
@@ -91,13 +91,11 @@ export class UserService {
 
 		return {
 			username: requested_user.username,
-			wins: requested_user.gamestats.wins,
-			losses: requested_user.gamestats.losses,
-			points: requested_user.gamestats.points,
 			rank: requested_user.rank,
 			status: requested_user.status,
 			avatar: requested_user.avatar,
 			id: requested_user.id,
+			gamestats: requested_user.gamestats,
 			friends,
 		};
 	}

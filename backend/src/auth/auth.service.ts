@@ -63,6 +63,12 @@ export class AuthService {
       });
       delete user.password;
 
+      await this.prisma.gamestats.create({
+        data: {
+          userId: user.id,
+        },
+      });
+
       // Return useer
       return { user };
     } catch (error) {
@@ -159,6 +165,11 @@ export class AuthService {
             achievements: achievements
           },
         });
+        await this.prisma.gamestats.create({
+          data: {
+            userId: user.id,
+          },
+        });
         firstLogin = true;
       } catch (error) {
         if (
@@ -230,6 +241,11 @@ export class AuthService {
           achievements: achievements
         },
       });
+	  await this.prisma.gamestats.create({
+		data: {
+			userId: profile.id
+		}
+	  });
       firstLogin = true;
     } else if (!profile.tfa_enabled) {
       profile = await this.prisma.user.update({

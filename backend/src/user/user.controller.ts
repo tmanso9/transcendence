@@ -45,8 +45,8 @@ export class UserController {
 
 	@UseGuards(JwtGuard)
 	@Get('me/friends')
-	getFriends(@decodeJwt() decoded_jwt: any) {
-		return this.userService.getFriends(decoded_jwt);
+	getFriends(@decodeJwt('sub') id: string) {
+		return this.userService.getFriends(id);
 	}
 
 	// Get user channels

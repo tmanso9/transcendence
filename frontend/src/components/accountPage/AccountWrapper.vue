@@ -25,8 +25,8 @@
       @friend-request="handleFriendRequest"
       :isSelf="isSelf"
     />
-    <stats-wrapper class="" :stats="computedStats" :rank="account.rank" />
-    <match-history class="" />
+    <stats-wrapper :account="account" />
+    <match-history />
   </v-expansion-panels>
 </template>
 
@@ -52,15 +52,6 @@ const router = useRouter();
 const cookies = inject<VueCookies>("$cookies");
 const props = defineProps(["account", "myFriends", "connections"]);
 defineEmits(["chat"]);
-
-const computedStats = computed(() => {
-  const { wins, losses, points } = props.account;
-  return {
-    wins: { name: "wins", value: wins },
-    losses: { name: "losses", value: losses },
-    points: { name: "points", value: points },
-  };
-});
 
 const isSelf = computed(() => {
   return user.username && user.username === props.account.username;
