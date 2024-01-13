@@ -13,6 +13,7 @@
     :myFriends="myFriends"
     :connections="connections"
     @friend-request="handleFriendRequest"
+    @chat="$emit('chat')"
   />
   <v-expansion-panels
     variant="popout"
@@ -20,7 +21,6 @@
     :class="mdAndUp ? 'account__panels__md' : ''"
   >
     <friends-wrapper
-      class=""
       :account="account"
       @friend-request="handleFriendRequest"
       :isSelf="isSelf"
@@ -51,6 +51,7 @@ const router = useRouter();
 
 const cookies = inject<VueCookies>("$cookies");
 const props = defineProps(["account", "myFriends", "connections"]);
+defineEmits(["chat"]);
 
 const computedStats = computed(() => {
   const { wins, losses, points } = props.account;

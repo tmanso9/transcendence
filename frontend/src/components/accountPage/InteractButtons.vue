@@ -24,11 +24,13 @@ import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
 import { isFriend } from "@/utils";
+import { chatAppStore } from "@/store/chat";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
-const emit = defineEmits(["friendRequest"]);
+const emit = defineEmits(["friendRequest", "chat"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
+const chat = chatAppStore();
 
 const friendAction = computed(() => {
   const { alreadyFriends, pending } = isFriend(
@@ -74,7 +76,10 @@ const headerButtons = computed(() => {
     {
       text: "Chat",
       icon: "mdi-chat-outline",
-      action: () => {},
+      action: () => {
+        console.log("how do I select correct channel");
+        emit("chat");
+      },
       color: "",
     },
     friendAction.value,
