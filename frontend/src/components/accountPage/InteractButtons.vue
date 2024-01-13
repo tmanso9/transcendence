@@ -23,6 +23,7 @@
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
+import { isFriend } from "@/utils";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
 const emit = defineEmits(["friendRequest"]);
@@ -30,28 +31,13 @@ const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
 
 const friendAction = computed(() => {
-  const friendArr = [];
-  for (const friend of props.myFriends as unknown as Array<string>) {
-    friendArr.push(friend);
-  }
-  const connectionsArr = [];
-  for (const connection of props.connections as unknown as Array<
-    Array<string>
-  >) {
-    if (connection.length) connectionsArr.push(Array.from(connection));
-  }
-  let pending = false;
-  for (const connection of connectionsArr) {
-    if (
-      connection.includes(props.account.username) &&
-      connection.includes(user.username)
-    ) {
-      pending = true;
-      break;
-    }
-  }
-  //   console.log(connectionsArr);
-  if (friendArr.includes(props.account.username)) {
+  const { alreadyFriends, pending } = isFriend(
+    props.myFriends,
+    props.connections,
+    user,
+    props.account,
+  );
+  if (alreadyFriends) {
     return {
       text: "Remove friend",
       icon: "mdi-account-minus-outline",
@@ -83,21 +69,23 @@ const playAction = computed(() => {
   }
 });
 
-const headerButtons = [
-  {
-    text: "Chat",
-    icon: "mdi-chat-outline",
-    action: () => {},
-    color: "",
-  },
-  friendAction.value,
-  {
-    text: "Play pong",
-    icon: "mdi-sword-cross",
-    color: "deep-purple-darken-3",
-    action: playAction.value,
-  },
-];
+const headerButtons = computed(() => {
+  return [
+    {
+      text: "Chat",
+      icon: "mdi-chat-outline",
+      action: () => {},
+      color: "",
+    },
+    friendAction.value,
+    {
+      text: "Play pong",
+      icon: "mdi-sword-cross",
+      color: "deep-purple-darken-3",
+      action: playAction.value,
+    },
+  ];
+});
 
 const buttonSize = computed(() => {
   return sm.value || mdAndUp.value ? "175px" : "75%";

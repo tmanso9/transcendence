@@ -24,24 +24,48 @@ export class UserService {
         id: true,
         username: true,
         avatar: true,
-        points: true,
-        wins: true,
-        losses: true,
         friends: true,
         channels: true,
         adminOf: true,
         bannedFrom: true,
         mutedOn: true,
+		gamestats: true
       },
     });
 
     return all_users;
   }
 
-  // Returns User Info
-  getMe(user: any) {
-    return user;
-  }
+	// Returns gamestats of a specific player
+	async getUserGamestats(username: string, decoded_jwt: any) {
+		const user = await this.prisma.user.findFirst({
+			where: {
+				username: username
+			},
+			select: {
+				gamestats: true,
+				rank: true
+			}
+		});
+
+		if (!user)
+			throw new ForbiddenException(`User ${username} does not exist`);
+
+		return {
+			rank: user.rank,
+			points: user.gamestats.points,
+			wins: user.gamestats.wins,
+			losses: user.gamestats.losses,
+			streak: user.gamestats.streak,
+			total_games: user.gamestats.wins + user.gamestats.losses,
+			win_ratio: user.gamestats.wins / (user.gamestats.wins + user.gamestats.losses)
+		}
+	}
+
+	// Returns User Info
+	getMe(user: any) {
+		return user;
+	}
 
 	// Get user by username
 	async getUserById(username: string) {
@@ -51,6 +75,7 @@ export class UserService {
 			},
 			include: {
 				friends: true,
+        		gamestats: true
 			}
 		});
 		if (!requested_user)
@@ -66,13 +91,11 @@ export class UserService {
 
 		return {
 			username: requested_user.username,
-			wins: requested_user.wins,
-			losses: requested_user.losses,
-			points: requested_user.points,
 			rank: requested_user.rank,
 			status: requested_user.status,
 			avatar: requested_user.avatar,
 			id: requested_user.id,
+			gamestats: requested_user.gamestats,
 			friends,
 		};
 	}
