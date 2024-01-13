@@ -93,7 +93,7 @@ model Games {
 
 model Gamestats {
   id String @id @default(uuid())
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique // ID of the user
   points Int @default(0)  // Total points of the user
   wins Int @default(0)  // Number of wins
