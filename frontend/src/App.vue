@@ -82,6 +82,10 @@ const toggleChatPermission = async () => {
   else chatStore.permissionToOpenChat = false;
 };
 
+const handleActivateChat = () => {
+  if (!showChat.value) toggleChat();
+};
+
 const toggleLogin = async () => {
   showLogin.value = !showLogin.value;
   showSignup.value = false;
@@ -142,6 +146,7 @@ const handleNotificationResolve = async () => {
       <RouterView
         :key="`${$route.fullPath}--${user.username}--${toReload}`"
         v-if="ready"
+        @chat="handleActivateChat"
       />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
