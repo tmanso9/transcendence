@@ -79,13 +79,9 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('dismiss-alert/alert?')
   dismissAlert(
-    @getUser() user: any,
     @Query('id') id: string,
-    @Query('sender') sender: string,
-    @Query('message') message: string,
-    @Query('action') action: boolean,
   ) {
-    return this.userService.dismissAlert(user, id, message, sender, action);
+    return this.userService.dismissAlert(id);
   }
 
   // Send Friend Request
@@ -104,9 +100,7 @@ export class UserController {
   // Respond to Friend Request
   @UseGuards(JwtGuard)
   @Post('friend-response/:id/:action')
-  async respondFriend(@Param() params: any, @decodeJwt() decoded_jwt: any) {
-    const user_id = params.id;
-    const action = params.action;
+  async respondFriend(@Param('id') user_id: any, @Param('action') action: any, @decodeJwt() decoded_jwt: any) {
     await this.userService.respondFriend(user_id, action, decoded_jwt);
     const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');

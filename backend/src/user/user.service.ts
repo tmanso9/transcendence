@@ -75,7 +75,8 @@ export class UserService {
 			},
 			include: {
 				friends: true,
-        		gamestats: true
+        		gamestats: true,
+				alerts: true
 			}
 		});
 		if (!requested_user)
@@ -135,33 +136,10 @@ export class UserService {
   }
 
   async dismissAlert(
-    user: any,
     id: string,
-    message: string,
-    sender: string,
-    action: boolean,
   ) {
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: user.id },
-    });
-    const allAlerts = targetUser.alerts;
 
-    const newAlerts = allAlerts.filter((alert: Alert) => {
-      const actVal = (action as unknown as string) === 'true' ? true : false;
-      return !(
-        alert.id === id &&
-        alert.message === message &&
-        alert.sender === sender &&
-        alert.action === actVal
-      );
-    });
-
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        alerts: newAlerts,
-      },
-    });
+	await this.prisma.alert.delete({ where: { id } });
 
     return true;
   }
@@ -212,25 +190,16 @@ export class UserService {
       },
     });
 
-    const receiverAlerts = (
-      await this.prisma.user.findUnique({
-        where: { id },
-        select: { alerts: true },
-      })
-    ).alerts;
-
-    receiverAlerts.push({
-      message: 'added you as friend',
-      sender: sender.username,
-      id: sender.id,
-      action: true,
-    });
-
-    await this.prisma.user.update({
-      where: { id },
-      data: { alerts: receiverAlerts },
-    });
-  }
+	await this.prisma.alert.create({
+		data: {
+	      message: 'added you as friend',
+		  sender: sender.username,
+		  senderId: sender.id,
+		  targetId: id,
+		  action: true
+		}
+	})
+}
 
   // Responds to friend request (accept or reject)
   async respondFriend(id: string, action: string, sender_info: any) {
@@ -242,6 +211,7 @@ export class UserService {
     // Save target friend
     let friend = await this.prisma.user.findUnique({
       where: { id },
+	  include: { alerts: true}
     });
 
     // Check if the friend exists. If it doesn't, throw.
@@ -294,29 +264,20 @@ export class UserService {
 	  },
 	  });
 
-	  await this.prisma.user.update({
-      where: { id: sender.id },
-      data: { alerts: sender.alerts.filter((val: Alert) => val.id !== id) },
+	  await this.prisma.alert.create({
+      data: {
+        sender: sender.username,
+        senderId: sender.id,
+        targetId: id,
+        message:
+          action === 'accept'
+            ? 'accepted your friend request'
+            : 'rejected your friend request',
+        action: false,
+      },
     });
 
-    const notifyResult = friend.alerts;
 
-    notifyResult.push({
-      id: sender.id,
-      sender: sender.username,
-      message:
-        action === 'accept'
-          ? 'accepted your friend request'
-          : 'rejected your friend request',
-      action: false,
-    });
-
-    await this.prisma.user.update({
-      where: { id },
-      data: { alerts: notifyResult },
-    });
-
-    await this.prisma.user.update({ where: { id }, data: {} });
 	}
 	
 	// Removes friend
@@ -324,6 +285,7 @@ export class UserService {
 	  // Save target friend
 	  let friend = await this.prisma.user.findUnique({
 		where: { id },
+		include: { alerts: true}
 	  });
 	
 	  // Check if the friend exists. If it doesn't, throw.
@@ -356,17 +318,16 @@ export class UserService {
 
 	  const notifyResult = friend.alerts;
 
-    notifyResult.push({
-      id: sender.id,
-      sender: sender.username,
-      message: 'is no longer your friend',
-      action: false,
+	  await this.prisma.alert.create({
+      data: {
+        sender: sender.username,
+        senderId: sender.id,
+        targetId: id,
+        message: 'is no longer your friend',
+		action: false
+      },
     });
 
-    await this.prisma.user.update({
-      where: { id },
-      data: { alerts: notifyResult },
-    });
 	}
 
 /* CHANGE USER DETAILS */
