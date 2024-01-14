@@ -52,16 +52,18 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async setOffline(username: any) {
-  if (username && username.length) {
-    await this.prismaService.user.update({
-      where: {
-        username,
-      },
-      data: {
-        status: 'OFFLINE',
-      },
-    });
-  }
+    setTimeout(async () => {
+      if (username && username.length) {
+        await this.prismaService.user.update({
+          where: {
+            username,
+          },
+          data: {
+            status: 'OFFLINE',
+          },
+        });
+      }
+    }, 100);
   }
 
   handleConnection(client: any, ...args: any[]) {}
@@ -69,7 +71,7 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleDisconnect(client: any) {
     if (this.users.has(client.id)) {
       this.setOffline(this.users.get(client.id));
-	  this.users.delete(client.id)
+	  this.users.delete(client.id);
     }
   }
 }
