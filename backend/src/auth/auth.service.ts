@@ -228,6 +228,9 @@ export class AuthService {
         ratio: "",
         streak: ""
       };
+      let check_username = await this.prisma.user.findFirst({where: {username: user.username}})
+      if (check_username)
+        user.username = await this.getRandomName();
       profile = await this.prisma.user.create({
         data: {
           email: user.email,
