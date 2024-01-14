@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "points": 6,
+    "username": "touteiro",
+	"date": "2024-01-14",
+	"outcome": "win"
+  },
+  {
+    "id": 1,
+    "points": 3,
+    "username": "teresa_manso",
+	"date": "2024-01-14",
+	"outcome": "loss"
+  }
+]
