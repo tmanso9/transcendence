@@ -44,14 +44,23 @@ onMounted(async () => {
           v-if="
             channel &&
             store.selectedUserProfile &&
-            !store.isAdmin(
-              channel.channelName,
-              store.selectedUserProfile.username,
-            )
+            store.isAdmin(channel.id, store.selectedUserProfile.id) == false
           "
           color="primary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-account-arrow-up"
+          @click="
+            () => {
+              if (store.selectedUserProfile && channel) {
+                store.promoteOrDespromoteAdmin(
+                  channel.id,
+                  'promote',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Promote to Admin</v-btn
         >
         <v-btn
@@ -59,6 +68,18 @@ onMounted(async () => {
           color="primary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-account-arrow-down"
+          @click="
+            () => {
+              if (store.selectedUserProfile && channel) {
+                store.promoteOrDespromoteAdmin(
+                  channel.id,
+                  'despromote',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Despromote from Admin</v-btn
         >
         <v-btn
@@ -77,23 +98,6 @@ onMounted(async () => {
             }
           "
           >Mute</v-btn
-        >
-        <v-btn
-          class="userSettingPopUp-content-info-btn"
-          append-icon="mdi-karate"
-          @click="
-            () => {
-              if (channel && store.selectedUserProfile) {
-                store.banMuteKickUserFromChannnel(
-                  channel.id,
-                  'kick',
-                  store.selectedUserProfile.id,
-                );
-              }
-              store.settingsAdminPopUp = false;
-            }
-          "
-          >Kick</v-btn
         >
         <v-btn
           class="userSettingPopUp-content-info-btn"
@@ -116,6 +120,18 @@ onMounted(async () => {
           color="warning"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-minus-circle-outline"
+          @click="
+            () => {
+              if (channel && store.selectedUserProfile) {
+                store.banMuteKickUserFromChannnel(
+                  channel.id,
+                  'kick',
+                  store.selectedUserProfile.id,
+                );
+              }
+              store.settingsAdminPopUp = false;
+            }
+          "
           >Remove from channel</v-btn
         >
       </div>

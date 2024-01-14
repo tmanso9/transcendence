@@ -22,37 +22,24 @@
 <script lang="ts" setup>
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
+import { isFriend } from "@/utils";
+import { chatAppStore } from "@/store/chat";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
-const emit = defineEmits(["friendRequest"]);
+const emit = defineEmits(["friendRequest", "chat"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
+const chat = chatAppStore();
 
 const friendAction = computed(() => {
-  const friendArr = [];
-  for (const friend of props.myFriends as unknown as Array<string>) {
-    friendArr.push(friend);
-  }
-  const connectionsArr = [];
-  for (const connection of props.connections as unknown as Array<
-    Array<string>
-  >) {
-    if (connection.length) connectionsArr.push(Array.from(connection));
-  }
-  let pending = false;
-  for (const connection of connectionsArr) {
-    if (
-      connection.includes(props.account.username) &&
-      connection.includes(user.username)
-    ) {
-      pending = true;
-      break;
-    }
-  }
-  //   console.log(connectionsArr);
-  if (friendArr.includes(props.account.username)) {
+  const { alreadyFriends, pending } = isFriend(
+    props.myFriends,
+    props.connections,
+    user,
+    props.account,
+  );
+  if (alreadyFriends) {
     return {
       text: "Remove friend",
       icon: "mdi-account-minus-outline",
@@ -74,21 +61,63 @@ const friendAction = computed(() => {
   }
 });
 
-const headerButtons = [
-  {
-    text: "Chat",
-    icon: "mdi-chat-outline",
-    action: () => {},
-    color: "",
-  },
-  friendAction.value,
-  {
-    text: "Play pong",
-    icon: "mdi-sword-cross",
-    color: "deep-purple-darken-3",
-    action: () => {},
-  },
-];
+const playAction = computed(() => {
+  switch (props.account.status) {
+    case "ONLINE":
+      //implement endpoint here
+      return () => {};
+    default:
+      return null;
+  }
+});
+
+const openChatChannel = async () => {
+  try {
+    const result = await fetch("http://localhost:3000/channels", {
+      credentials: "include",
+    });
+    if (!result.ok) throw new Error(await result.text());
+    const data = await result.json();
+    const personalChat = data.filter((val: any) => {
+      const { type, members } = val;
+      const memberUsernames = members.map((val: any) => val.username);
+      return (
+        type === "personal" &&
+        memberUsernames.includes(user.username) &&
+        memberUsernames.includes(props.account.username)
+      );
+    });
+    if (personalChat.length) {
+      chat.selectChannel(personalChat[0].id);
+    } else {
+      const newChat = await chat.createChannel("personal", "", "", [
+        props.account,
+      ]);
+      newChat && chat.selectChannel(newChat);
+    }
+  } catch (error) {
+    error instanceof Error && console.log(error.message);
+  }
+  emit("chat");
+};
+
+const headerButtons = computed(() => {
+  return [
+    {
+      text: "Chat",
+      icon: "mdi-chat-outline",
+      action: openChatChannel,
+      color: "",
+    },
+    friendAction.value,
+    {
+      text: "Play pong",
+      icon: "mdi-sword-cross",
+      color: "deep-purple-darken-3",
+      action: playAction.value,
+    },
+  ];
+});
 
 const buttonSize = computed(() => {
   return sm.value || mdAndUp.value ? "175px" : "75%";

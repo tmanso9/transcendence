@@ -41,6 +41,12 @@ export class AuthService {
     else this.validateUsername(dto.username);
 
     try {
+      const achievements = {
+				social: "",
+				games_played: "",
+				ratio: "",
+				streak: ""
+			};
       // Add user to the db
       const user = await this.prisma.user.create({
         data: {
@@ -52,9 +58,16 @@ export class AuthService {
           login: 'REGULAR',
           tfa_enabled: false,
           tfa_secret: '',
+          achievements: achievements
         },
       });
       delete user.password;
+
+      await this.prisma.gamestats.create({
+        data: {
+          userId: user.id,
+        },
+      });
 
       // Return useer
       return { user };
@@ -133,6 +146,12 @@ export class AuthService {
             console.error('Error:', error);
           });
         // Add user to the db
+        const achievements = {
+          social: "",
+          games_played: "",
+          ratio: "",
+          streak: ""
+        }
         user = await this.prisma.user.create({
           data: {
             email: data.email,
@@ -143,6 +162,12 @@ export class AuthService {
             login: 'GOOGLE',
             tfa_enabled: false,
             tfa_secret: '',
+            achievements: achievements
+          },
+        });
+        await this.prisma.gamestats.create({
+          data: {
+            userId: user.id,
           },
         });
         firstLogin = true;
@@ -197,6 +222,15 @@ export class AuthService {
         .catch((error) => {
           console.error('Error:', error);
         });
+      const achievements = {
+        social: "",
+        games_played: "",
+        ratio: "",
+        streak: ""
+      };
+      let check_username = await this.prisma.user.findFirst({where: {username: user.username}})
+      if (check_username)
+        user.username = await this.getRandomName();
       profile = await this.prisma.user.create({
         data: {
           email: user.email,
@@ -207,8 +241,14 @@ export class AuthService {
           login: 'FORTYTWO',
           tfa_enabled: false,
           tfa_secret: '',
+          achievements: achievements
         },
       });
+	  await this.prisma.gamestats.create({
+		data: {
+			userId: profile.id
+		}
+	  });
       firstLogin = true;
     } else if (!profile.tfa_enabled) {
       profile = await this.prisma.user.update({
@@ -258,7 +298,7 @@ export class AuthService {
   async logout(accessToken: string) {
     if (!accessToken) throw new ForbiddenException('No access token');
     const decoded = this.jwt.decode(accessToken);
-    const check = await this.prisma.blacklist.findUnique({
+    const check = await this.prisma.blacklist.findFirst({
       where: { token: accessToken },
     });
     if (!check) {
@@ -292,7 +332,12 @@ export class AuthService {
 
     const now = Math.floor(Date.now() / 1000);
 
-    if (accessDecoded.exp > now)
+    if (
+      accessDecoded &&
+      accessDecoded instanceof Object &&
+      Object.entries(accessDecoded).length &&
+      accessDecoded.exp > now
+    )
       throw new UnauthorizedException('Access token is not expired');
 
     if (!refreshDecoded)
@@ -304,7 +349,12 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('Invalid refresh token');
 
     //validate refresh token
-    if (refreshDecoded.exp < now) {
+    if (
+      refreshDecoded &&
+      refreshDecoded instanceof Object &&
+      Object.entries(refreshDecoded).length &&
+      refreshDecoded.exp < now
+    ) {
       await this.prisma.user.update({
         data: { status: 'OFFLINE' },
         where: { email: user.email },
@@ -316,7 +366,7 @@ export class AuthService {
       where: { expiresIn: { lte: now } },
     });
 
-    const blacklisted = await this.prisma.blacklist.findUnique({
+    const blacklisted = await this.prisma.blacklist.findFirst({
       where: { token: refreshToken },
     });
 

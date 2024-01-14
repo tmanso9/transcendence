@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const store = chatAppStore();
 </script>
 <template>
@@ -33,18 +35,50 @@ const store = chatAppStore();
         <v-btn
           class="channelSettings-content-buttons-btn"
           append-icon="mdi-face-man-profile"
+          @click="
+            () => {
+              router.push(`/users/${store.selectedUserProfile?.username}`);
+            }
+          "
           >Profile</v-btn
         >
         <v-btn
+          :disabled="store.selectedUserProfile?.status !== 'ONLINE'"
           class="channelSettings-content-buttons-btn"
           append-icon="mdi-table-tennis"
           >Play Game</v-btn
         >
         <v-btn
+          v-if="
+            store.selectedUserProfile &&
+            store.userIsBlocked(store.selectedUserProfile?.username) == false
+          "
           class="channelSettings-content-buttons-btn"
           color="warning"
           append-icon="mdi-cancel"
+          @click="
+            () => {
+              if (store.selectedUserProfile)
+                store.blockOrUnblockUser('block', store.selectedUserProfile.id);
+            }
+          "
           >Block</v-btn
+        >
+        <v-btn
+          v-else
+          class="channelSettings-content-buttons-btn"
+          color="warning"
+          append-icon="mdi-cancel"
+          @click="
+            () => {
+              if (store.selectedUserProfile)
+                store.blockOrUnblockUser(
+                  'unblock',
+                  store.selectedUserProfile.id,
+                );
+            }
+          "
+          >Unblock</v-btn
         >
       </div>
     </div>

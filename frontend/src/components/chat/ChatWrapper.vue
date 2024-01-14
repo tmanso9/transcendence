@@ -7,6 +7,7 @@ import ChatBar from "./ChatBar.vue";
 import ChannelHeader from "./ChannelHeader.vue";
 import MessagesScroll from "./MessagesScroll.vue";
 import CreateChannel from "./CreateChannel.vue";
+import { onUpdated } from "vue";
 
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 const store = chatAppStore();
@@ -19,8 +20,6 @@ const password = ref("");
 const name = ref("");
 const members = ref([]);
 const haveAllInfoNeeded = ref(false);
-
-
 
 onMounted(async () => {
   await store.getAllChatData();
@@ -37,9 +36,7 @@ onMounted(async () => {
         :selected-channel="store.selectedChannel"
       ></channel-header>
       <messages-scroll></messages-scroll>
-      <message-input
-        style="bottom: 0"
-      ></message-input>
+      <message-input style="bottom: 0"></message-input>
     </div>
   </div>
 </template>

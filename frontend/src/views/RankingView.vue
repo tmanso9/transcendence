@@ -6,10 +6,10 @@
     item-key="id"
     class="my-5 mx-auto px-2 leaderboard"
   >
-    <template #item.position="{ item }">
+    <template #[`item.position`]="{ item }">
       <v-chip :color="getColor(item)">{{ item.position }}</v-chip>
     </template>
-    <template #item.username="{ item }">
+    <template #[`item.username`]="{ item }">
       <a :href="`/users/${item.username}`" class="leaderboard__username">
         {{ item.username }}
       </a>
@@ -18,11 +18,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import type { User } from "@/types";
 import { useUserStore } from "@/stores/user";
+import type { VDataTable } from "vuetify/components";
 
-const headers = [
+type ReadOnlyHeaders = VDataTable["headers"];
+const headers: ReadOnlyHeaders = [
   { title: "Position", align: "start", key: "position" },
   { title: "Username", align: "start", key: "username" },
   { title: "Points", align: "start", key: "points" },
@@ -56,9 +58,10 @@ const orderedUsers = (): User[] => {
     })
     .map((user, index) => {
       return {
-        ...user,
         position: index + 1,
-        record: `${user.wins} / ${user.losses}`,
+        username: user.username,
+        points: user.gamestats?.points,
+        record: `${user.gamestats?.wins} / ${user.gamestats?.losses}`,
       };
     });
 };
@@ -105,7 +108,7 @@ const showExtraRow = computed(() => {
 
 <style lang="scss">
 .leaderboard {
-	width: min(80%, 800px) !important;
+  width: min(80%, 800px) !important;
   &__username {
     text-decoration: none;
     color: var(--primary);
