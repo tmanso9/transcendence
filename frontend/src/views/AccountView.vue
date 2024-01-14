@@ -19,6 +19,7 @@ import { ref, onBeforeMount, computed } from "vue";
 import { useRoute } from "vue-router";
 import { fetchOtherUser } from "@/utils";
 import { User } from "@/types";
+import { onMounted } from "vue";
 
 const route = useRoute();
 
@@ -36,8 +37,9 @@ const notFound = ref(false);
 const myFriends = ref<string[]>([]);
 const connections = ref<[string[]]>([[]]);
 
-onBeforeMount(async () => {
+onMounted(async () => {
   try {
+    isLoaded.value = false;
     account.value = await fetchOtherUser(getUsername.value);
     const result = await fetch(`http://localhost:3000/users/me/friends`, {
       credentials: "include",
@@ -47,18 +49,15 @@ onBeforeMount(async () => {
     for (const friend of data.values()) {
       myFriends.value.push(friend);
     }
-    // console.log(myFriends.value);
     const pending = await fetch(`http://localhost:3000/users/connections`, {
       credentials: "include",
     });
     if (!pending.ok) throw new Error(await pending.text());
     data = await pending.json();
-    // console.log(data);
     for (const pair of data.values()) {
       console.log(pair);
       connections.value.push(pair);
     }
-    // console.log(connections.value)
     if (account.value && account.value.username) isLoaded.value = true;
   } catch (error) {
     if (error instanceof Error) {

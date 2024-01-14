@@ -5,7 +5,7 @@ import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
 import NotificationsWrapper from "./components/Notifications/NotificationsWrapper.vue";
 import NavBar from "./components/NavBar.vue";
-import { onMounted, ref, inject } from "vue";
+import { onBeforeMount, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
@@ -27,7 +27,7 @@ const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
 
-onMounted(async () => {
+onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
   const s = io("http://localhost:3000/login");
