@@ -18,6 +18,11 @@ import { createApp } from "vue";
 const app = createApp(App);
 
 registerPlugins(app);
-app
+app.config.warnHandler = function (msg, vm, trace) {
+  if (msg.includes("Extraneous non-emits event listeners (chat)")) {
+    return;
+  }
+  console.warn(msg, trace);
+};
 
 app.mount("#app");
