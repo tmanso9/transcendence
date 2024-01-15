@@ -99,6 +99,8 @@ model Games {
   loserId String  // ID of the loser
   loserScore Int  // Score of the loser
   playedAt DateTime @default(now()) // Date at which the game was played
+  winnerUsername String // Username of the winner
+  loserUsername String // Username of the loser
 }
 
 model Gamestats {
