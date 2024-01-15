@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, onMounted, nextTick, onUnmounted, watch} from "vue";
+import {ref, onMounted, nextTick, onUnmounted, watch, inject} from "vue";
 import { Socket} from "socket.io-client";
 import { game } from "@/game/game";
 import {disconnectSocket, getSocket} from "@/utils/socket/socketManager";
@@ -9,12 +9,13 @@ import {useDisplay} from "vuetify";
 
 const {mdAndDown} = useDisplay();
 
-const canvas = ref(null);
+const canvasRef = ref(null);
 
 let s: Socket = null as any;
 
-const width = mdAndDown.value ? 500 : 1000;
-const height = mdAndDown.value ? 350 : 700;
+const width = 1000;
+const height = 700;
+
 
 
 onMounted(async () => {
@@ -22,7 +23,7 @@ onMounted(async () => {
   s = getSocket();
 
   if (s) {
-    game(canvas.value as any, s, width, height);
+    game(canvasRef.value as any, s, width, height);
   }
   else {
     await router.push("/play");
@@ -43,10 +44,6 @@ function pause() {
 function reset() {
   s.emit("reset", "reset");
 }
-
-function test() {
-  s.emit("message", "reset");
-}
 </script>
 
 <template>
@@ -54,7 +51,7 @@ function test() {
     <h2>Score</h2>
     <p>{{ gameStore().score.get("paddle1")}} : {{ gameStore().score.get("paddle2") }}</p>
   </div>
-  <canvas :width="width" :height="height" id="game-canvas" ref="canvas"></canvas>
+  <canvas :width="width" :height="height" id="game-canvas" ref="canvasRef"></canvas>
   <h4>Move left paddle up and down with the arrow keys</h4>
   <div v-if="!gameStore().isSpectator">
     <v-btn variant="outlined" color="white" @click="play" style="margin: 10px"

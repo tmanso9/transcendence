@@ -78,6 +78,7 @@ function drawBoard(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 
 export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, height: number) {
   const lineWidth = width / 100;
+  let winner = null;
   const paddleWidth = width / 50;
   const paddleHeight = height / 5;
   const paddleStartY = height / 2 - paddleHeight / 2;
@@ -100,13 +101,28 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
     gStore.score.set('paddle2', data.score.paddle2);
   });
 
-  function drawFrame() {
+  socket.on("gameOver", (w: string) => winner = w);
+
+  function gameOver(winner: string) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const e of elements) {
-      e.draw(ctx)
+    ctx.fillStyle = 'White'; // Text color
+    ctx.font = '30px Arial'; // Font size and family
+    ctx.textAlign = 'center'; // Align text in the center
+
+    ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
+    console.log("game over");
+  }
+  function drawFrame() {
+    if (winner != null)
+      gameOver(winner);
+    else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const e of elements) {
+        e.draw(ctx)
+      }
+      drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
+      requestAnimationFrame(drawFrame)
     }
-    drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
-    requestAnimationFrame(drawFrame)
   }
 
   function keyDownHandler(e) {
