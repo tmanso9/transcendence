@@ -239,7 +239,7 @@ export const chatAppStore = defineStore("chat", () => {
   };
 
   function getChannelInfo(channelId: string) {
-    if (!currentUser.value?.channels.length || channelId == "")
+    if (!currentUser.value?.channels?.length || channelId == "")
       return undefined;
     const channels: Channel[] = currentUser.value.channels;
     const channelFound = ref<Channel>();
