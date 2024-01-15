@@ -9,9 +9,13 @@ import { Channel } from "../../store/chat";
 const store = chatAppStore();
 const channelPermission = ref(false);
 const { height } = useDisplay();
+const password = ref("");
 
 onMounted(async () => {
-  if (store.channelStd) channelPermission.value = true;
+  if (store.channelStd) {
+    channelPermission.value = true;
+    password.value = store.channelStd.password;
+  }
 });
 </script>
 <template>
@@ -119,6 +123,27 @@ onMounted(async () => {
         "
         >Leave Group</v-btn
       >
+      <div
+        v-if="
+          store.channelStd &&
+          store.currentUser &&
+          store.isAdmin(store.channelStd.id, store.currentUser.id) == true
+        "
+        style="display: flex; flex-direction: row; margin: 1em 0 0 0"
+      >
+        <v-text-field v-model="password" variant="outlined"></v-text-field>
+        <v-btn
+          style="padding: 1.5em 1.25em 2.7em 1.25em"
+          text="Change password"
+          @click="
+            () => {
+              if (store.channelStd) {
+                password = store.channelStd.password;
+              }
+            }
+          "
+        ></v-btn>
+      </div>
       <settings-pop-up v-if="store.settingsAdminPopUp"></settings-pop-up>
       <personal-settings
         v-else-if="store.personalPopUpSettings"
