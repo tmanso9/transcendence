@@ -83,7 +83,7 @@ const store = chatAppStore();
                   v-text="item.channelName"
                 ></v-list-item-title>
               </div>
-              <v-dialog width="500">
+              <v-dialog width="500" class="included">
                 <template v-slot:activator="{ props }">
                   <v-btn
                     v-if="item.password != ''"
@@ -95,20 +95,20 @@ const store = chatAppStore();
                 </template>
 
                 <template v-slot:default="{ isActive }">
-                  <v-card title="Dialog">
-                    <v-card-text>
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-                      sed do eiusmod tempor incididunt ut labore et dolore magna
-                      aliqua.
-                    </v-card-text>
+                  <v-card>
+                    <v-card-title>{{ item.channelName }}</v-card-title>
+                    <v-card-text
+                      ><v-text-field label="Pasword*" required></v-text-field
+                    ></v-card-text>
 
                     <v-card-actions>
                       <v-spacer></v-spacer>
 
                       <v-btn
-                        text="Close Dialog"
+                        text="Close"
                         @click="isActive.value = false"
                       ></v-btn>
+                      <v-btn variant="text" @click=""> Submit </v-btn>
                     </v-card-actions>
                   </v-card>
                 </template>
