@@ -367,7 +367,7 @@ export const chatAppStore = defineStore("chat", () => {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    return socketSend<string>("createChannel", {
+    return await socketSend<string>("createChannel", {
       token,
       type,
       password,
