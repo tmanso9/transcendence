@@ -6,8 +6,6 @@
         :headers="headers"
         :items="parsedMatches()"
         item-key="id"
-        pagination.sync="pagination"
-        select-all
         :loading="loadingData"
         :cell-props="getCellProps"
         class="match-history"
@@ -23,13 +21,15 @@ import { onMounted } from "vue";
 import { ref } from "vue";
 import type { VDataTable } from "vuetify/components";
 
+const props = defineProps(["account"]);
+
 type ReadOnlyHeaders = VDataTable["headers"];
 const headers: ReadOnlyHeaders = [
   { title: "firstUser", align: "start", key: "firstUser" },
   { title: "result", align: "start", key: "result" },
   { title: "seconduser", align: "start", key: "secondUser" },
-  { title: "result", align: "start", key: "outcome" },
   { title: "date", align: "start", key: "date" },
+  { title: "winner", align: "start", key: "winnerUsername" },
 ];
 
 const items = ref<string[]>();
@@ -45,10 +45,11 @@ type Match = {
 };
 
 type ParsedMatch = {
+  winnerUsername: string;
+  loserUsername: string;
   firstUser: string;
   secondUser: string;
   result: string;
-  outcome: string;
   date: string;
 };
 
@@ -56,14 +57,20 @@ const parsedMatches = (): ParsedMatch[] => {
   return (
     items.value?.map((val: any) => {
       console.log(val);
-      const result =
-        val.outcome === "win" ? `10 - ${val.points}` : `${val.points} - 10`;
+      const accountIsWinner = val.winnerUsername === props.account.username;
+      const result = accountIsWinner
+        ? `10 - ${val.loserScore}`
+        : `${val.loserScore} - 10`;
+      const secondUser = accountIsWinner
+        ? val.loserUsername
+        : val.winnerUsername;
       return {
-        firstUser: "touteiro",
-        secondUser: val.username,
+        firstUser: props.account.username,
+        secondUser,
+        winnerUsername: val.winnerUsername,
+        loserUsername: val.loserUsername,
         result,
-        outcome: val.outcome,
-        date: val.date,
+        date: val.playedAt,
       };
     }) || []
   );
@@ -83,13 +90,11 @@ const getHistory = async () => {
 };
 
 const getCellProps = (item: any) => {
-  console.log(item);
-  return item.value === "win"
+  if (item.column.key !== "winnerUsername") return;
+  // console.log(item);
+  return item.value === props.account.username
     ? { class: "win-item" }
-    : item.value === "loss"
-      ? { class: "loss-item" }
-      : {};
-  // return 'text-green'
+    : { class: "loss-item" };
 };
 </script>
 

@@ -26,7 +26,7 @@
       :isSelf="isSelf"
     />
     <stats-wrapper :account="account" />
-    <match-history />
+    <match-history :account="account" />
   </v-expansion-panels>
 </template>
 

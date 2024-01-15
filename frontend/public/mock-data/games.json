@@ -1,16 +1,16 @@
 [
   {
     "id": 1,
-    "points": 6,
-    "username": "touteiro",
-	"date": "2024-01-14",
-	"outcome": "win"
+    "loserScore": 6,
+    "winnerUsername": "touteiro",
+	"loserUsername": "teresa_manso",
+	"playedAt": "2024-01-14"
   },
   {
     "id": 1,
-    "points": 3,
-    "username": "teresa_manso",
-	"date": "2024-01-14",
-	"outcome": "loss"
+    "loserScore": 3,
+    "winnerUsername": "teresa_manso",
+	"loserUsername": "touteiro",
+	"playedAt": "2024-01-14"
   }
 ]
