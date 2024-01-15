@@ -5,9 +5,10 @@ let s = null;
 const game = gameStore();
 
 
-export function connectSocket() {
-  if (!s) {
-    s = io("http://localhost:3000/");
+export function connectSocket(userId: string, username: string) {
+  console.log("connecting: ", userId, username);
+  if (!s && userId.length > 0) {
+    s = io("http://localhost:3000/play", { query: { userId: userId, userName: username } });
     s.on("connect", () => {
       s.emit("reset", "reset");
     });

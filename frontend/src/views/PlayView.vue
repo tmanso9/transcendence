@@ -4,10 +4,13 @@ import { Socket } from "socket.io-client";
 import router from "@/router";
 import {connectSocket, disconnectSocket} from "@/utils/socket/socketManager";
 import {useDisplay} from "vuetify";
+import {useUserStore} from "@/stores/user";
 
 const {mdAndDown} = useDisplay();
 const width = mdAndDown.value ? 500 : 1000;
 const height = mdAndDown.value ? 350 : 700;
+
+const user = useUserStore();
 
 const roomsList: Ref<string[]> = ref([]);
 let s: Socket = null as any;
@@ -25,10 +28,12 @@ function goToGame() {
 
 onMounted(async () => {
   await nextTick();
-  s = connectSocket();
-  s.on("availableRooms", (rooms: string[]) => {
-    roomsList.value = rooms;
-  });
+  s = connectSocket(user.id, user.username);
+  if (s) {
+    s.on("availableRooms", (rooms: string[]) => {
+      roomsList.value = rooms;
+    });
+  }
 });
 
 function joinRoom(room: string) {
