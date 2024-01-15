@@ -228,6 +228,9 @@ export class AuthService {
         ratio: "",
         streak: ""
       };
+      let check_username = await this.prisma.user.findFirst({where: {username: user.username}})
+      if (check_username)
+        user.username = await this.getRandomName();
       profile = await this.prisma.user.create({
         data: {
           email: user.email,
@@ -329,7 +332,12 @@ export class AuthService {
 
     const now = Math.floor(Date.now() / 1000);
 
-    if (accessDecoded.exp > now)
+    if (
+      accessDecoded &&
+      accessDecoded instanceof Object &&
+      Object.entries(accessDecoded).length &&
+      accessDecoded.exp > now
+    )
       throw new UnauthorizedException('Access token is not expired');
 
     if (!refreshDecoded)
@@ -341,7 +349,12 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('Invalid refresh token');
 
     //validate refresh token
-    if (refreshDecoded.exp < now) {
+    if (
+      refreshDecoded &&
+      refreshDecoded instanceof Object &&
+      Object.entries(refreshDecoded).length &&
+      refreshDecoded.exp < now
+    ) {
       await this.prisma.user.update({
         data: { status: 'OFFLINE' },
         where: { email: user.email },

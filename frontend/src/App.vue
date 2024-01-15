@@ -5,7 +5,7 @@ import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
 import NotificationsWrapper from "./components/Notifications/NotificationsWrapper.vue";
 import NavBar from "./components/NavBar.vue";
-import { onMounted, ref, inject } from "vue";
+import { onBeforeMount, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
@@ -27,7 +27,7 @@ const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
 
-onMounted(async () => {
+onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
   const s = io("http://localhost:3000/login");
@@ -80,6 +80,10 @@ const toggleChatPermission = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted) chatStore.permissionToOpenChat = true;
   else chatStore.permissionToOpenChat = false;
+};
+
+const handleActivateChat = () => {
+  if (!showChat.value) toggleChat();
 };
 
 const toggleLogin = async () => {
@@ -142,6 +146,7 @@ const handleNotificationResolve = async () => {
       <RouterView
         :key="`${$route.fullPath}--${user.username}--${toReload}`"
         v-if="ready"
+        @chat="handleActivateChat"
       />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper

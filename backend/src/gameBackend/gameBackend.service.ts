@@ -36,7 +36,9 @@ export class GameBackendService {
 				data: {
 					winnerId: data.winnerId,
 					loserId: data.loserId,
-					loserScore: data.loserScore
+					loserScore: data.loserScore,
+					winnerUsername: data.winnerUsername,
+					loserUsername: data.loserUsername,
 				}
 			});
 

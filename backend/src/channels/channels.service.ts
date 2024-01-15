@@ -9,7 +9,11 @@ export class ChannelsService {
   constructor(private prisma: PrismaService) {}
 
   async getChannels() {
-    const channels = await this.prisma.channels.findMany();
+    const channels = await this.prisma.channels.findMany({
+		include: {
+			members: true
+		}
+	});
     return channels;
   }
 

@@ -47,6 +47,16 @@ model Connections {
   receiver String
 }
 
+model Alert {
+  id		String           @id @default(uuid())
+  message	String
+  sender	String
+  targetId	String
+  senderId	String
+  action	Boolean
+  user		User @relation("Alerts", fields: [targetId], references: [id], onDelete: Cascade)
+}
+
 model User {
   id String @id @default(uuid())
   createdAt DateTime @default(now())  // user creation time
@@ -61,7 +71,7 @@ model User {
   login Login //user login method
   tfa_secret String // secret string associated with two factor authentication
   tfa_enabled Boolean // does the user have tfa enabled
-  alerts	Json[] @default([])
+  alerts	Alert[] @relation("Alerts")
 
   gamestats Gamestats?
 
@@ -89,6 +99,8 @@ model Games {
   loserId String  // ID of the loser
   loserScore Int  // Score of the loser
   playedAt DateTime @default(now()) // Date at which the game was played
+  winnerUsername String // Username of the winner
+  loserUsername String // Username of the loser
 }
 
 model Gamestats {

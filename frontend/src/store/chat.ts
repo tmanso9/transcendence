@@ -363,11 +363,11 @@ export const chatAppStore = defineStore("chat", () => {
     password: string,
     channelName: string,
     members: User[],
-  ): Promise<string | undefined> {
+  ): Promise<string | void> {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    await socketSend<string>("createChannel", {
+    return socketSend<string>("createChannel", {
       token,
       type,
       password,
