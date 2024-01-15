@@ -136,8 +136,13 @@ onMounted(async () => {
           style="padding: 1.5em 1.25em 2.7em 1.25em"
           text="Change password"
           @click="
-            () => {
+            async () => {
               if (store.channelStd) {
+                await store.changeChannelPassword(
+                  store.channelStd?.id,
+                  password,
+                );
+                await store.getAllChatData();
                 password = store.channelStd.password;
               }
             }
