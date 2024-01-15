@@ -24,10 +24,7 @@ const store = chatAppStore();
     </div>
     <div class="channelSettings-content">
       <div class="channelSettings-content-profile">
-        <v-icon
-          :icon="store.selectedUserProfile?.avatar"
-          size="x-large"
-        ></v-icon>
+        <v-icon icon="mdi-account" size="x-large"></v-icon>
         <div>{{ store.selectedUserProfile?.username }}</div>
       </div>
       <div class="channelSettings-content-info"></div>
@@ -68,7 +65,7 @@ const store = chatAppStore();
           v-else
           class="channelSettings-content-buttons-btn"
           color="warning"
-          append-icon="mdi-cancel"
+          append-icon="mdi-arrow-u-left-top"
           @click="
             () => {
               if (store.selectedUserProfile)
