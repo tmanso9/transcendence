@@ -83,14 +83,38 @@ const store = chatAppStore();
                   v-text="item.channelName"
                 ></v-list-item-title>
               </div>
+              <v-dialog width="500">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    v-if="item.password != ''"
+                    v-bind="props"
+                    append-icon="mdi-lock"
+                    :size="height > 700 ? 'small' : 'x-small'"
+                    >Join</v-btn
+                  >
+                </template>
+
+                <template v-slot:default="{ isActive }">
+                  <v-card title="Dialog">
+                    <v-card-text>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+                      sed do eiusmod tempor incididunt ut labore et dolore magna
+                      aliqua.
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        text="Close Dialog"
+                        @click="isActive.value = false"
+                      ></v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
               <v-btn
-                v-if="item.password != ''"
-                append-icon="mdi-lock"
-                :size="height > 700 ? 'small' : 'x-small'"
-                >Join</v-btn
-              >
-              <v-btn
-                v-else-if="item.type == 'personal'"
+                v-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
                 @click="
                   () => {
@@ -108,7 +132,7 @@ const store = chatAppStore();
                 >Talk</v-btn
               >
               <v-btn
-                v-else
+                v-else-if="item.password == ''"
                 :size="height > 700 ? 'small' : 'x-small'"
                 @click="
                   () => {
