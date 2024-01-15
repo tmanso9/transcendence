@@ -341,13 +341,14 @@ export const chatAppStore = defineStore("chat", () => {
 
   // active database functions
 
-  async function joinChannel(channelId: string) {
+  async function joinChannel(channelId: string, password: string) {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
     await socketSend<Channel[]>("joinChannel", {
       token,
       channelId,
+      password,
     })
       .then((channels) => {
         getAllChatData();
@@ -367,7 +368,7 @@ export const chatAppStore = defineStore("chat", () => {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    return socketSend<string>("createChannel", {
+    return await socketSend<string>("createChannel", {
       token,
       type,
       password,
@@ -476,6 +477,24 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function changeChannelPassword(channelId: string, password: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("changeChannelPassword", {
+      token,
+      channelId,
+      password,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant change password");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -507,5 +526,6 @@ export const chatAppStore = defineStore("chat", () => {
     isMember,
     promoteOrDespromoteAdmin,
     blockOrUnblockUser,
+    changeChannelPassword,
   };
 });

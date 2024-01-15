@@ -7,6 +7,8 @@ import { User } from "../../store/chat";
 
 const { height } = useDisplay();
 
+const password = ref("");
+
 const store = chatAppStore();
 </script>
 <template>
@@ -83,14 +85,51 @@ const store = chatAppStore();
                   v-text="item.channelName"
                 ></v-list-item-title>
               </div>
+              <v-dialog width="500" class="included">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    v-if="item.password != ''"
+                    v-bind="props"
+                    append-icon="mdi-lock"
+                    :size="height > 700 ? 'small' : 'x-small'"
+                    >Join</v-btn
+                  >
+                </template>
+
+                <template v-slot:default="{ isActive }">
+                  <v-card>
+                    <v-card-title>{{ item.channelName }}</v-card-title>
+                    <v-card-text
+                      ><v-text-field
+                        v-model="password"
+                        label="Pasword*"
+                        required
+                      ></v-text-field
+                    ></v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        text="Cancel"
+                        @click="isActive.value = false"
+                      ></v-btn>
+                      <v-btn
+                        variant="text"
+                        @click="
+                          () => {
+                            store.joinChannel(item.id, password);
+                          }
+                        "
+                      >
+                        Join Channel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
               <v-btn
-                v-if="item.password != ''"
-                append-icon="mdi-lock"
-                :size="height > 700 ? 'small' : 'x-small'"
-                >Join</v-btn
-              >
-              <v-btn
-                v-else-if="item.type == 'personal'"
+                v-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
                 @click="
                   () => {
@@ -108,11 +147,11 @@ const store = chatAppStore();
                 >Talk</v-btn
               >
               <v-btn
-                v-else
+                v-else-if="item.password == ''"
                 :size="height > 700 ? 'small' : 'x-small'"
                 @click="
                   () => {
-                    store.joinChannel(item.id);
+                    store.joinChannel(item.id, '');
                   }
                 "
                 >Join</v-btn

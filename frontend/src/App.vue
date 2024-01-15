@@ -162,7 +162,7 @@ const handleNotificationResolve = async () => {
     <v-footer
       height="1"
       class="pa-0 included"
-      style="z-index: 2"
+      style="z-index: 2410"
       v-click-outside="toggleChatPermission()"
     >
       <v-btn
