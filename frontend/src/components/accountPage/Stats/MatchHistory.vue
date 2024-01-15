@@ -1,5 +1,5 @@
 <template>
-  <v-expansion-panel title="Match history">
+  <v-expansion-panel title="Match history" @click="handleClick">
     <v-expansion-panel-text width="50%">
       <v-data-table
         :hide-headers="true"
@@ -25,11 +25,12 @@ const props = defineProps(["account"]);
 
 type ReadOnlyHeaders = VDataTable["headers"];
 const headers: ReadOnlyHeaders = [
-  { title: "firstUser", align: "start", key: "firstUser" },
-  { title: "result", align: "start", key: "result" },
-  { title: "seconduser", align: "start", key: "secondUser" },
-  { title: "date", align: "start", key: "date" },
-  { title: "winner", align: "start", key: "winnerUsername" },
+  { title: "firstUser", align: "center", key: "firstUser" },
+  { title: "result", align: "center", key: "result" },
+  { title: "seconduser", align: "center", key: "secondUser" },
+  { title: "day", align: "center", key: "day" },
+  { title: "winner", align: "center", key: "winnerUsername" },
+  { title: "time", align: "center", key: "time" },
 ];
 
 const items = ref<string[]>();
@@ -50,7 +51,8 @@ type ParsedMatch = {
   firstUser: string;
   secondUser: string;
   result: string;
-  date: string;
+  day: string;
+  time: string;
 };
 
 const parsedMatches = (): ParsedMatch[] => {
@@ -64,13 +66,15 @@ const parsedMatches = (): ParsedMatch[] => {
       const secondUser = accountIsWinner
         ? val.loserUsername
         : val.winnerUsername;
+      const [day, time] = val.playedAt.split("T");
       return {
         firstUser: props.account.username,
         secondUser,
         winnerUsername: val.winnerUsername,
         loserUsername: val.loserUsername,
         result,
-        date: val.playedAt,
+        day,
+        time: time.split(".")[0],
       };
     }) || []
   );
@@ -78,7 +82,9 @@ const parsedMatches = (): ParsedMatch[] => {
 
 const getHistory = async () => {
   try {
-    const result = await fetch("/mock-data/games.json");
+    const result = await fetch(
+      `http://localhost:3000/game-backend/games/${props.account.id}`,
+    );
     if (!result.ok) throw new Error(await result.text());
     const data = await result.json();
     items.value = data;
@@ -87,6 +93,17 @@ const getHistory = async () => {
   } catch (error) {
     error instanceof Error && console.error(error.message);
   }
+};
+
+const handleClick = (event: any) => {
+  if (
+    !event.srcElement.offsetParent.classList.contains(
+      "v-expansion-panel-title--active",
+    )
+  )
+    return;
+
+  getHistory();
 };
 
 const getCellProps = (item: any) => {
