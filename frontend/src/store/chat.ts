@@ -1,5 +1,6 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
+import { RefSymbol } from "@vue/reactivity";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -97,24 +98,27 @@ export const chatAppStore = defineStore("chat", () => {
 
     await getAllChatData();
 
-    socket.on("channelMessages", (messages) => {
-      channelMessagesVar.value = messages;
-      channelMessagesVar.value.forEach((msg) => {
-        let newMessage = "";
-        let j = 0;
-        let lineMaxWight = 24;
-        if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
-        for (let i = 0; i < msg.content.length; i++) {
-          newMessage = newMessage + msg.content[i];
-          if (msg.content[i] != " ") j++;
-          if (j == lineMaxWight) {
-            newMessage = newMessage + "\n";
-            j = 0;
+    socket.on("channelMessages", (obj) => {
+      console.log("debug : id: ", obj.id, " messages: ", obj.messages);
+      if (obj.id == selectedChannel.value) {
+        channelMessagesVar.value = obj.messages;
+        channelMessagesVar.value.forEach((msg) => {
+          let newMessage = "";
+          let j = 0;
+          let lineMaxWight = 24;
+          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          for (let i = 0; i < msg.content.length; i++) {
+            newMessage = newMessage + msg.content[i];
+            if (msg.content[i] != " ") j++;
+            if (j == lineMaxWight) {
+              newMessage = newMessage + "\n";
+              j = 0;
+            }
           }
-        }
-        msg.content = newMessage;
-      });
-      removeMessagesFromBlockeUsers();
+          msg.content = newMessage;
+        });
+        removeMessagesFromBlockeUsers();
+      }
     });
 
     socket.on("updateInfo", () => {
