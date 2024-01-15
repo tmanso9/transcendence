@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import {gameStore} from "@/store/game";
 
-let s = null;
+let s : any = null;
 const game = gameStore();
 
 
@@ -12,7 +12,7 @@ export function connectSocket(userId: string, username: string) {
     s.on("connect", () => {
       s.emit("reset", "reset");
     });
-    s.on("spectator", (isSpectator) => {
+    s.on("spectator", (isSpectator: any) => {
       game.isSpectator = isSpectator;
     });
   }

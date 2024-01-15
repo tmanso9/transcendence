@@ -14,7 +14,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
-import { User } from '@prisma/client';
 import * as fs from 'fs';
 
 @Injectable()

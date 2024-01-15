@@ -5,7 +5,7 @@ import {he} from "vuetify/locale";
 
 const gStore = gameStore();
 
-class object {
+class Object {
   constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {
   }
 
@@ -14,7 +14,7 @@ class object {
   }
 }
 
-class rectangle extends object {
+class rectangle extends Object {
   constructor(public x: number, public y: number, public width: number, public height: number, public color: string, public orientation: string) {
     super(x, y, color);
   }
@@ -34,7 +34,7 @@ class paddle extends rectangle {
   }
 }
 
-class Ball extends object {
+class Ball extends Object {
   constructor(public x: number, public y: number, public radius: number, public dx: number, public dy: number, public color: string, collidable: boolean = false) {
     super(x, y, color, collidable);
   }
@@ -78,7 +78,7 @@ function drawBoard(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 
 export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, height: number) {
   const lineWidth = width / 100;
-  let winner = null;
+  let winner: string = '';
   const paddleWidth = width / 50;
   const paddleHeight = height / 5;
   const paddleStartY = height / 2 - paddleHeight / 2;
@@ -104,28 +104,29 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
   socket.on("gameOver", (w: string) => winner = w);
 
   function gameOver(winner: string) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'White'; // Text color
-    ctx.font = '30px Arial'; // Font size and family
-    ctx.textAlign = 'center'; // Align text in the center
+    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (ctx) ctx.fillStyle = 'White'; // Text color
+    if (ctx) ctx.font = '30px Arial'; // Font size and family
+    if (ctx) ctx.textAlign = 'center'; // Align text in the center
 
-    ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
+    if (ctx) ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
     console.log("game over");
   }
   function drawFrame() {
     if (winner != null)
       gameOver(winner);
     else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const e of elements) {
         e.draw(ctx)
       }
-      drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
+      if (ctx)
+        drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
       requestAnimationFrame(drawFrame)
     }
   }
 
-  function keyDownHandler(e) {
+  function keyDownHandler(e: any) {
     socket.emit('movePaddle', e.key);
   }
 

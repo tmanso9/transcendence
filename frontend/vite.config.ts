@@ -9,6 +9,9 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    modulePreload: false,
+  },
   plugins: [
     vue({
       template: { transformAssetUrls },
