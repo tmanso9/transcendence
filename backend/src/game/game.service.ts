@@ -230,7 +230,9 @@ export class GameService {
     GameService.gameBackend.createGame({
       winnerId: "85953ea5-09e6-4ff8-8434-9b785537213a",
       loserId: "85953ea5-09e6-4ff8-8434-9b785537213a",
-      loserScore: loser.score
+      loserScore: loser.score,
+      winnerUsername: "miguel",
+      loserUsername: "Gabzgay"
     }).then(r => (console.log(r)));
     server.to(room).emit('gameOver', winner.username);
     this.reset();
