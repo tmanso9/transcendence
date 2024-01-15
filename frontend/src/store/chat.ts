@@ -99,7 +99,6 @@ export const chatAppStore = defineStore("chat", () => {
     await getAllChatData();
 
     socket.on("channelMessages", (obj) => {
-      console.log("debug : id: ", obj.id, " messages: ", obj.messages);
       if (obj.id == selectedChannel.value) {
         channelMessagesVar.value = obj.messages;
         channelMessagesVar.value.forEach((msg) => {
