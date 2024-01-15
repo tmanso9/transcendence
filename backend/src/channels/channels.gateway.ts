@@ -173,7 +173,10 @@ export class ChannelsGateway {
           if (member.id != user.id) {
             const client = clientsMap.get(member.id);
             if (client && client.connected) {
-              client.emit('channelMessages', messages);
+              client.emit('channelMessages', {
+                id: channel.id,
+                messages: messages,
+              });
             }
           }
         });
