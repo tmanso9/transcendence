@@ -5,19 +5,11 @@
         >{{ alert.sender }} {{ alert.message }}</v-banner-text
       ><v-spacer />
       <v-banner-actions v-if="alert.action">
-        <v-btn
-          color="success"
-          @click="respondFriend(alert.senderId, 'accept', alert)"
-          >accept</v-btn
-        >
-        <v-btn
-          color="error"
-          @click="respondFriend(alert.senderId, 'reject', alert)"
-          >reject</v-btn
-        >
+        <v-btn color="success" @click="response(alert, 'accept')">accept</v-btn>
+        <v-btn color="error" @click="response(alert, 'reject')">reject</v-btn>
       </v-banner-actions>
       <v-banner-actions v-else>
-        <v-btn color="info" @click="dismissAlert(alert)">dismiss</v-btn>
+        <v-btn color="info" @click="dismissAlert(alert)">OK</v-btn>
       </v-banner-actions>
     </v-banner>
     <v-banner v-if="!alerts.length"
@@ -27,11 +19,16 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
+import { useGameStore } from "@/store/game";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
+import { useRoute, useRouter } from "vue-router";
 
 defineProps(["alerts"]);
 const emit = defineEmits(["notificationResolve"]);
 const router = useRouter();
+const game = useGameStore();
+const cookies = inject<VueCookies>("$cookies");
 
 type Alert = {
   id: string;
@@ -41,7 +38,41 @@ type Alert = {
   action: boolean;
 };
 
-console.log();
+const response = (alert: Alert, action: string) => {
+  if (alert.message.includes("friend")) {
+    respondFriend(alert.senderId, action, alert);
+  } else {
+    respondGame(alert.id, action, alert);
+  }
+};
+
+const respondGame = async (id: string, action: string, alert: Alert) => {
+  if (action === "accept") {
+    game.connectSocket(cookies?.get("access_token"));
+    setTimeout(() => {
+      game.joinRoom(alert.id);
+    }, 200);
+  } else {
+    rejectGame(alert);
+  }
+  dismissAlert(alert);
+};
+
+const rejectGame = async (alert: Alert) => {
+  try {
+    const result = await fetch(
+      `http://localhost:3000/users/game-reject/${alert.senderId}`,
+      {
+        method: "post",
+        credentials: "include",
+      },
+    );
+    if (!result.ok) throw new Error(await result.text());
+  } catch (error) {
+    if (error instanceof Error) console.error(error.message);
+  }
+};
+
 const respondFriend = async (id: string, action: string, alert: Alert) => {
   try {
     const result = await fetch(
