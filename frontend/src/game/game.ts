@@ -1,9 +1,9 @@
 import type {Socket} from "socket.io-client";
-import {gameStore} from "@/store/game";
-import {he} from "vuetify/locale";
+import {useGameStore} from "@/store/game";
+import {el, he} from "vuetify/locale";
 
 
-const gStore = gameStore();
+const gStore = useGameStore();
 
 class object {
   constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {
@@ -79,6 +79,7 @@ function drawBoard(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, height: number) {
   const lineWidth = width / 100;
   let winner = null;
+  let quitter = null;
   const paddleWidth = width / 50;
   const paddleHeight = height / 5;
   const paddleStartY = height / 2 - paddleHeight / 2;
@@ -102,19 +103,32 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
   });
 
   socket.on("gameOver", (w: string) => winner = w);
+  socket.on("gaveUpOrDisconnected", (q: any) => {
+    winner = q.winner;
+    quitter = q.quitter;
+  });
 
   function gameOver(winner: string) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'White'; // Text color
     ctx.font = '30px Arial'; // Font size and family
     ctx.textAlign = 'center'; // Align text in the center
-
     ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
-    console.log("game over");
+  }
+
+  function gameOverQuitter(quitter: string) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'White'; // Text color
+    ctx.font = '30px Arial'; // Font size and family
+    ctx.textAlign = 'center'; // Align text in the center
+    ctx.fillText(`Player ${winner} wins, because player ${quitter} either quit or disconnected`, canvas.width / 2, canvas.height / 2);
   }
   function drawFrame() {
-    if (winner != null)
+    if (winner != null && quitter == null)
       gameOver(winner);
+    else if (quitter != null) {
+      gameOverQuitter(quitter);
+    }
     else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const e of elements) {

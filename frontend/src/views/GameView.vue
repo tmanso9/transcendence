@@ -2,28 +2,28 @@
 import {ref, onMounted, nextTick, onUnmounted, watch, inject} from "vue";
 import { Socket} from "socket.io-client";
 import { game } from "@/game/game";
-import {disconnectSocket, getSocket} from "@/utils/socket/socketManager";
 import router from "@/router";
-import { gameStore } from "@/store/game";
+import { useGameStore } from "@/store/game";
 import {useDisplay} from "vuetify";
 
 const {mdAndDown} = useDisplay();
 
 const canvasRef = ref(null);
 
-let s: Socket = null as any;
 
 const width = 1000;
 const height = 700;
-
+const gameStore = useGameStore();
 
 
 onMounted(async () => {
   await nextTick();
-  s = getSocket();
 
-  if (s) {
-    game(canvasRef.value as any, s, width, height);
+  if (gameStore.getSocket()) {
+    game(canvasRef.value as any, gameStore.getSocket(), width, height);
+    gameStore.getSocket().on("kick", args => {
+      router.push("/play");
+    });
   }
   else {
     await router.push("/play");
@@ -31,29 +31,39 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  disconnectSocket();
+  gameStore.score.set("paddle1", 0);
+  gameStore.score.set("paddle2", 0);
+  gameStore.disconnectSocket();
 });
 
 function play() {
-  s.emit("play", "play");
+  gameStore.getSocket().emit("play", "play");
 }
 function pause() {
-  s.emit("pause", "play");
+  gameStore.getSocket().emit("pause", "play");
 }
 
 function reset() {
-  s.emit("reset", "reset");
+  gameStore.getSocket().emit("reset", "reset");
 }
 </script>
 
 <template>
-  <div class="score-display">
-    <h2>Score</h2>
-    <p>{{ gameStore().score.get("paddle1")}} : {{ gameStore().score.get("paddle2") }}</p>
+  <div class="div-score mx-auto">
+    <div>
+      Player 1
+    </div>
+    <div class="score-display">
+      <h2>Score</h2>
+      <p>{{ useGameStore().score.get("paddle1")}} : {{ useGameStore().score.get("paddle2") }}</p>
+    </div>
+    <div>
+      Player 2
+    </div>
   </div>
-  <canvas :width="width" :height="height" id="game-canvas" ref="canvasRef"></canvas>
+  <canvas width="1000" height="700" id="game-canvas" ref="canvasRef"></canvas>
   <h4>Move left paddle up and down with the arrow keys</h4>
-  <div v-if="!gameStore().isSpectator">
+  <div v-if="!useGameStore().isSpectator">
     <v-btn variant="outlined" color="white" @click="play" style="margin: 10px"
     >Play</v-btn
     >
@@ -93,4 +103,13 @@ canvas {
 .score-display p {
   font-size: 1.5em;
 }
+
+.div-score {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 1000px;
+}
 </style>
+
