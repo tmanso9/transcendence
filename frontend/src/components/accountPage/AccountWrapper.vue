@@ -25,8 +25,8 @@
       @friend-request="handleFriendRequest"
       :isSelf="isSelf"
     />
-    <achievements-wrapper :account="account" :isSelf="isSelf" />
     <stats-wrapper :account="account" />
+    <achievements-wrapper :account="account" :isSelf="isSelf" />
     <match-history :account="account" />
   </v-expansion-panels>
 </template>

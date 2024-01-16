@@ -12,7 +12,7 @@
             class="my-2 mx-2 text-center friends__card"
             height="60px"
           >
-            <v-card-title class="text-overline mb-n5 mt-n2">{{
+            <v-card-title class="text-overline text-deep-purple mb-n5 mt-n2">{{
               stat.key
             }}</v-card-title>
             <v-card-item>{{ stat.value }}</v-card-item>
