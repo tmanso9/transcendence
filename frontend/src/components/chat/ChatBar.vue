@@ -45,6 +45,14 @@ const store = chatAppStore();
                 :size="height > 700 ? 'small' : 'x-small'"
               ></v-icon>
             </template>
+            <template v-slot:append>
+              <v-chip
+                v-if="store.countUnreadMessages(item.id)"
+                :size="height > 700 ? 'small' : 'x-small'"
+                color="purple"
+                >{{ store.countUnreadMessages(item.id) }}</v-chip
+              >
+            </template>
             <v-list-item-title v-text="item.channelName"></v-list-item-title>
           </v-list-item>
         </template>

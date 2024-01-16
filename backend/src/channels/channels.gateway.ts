@@ -19,6 +19,7 @@ class Message {
   sender: string;
   content: string;
   date: string;
+  read: string[];
 }
 
 type JsonValue = {
@@ -155,6 +156,7 @@ export class ChannelsGateway {
                 sender: user.username,
                 content: data.message,
                 date: '',
+                read: [user.username],
               },
             },
           },
@@ -167,6 +169,7 @@ export class ChannelsGateway {
             sender: msg.sender,
             content: msg.content,
             date: msg.date,
+            read: [msg.sender],
           });
         });
         updatedChannel.members.map((member) => {
@@ -186,6 +189,7 @@ export class ChannelsGateway {
             sender: msg.sender,
             content: msg.content,
             date: msg.date,
+            read: [msg.sender],
           });
         });
       }
@@ -737,6 +741,52 @@ export class ChannelsGateway {
       return 1;
     } catch (error) {
       this.logger.debug('problem in changeChannelPassword');
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('readChannelMessages')
+  async readChannelMessages(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+      });
+      if (!channel) throw new ForbiddenException('channel doesnt exist');
+      const updatedMessages = (
+        channel.messages as {
+          sender: string;
+          content: string;
+          date: string;
+          read: string[];
+        }[]
+      ).map((message) => {
+        const updatedMessage = Object.assign({}, message);
+        updatedMessage.read = message.read
+          ? message.read.concat(user.username)
+          : [user.username];
+        return updatedMessage;
+      });
+
+      // Update the channel with the modified messages
+      await this.prisma.channels.update({
+        where: { id: data.channelId },
+        data: { messages: { set: updatedMessages } },
+      });
+
+      return 1;
+    } catch (error) {
+      this.logger.debug('problem in readChannelMessages');
       return 0;
     }
   }

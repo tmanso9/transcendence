@@ -185,10 +185,17 @@ const handleNotificationResolve = async () => {
           () => {
             chatStore.notifications = false;
             toggleChat();
+            console.log('n: ', chatStore.numberOfUnreadMsgs);
           }
         "
-        >{{ chatText }}</v-btn
-      >
+        >{{ chatText }}
+        <v-badge
+          v-if="chatStore.numberOfUnreadMsgs"
+          :content="chatStore.numberOfUnreadMsgs"
+        >
+          <v-icon icon="mdi-bell" size="x-large"></v-icon>
+        </v-badge>
+      </v-btn>
       <v-btn
         v-else
         class="chat mx-auto"

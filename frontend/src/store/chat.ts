@@ -14,7 +14,7 @@ export interface Channel {
   password: string;
   channelName: string;
   members: User[];
-  messages: { sender: string; content: string; date: string }[];
+  messages: { sender: string; content: string; date: string; read: string[] }[];
   admins: User[];
   bannedUsers: User[];
 }
@@ -60,6 +60,7 @@ export const chatAppStore = defineStore("chat", () => {
   const channelStd = ref<Channel>();
   const channelMessagesVar = ref<Message[]>([]);
   const notifications = ref(false);
+  const numberOfUnreadMsgs = ref(0);
 
   // condicional variables
   const createChannelPopUp = ref(false);
@@ -127,6 +128,11 @@ export const chatAppStore = defineStore("chat", () => {
 
   async function getAllChatData() {
     await getUser();
+    numberOfUnreadMsgs.value = 0;
+    currentUser.value?.channels.map((channel) => {
+      const n = countUnreadMessages(channel.id);
+      numberOfUnreadMsgs.value += n;
+    });
     setupPersonalChannels();
     await getPublicChannelsUserIsNotIn();
     setupFriendsWithTick();
@@ -142,6 +148,9 @@ export const chatAppStore = defineStore("chat", () => {
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
     if (channel == "") channelStd.value = undefined;
+    if (channel != "") {
+      readChannelMessages(channel);
+    }
   }
 
   function setupFriendsWithTick() {
@@ -211,6 +220,24 @@ export const chatAppStore = defineStore("chat", () => {
     });
     channelMessagesVar.value = messagesWithoutBlockUsers.value;
   }
+
+  const countUnreadMessages = (channelId: string) => {
+    if (!currentUser.value?.channels?.length || channelId == "") return 0;
+    const numberOfMessages = ref(0);
+    currentUser.value.channels?.map((channel) => {
+      if (channel.id == channelId) {
+        channel.messages.map((msg) => {
+          const hasRed = ref(false);
+          if (msg.sender == currentUser.value?.username) hasRed.value = true;
+          msg.read?.map((user) => {
+            if (user == currentUser.value?.username) hasRed.value = true;
+          });
+          if (hasRed.value == false) numberOfMessages.value += 1;
+        });
+      }
+    });
+    return numberOfMessages.value;
+  };
 
   // get data functions
 
@@ -498,6 +525,23 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function readChannelMessages(channelId: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("readChannelMessages", {
+      token,
+      channelId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: problem reading messages");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -513,6 +557,7 @@ export const chatAppStore = defineStore("chat", () => {
     channelStd,
     channelSettings,
     notifications,
+    numberOfUnreadMsgs,
     startConection,
     checkTokenConection,
     selectChannel,
@@ -531,5 +576,6 @@ export const chatAppStore = defineStore("chat", () => {
     promoteOrDespromoteAdmin,
     blockOrUnblockUser,
     changeChannelPassword,
+    countUnreadMessages,
   };
 });
