@@ -99,6 +99,7 @@ const logOut = async () => {
   await props.user.logout();
   emit("logout");
   chatStore.chatOpen = false;
+  chatStore.permissionToOpenChat = false;
 };
 </script>
 

@@ -32,7 +32,8 @@ const clientsMap: Map<string, Socket> = new Map();
 
 @WebSocketGateway({
   namespace: '/chat',
-  cors: { origin: '*' } })
+  cors: { origin: '*' },
+})
 export class ChannelsGateway {
   constructor(
     private readonly channelsService: ChannelsService,
@@ -319,6 +320,8 @@ export class ChannelsGateway {
             },
           },
         });
+        if (!newChannel)
+          throw new ForbiddenException('problem creating channel');
         channelIdToReturn = newChannel.id;
         data.members.map(async (member) => {
           const updatedChannel = await this.prisma.channels.update({
@@ -329,12 +332,19 @@ export class ChannelsGateway {
               },
             },
           });
+          if (!updatedChannel)
+            throw new ForbiddenException('problem conecting member');
         });
       } else {
         const possibleChannel = await this.prisma.channels.findFirst({
           where: {
             type: 'personal',
             creator: data.members[0].username || user.username,
+            members: {
+              some: {
+                id: user.id || data.members[0].id,
+              },
+            },
           },
         });
         if (possibleChannel) return possibleChannel.id;
@@ -350,6 +360,9 @@ export class ChannelsGateway {
             },
           },
         });
+        if (!newChannel)
+          throw new ForbiddenException('problem creating personal chat');
+        this.logger.debug(4);
         const updatedChannel = await this.prisma.channels.update({
           where: { id: newChannel.id },
           data: {

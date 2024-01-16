@@ -409,8 +409,9 @@ export const chatAppStore = defineStore("chat", () => {
       channelName,
       members,
     })
-      .then((channelId) => {
-        getAllChatData();
+      .then(async (channelId) => {
+        await getAllChatData();
+        selectChannel(channelId);
         return channelId;
       })
       .catch(() => {
@@ -561,7 +562,7 @@ export const chatAppStore = defineStore("chat", () => {
     channelStd,
     channelSettings,
     numberOfUnreadMsgs,
-	chatOpen,
+    chatOpen,
     startConection,
     checkTokenConection,
     selectChannel,
