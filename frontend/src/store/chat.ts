@@ -561,7 +561,7 @@ export const chatAppStore = defineStore("chat", () => {
     channelStd,
     channelSettings,
     numberOfUnreadMsgs,
-	chatOpen,
+    chatOpen,
     startConection,
     checkTokenConection,
     selectChannel,
