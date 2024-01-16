@@ -7,20 +7,23 @@ enum GameScore {
 	LOSE = -1
 };
 
-enum Achievements {
-	ON_FIRE,
+export const Achievements = {
+	// Streak
+	ON_FIRE: "On Fire",	// 5 to 10 win streak
+	UNSTOPPABLE: "Unstoppable",	// 10 win streak
+	TRANSCENDENT: "Transcendent",
 
-	NOVICE,
-	REGULAR,
-	ENTHUSIAST,
-	VETERAN,
-	GRANDMASTER,
+	// Games played
+	NOVICE: "Novice",		// Less than 5 games
+	REGULAR: "Regular",	// 5 to 10 games
+	ENTHUSIAST: "Enthusiast",	// 10 to 30 games
+	VETERAN: "Veteran",	// 30 to 50 games
+	GRANDMASTER: "Grandmaster",	// 50+ games
 
-	CONSISTENT,
-	DOMINANT,
-	UNBREAKABLE,
-
-	SOCIALITE
+	// Win ratio
+	CONSISTENT: "Consistent",	// 0.5 to 0.65
+	DOMINANT: "Dominant",	// 0.65 to 0.85
+	UNBREAKABLE: "Unbreakable",	// 0.85+
 }
 
 @Injectable()
@@ -99,9 +102,10 @@ export class GameBackendService {
 		}
 
 		// Check if the outcome of the game changes the rank of the player
-		// TODO: DECIDE VERIFICATION FUNCTION
 		const updated_rank = this.getRank(updated_score);
-		const updated_achievements = this.getAchievements(player.achievements, updated_streak);
+		const total_wins = winner ? updated_wins : player.gamestats.wins;
+		const total_losses = winner ? player.gamestats.losses : updated_losses;
+		const updated_achievements = this.getAchievements(player.achievements, updated_streak, total_wins, total_losses + total_wins);
 		if (updated_rank !== player.rank) {
 			// Update player rank
 			await this.prismaService.user.update({
@@ -110,6 +114,16 @@ export class GameBackendService {
 				},
 				data: {
 					rank: updated_rank,
+					achievements: updated_achievements
+				}
+			})
+		} else {
+			await this.prismaService.user.update({
+				where: {
+					id: playerId
+				},
+				data: {
+					achievements: updated_achievements
 				}
 			})
 		}
@@ -125,21 +139,60 @@ export class GameBackendService {
 	}
 
 	// TODO: FINISH IMPLEMENTATION
-	private getAchievements(old_achievements: {}, updated_streak: number, ): {} {
-		const updated_achievements = {};
-		return updated_achievements;
+	private getAchievements(old_achievements: any, updated_streak: number, total_wins: number, total_games: number): {} {
+		return {
+			social: old_achievements.social,
+			games_played: this.getGamesPlayedAchievement(total_games),
+			ratio: this.getRatioAchievement(total_wins / total_games),
+			streak: this.getStreakAchievements(updated_streak)
+		};
+	}
+
+	private getStreakAchievements(win_streak: number): string {
+		if (5 <= win_streak && win_streak < 10)
+			return Achievements["ON_FIRE"];
+		else if (10 <= win_streak && win_streak < 20)
+			return Achievements["UNSTOPPABLE"];
+		else if (20 <= win_streak)
+			return Achievements["TRANSCENDENT"];
+		else
+			return null;
+	}
+
+	private getGamesPlayedAchievement(total_games: number): string {
+		if (total_games < 5)
+			return Achievements["NOVICE"];
+		else if (5 <= total_games && total_games < 10)
+			return Achievements["REGULAR"];
+		else if (10 <= total_games && total_games < 30)
+			return Achievements["ENTHUSIAST"];
+		else if (30 <= total_games && total_games < 50)
+			return Achievements["VETERAN"];
+		else
+			return Achievements["GRANDMASTER"];
+	}
+
+	private getRatioAchievement(win_ratio: number): string {
+		if (0.5 <= win_ratio && win_ratio < 0.65)
+			return Achievements["CONSISTENT"];
+		else if (0.65 <= win_ratio && win_ratio < 0.85)
+			return Achievements["DOMINANT"]
+		else if (0.85 <= win_ratio)
+			return Achievements["UNBREAKABLE"]
+		else
+			return null;
 	}
 
 	async getUserGames(id: string) {
-    const games = await this.prismaService.games.findMany({
-      where: {
-        OR: [
-			{ winnerId: id },
-			{ loserId: id },
-		],
-      },
-    });
+		const games = await this.prismaService.games.findMany({
+		where: {
+			OR: [
+				{ winnerId: id },
+				{ loserId: id },
+			],
+		},
+		});
 
-	return games
+		return games
   }
 }
