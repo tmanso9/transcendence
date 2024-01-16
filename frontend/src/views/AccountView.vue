@@ -55,7 +55,6 @@ onMounted(async () => {
     if (!pending.ok) throw new Error(await pending.text());
     data = await pending.json();
     for (const pair of data.values()) {
-      console.log(pair);
       connections.value.push(pair);
     }
     if (account.value && account.value.username) isLoaded.value = true;

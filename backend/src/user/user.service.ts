@@ -330,6 +330,71 @@ export class UserService {
 
 	}
 
+	async gameRequest(id: string, sender_info: any){
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { friends: true, friendOf: true },
+    });
+
+    // Check if the user exists. If it doesn't, throw.
+    if (!user) throw new ForbiddenException('User does not exist');
+
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
+
+    const sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
+    if (!sender) throw new ForbiddenException('Something went wrong');
+
+	//TODO: Check if request already sent
+    //TODO: Add new connection to database
+
+	await this.prisma.alert.create({
+		data: {
+	      message: 'invited you to a game',
+		  sender: sender.username,
+		  senderId: sender.id,
+		  targetId: id,
+		  action: true
+		}
+	})
+	}
+
+	async gameReject(id: string, sender_info: any) {
+    // Save target user
+    let user = await this.prisma.user.findUnique({
+      where: { id },
+	  include: { alerts: true}
+    });
+
+    // Check if the user exists. If it doesn't, throw.
+    if (!user) throw new ForbiddenException('User does not exist');
+
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
+
+    let sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
+
+    if (!sender) throw new ForbiddenException('Something went wrong');
+
+	  await this.prisma.alert.create({
+      data: {
+        sender: sender.username,
+        senderId: sender.id,
+        targetId: id,
+        message: 'rejected your game request',
+        action: false,
+      },
+    });
+}
+
 /* CHANGE USER DETAILS */
 	async changeUsername(user: any, username: string) {
 		this.validareUsername(username);

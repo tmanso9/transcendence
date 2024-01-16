@@ -65,7 +65,20 @@ const playAction = computed(() => {
   switch (props.account.status) {
     case "ONLINE":
       //implement endpoint here
-      return () => {};
+      return async (id: string) => {
+        try {
+          const result = await fetch(
+            `http://localhost:3000/users/game-request/${props.account.id}`,
+            {
+              method: "post",
+              credentials: "include",
+            },
+          );
+          if (!result.ok) throw new Error(await result.text());
+        } catch (error) {
+          if (error instanceof Error) console.error(error.message);
+        }
+      };
     default:
       return null;
   }
