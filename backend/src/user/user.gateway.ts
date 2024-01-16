@@ -38,16 +38,18 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
   
   @SubscribeMessage('setOnline')
   async setOnline(client: any, username: any) {
-    if (username.length) {
+    if (client && username && username.length) {
       this.users.set(client.id, username);
-      await this.prismaService.user.update({
-        where: {
-          username,
-        },
-        data: {
-          status: 'ONLINE',
-        },
-      });
+	  if (this.prismaService){
+		  await this.prismaService.user.update({
+			where: {
+			  username,
+			},
+			data: {
+			  status: 'ONLINE',
+			},
+		  });
+	  }
     }
   }
 
