@@ -76,7 +76,7 @@ function drawBoard(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 }
 
 
-export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, height: number) {
+export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, height: number, img?: HTMLImageElement) {
   const lineWidth = width / 100;
   let winner = null;
   let quitter = null;
@@ -131,6 +131,9 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
     }
     else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (img) {
+        ctx.drawImage(img, 0, 0, width, height);
+      }
       for (const e of elements) {
         e.draw(ctx)
       }

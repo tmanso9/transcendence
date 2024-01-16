@@ -19,7 +19,6 @@ export const useGameStore = defineStore("game", () => {
     if (!socket.value && token.length > 0) {
       socket.value = io("http://localhost:3000/play");
       // const query = querystring.stringify({userId: userId, userName: username});
-      console.log("connected: ", socket.value);
       socket.value.on("connect", () => {
         socket.value.emit("addPlayer", token);
       });
