@@ -17,6 +17,7 @@ export interface Channel {
   messages: { sender: string; content: string; date: string; read: string[] }[];
   admins: User[];
   bannedUsers: User[];
+  unreadMsgs?: number;
 }
 
 export interface User {
@@ -59,7 +60,6 @@ export const chatAppStore = defineStore("chat", () => {
   const selectedChannel = ref("");
   const channelStd = ref<Channel>();
   const channelMessagesVar = ref<Message[]>([]);
-  const notifications = ref(false);
   const numberOfUnreadMsgs = ref(0);
 
   // condicional variables
@@ -98,8 +98,7 @@ export const chatAppStore = defineStore("chat", () => {
 
     await getAllChatData();
 
-    socket.on("channelMessages", (obj) => {
-      notifications.value = true;
+    socket.on("channelMessages", async (obj) => {
       if (obj.id == selectedChannel.value) {
         channelMessagesVar.value = obj.messages;
         channelMessagesVar.value.forEach((msg) => {
@@ -119,6 +118,9 @@ export const chatAppStore = defineStore("chat", () => {
         });
         removeMessagesFromBlockeUsers();
       }
+      if (selectedChannel.value)
+        await readChannelMessages(selectedChannel.value);
+      else await getAllChatData();
     });
 
     socket.on("updateInfo", () => {
@@ -129,8 +131,9 @@ export const chatAppStore = defineStore("chat", () => {
   async function getAllChatData() {
     await getUser();
     numberOfUnreadMsgs.value = 0;
-    currentUser.value?.channels.map((channel) => {
+    currentUser.value?.channels?.map((channel) => {
       const n = countUnreadMessages(channel.id);
+      channel.unreadMsgs = n;
       numberOfUnreadMsgs.value += n;
     });
     setupPersonalChannels();
@@ -556,7 +559,6 @@ export const chatAppStore = defineStore("chat", () => {
     channelMessagesVar,
     channelStd,
     channelSettings,
-    notifications,
     numberOfUnreadMsgs,
     startConection,
     checkTokenConection,

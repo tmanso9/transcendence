@@ -13,7 +13,6 @@ onMounted(async () => {
   await store.channelMessages(store.selectedChannel, "get", "");
   if (store.channelMessagesVar) {
     openMessages.value = true;
-    // updateScroll();
   }
 });
 
