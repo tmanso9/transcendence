@@ -17,7 +17,7 @@ onMounted(async () => {
 async function sendMessage() {
   await store.channelMessages(store.selectedChannel, "send", message.value);
 
-	message.value = '';
+  message.value = "";
 }
 </script>
 <template>
@@ -29,7 +29,6 @@ async function sendMessage() {
       variant="outlined"
       append-icon="mdi-send"
       clearable
-      @click:append="sendMessage"
       :onchange="sendMessage"
     >
     </v-text-field>
