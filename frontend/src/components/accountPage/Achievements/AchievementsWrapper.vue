@@ -8,8 +8,7 @@
           <v-card
             v-for="(stat, i) in stats"
             :key="i"
-            width="150px"
-            class="my-2 mx-2 text-center friends__card"
+            class="my-2 mx-2 text-center stats__card"
             height="60px"
           >
             <v-card-title class="text-overline text-deep-purple mb-n5 mt-n2">{{
@@ -55,7 +54,8 @@ const fetchData = async () => {
     for (const key in data) {
       if (Object.values(desirableStats).includes(key) && data[key] !== null) {
         let value = data[key];
-        if (value && value.length) stats.value.push({ key, value });
+        if (value && value.length)
+          stats.value.push({ key: key.replace("_", " "), value });
       }
     }
   } catch (error) {

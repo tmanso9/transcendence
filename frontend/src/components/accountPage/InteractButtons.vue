@@ -23,14 +23,21 @@
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
-import { isFriend } from "@/utils";
+import { isFriend, inviteToGame } from "@/utils";
 import { chatAppStore } from "@/store/chat";
+import { useRouter } from "vue-router";
+import { useGameStore } from "@/store/game";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
 const emit = defineEmits(["friendRequest", "chat"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
 const chat = chatAppStore();
+const router = useRouter();
+const game = useGameStore();
+const cookies = inject<VueCookies>("$cookies");
 
 const friendAction = computed(() => {
   const { alreadyFriends, pending } = isFriend(
@@ -64,8 +71,7 @@ const friendAction = computed(() => {
 const playAction = computed(() => {
   switch (props.account.status) {
     case "ONLINE":
-      //implement endpoint here
-      return () => {};
+      return () => inviteToGame(props.account.id, game, cookies);
     default:
       return null;
   }

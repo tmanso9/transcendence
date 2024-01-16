@@ -193,6 +193,6 @@ export class GameBackendService {
 		},
 		});
 
-		return games
+		return games.reverse()
   }
 }

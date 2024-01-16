@@ -1,6 +1,7 @@
 import {defineStore} from "pinia";
 import {Ref, ref} from "vue";
 import {io, Socket} from "socket.io-client";
+import { useRouter } from "vue-router";
 
 
 export const useGameStore = defineStore("game", () => {
@@ -11,6 +12,8 @@ export const useGameStore = defineStore("game", () => {
   const canvasHeight = ref(700);
   const canvasWidth = ref(1000);
   const socket: Ref<Socket> = ref(null as any);
+  const router = useRouter();
+  const roomsList: Ref<string[]> = ref([]);
 
   function connectSocket(token: string) {
     if (!socket.value && token.length > 0) {
@@ -47,13 +50,31 @@ export const useGameStore = defineStore("game", () => {
     canvasHeight.value = height;
   }
 
+  function goToGame(alertId: string | undefined = undefined) {
+    const room = alertId
+      ? alertId
+      : "room " + roomsList.value.length.toString();
+    console.log("goToGame: ", room, alertId, roomsList.value.length.toString());
+      getSocket().
+      emit("createRoom", { room: room, width: 1000, height: 700 });
+    router.push("/game");
+  }
+
+  function joinRoom(room: string) {
+    getSocket().emit("joinRoom", room);
+    router.push("/game");
+  }
+
   return {
     isSpectator,
     score,
     canvasHeight,
     canvasWidth,
+	roomsList,
     connectSocket,
     disconnectSocket,
     getSocket,
+	goToGame,
+	joinRoom
   }
 });
