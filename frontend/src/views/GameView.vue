@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import {ref, onMounted, nextTick, onUnmounted, watch, inject} from "vue";
+import {ref, onMounted, nextTick, onUnmounted, watch, inject, computed} from "vue";
 import { Socket} from "socket.io-client";
 import { game } from "@/game/game";
 import router from "@/router";
 import { useGameStore } from "@/store/game";
-import {useDisplay} from "vuetify";
-
-const {mdAndDown} = useDisplay();
 
 const canvasRef = ref(null);
 
@@ -14,16 +11,18 @@ const canvasRef = ref(null);
 const width = 1000;
 const height = 700;
 const gameStore = useGameStore();
-
-
+const img = ref(new Image());
 onMounted(async () => {
   await nextTick();
 
   if (gameStore.getSocket()) {
-    game(canvasRef.value as any, gameStore.getSocket(), width, height);
+
+    img.value.src = "/black.png";
+    game(canvasRef.value as any, gameStore.getSocket(), width, height, source.value);
     gameStore.getSocket().on("kick", args => {
       router.push("/play");
     });
+
   }
   else {
     await router.push("/play");
@@ -36,9 +35,13 @@ onUnmounted(() => {
   gameStore.disconnectSocket();
 });
 
-function play() {
-  gameStore.getSocket().emit("play", "play");
+function changeStyle() {
+  img.value.src = img.value.src == "http://localhost:3001/afonsinho.jpeg" ? "http://localhost:3001/black.png" : "http://localhost:3001/afonsinho.jpeg";
 }
+
+const source = computed(() => {
+  return img.value;
+});
 function pause() {
   gameStore.getSocket().emit("pause", "play");
 }
@@ -64,14 +67,8 @@ function reset() {
   <canvas width="1000" height="700" id="game-canvas" ref="canvasRef"></canvas>
   <h4>Move left paddle up and down with the arrow keys</h4>
   <div v-if="!useGameStore().isSpectator">
-    <v-btn variant="outlined" color="white" @click="play" style="margin: 10px"
-    >Play</v-btn
-    >
-    <v-btn variant="outlined" color="white" @click="pause" style="margin: 10px"
-    >Pause</v-btn
-    >
-    <v-btn variant="outlined" color="white" @click="reset" style="margin: 10px"
-    >Reset</v-btn
+    <v-btn variant="outlined" color="white" @click="changeStyle" style="margin: 10px"
+    >Change Style</v-btn
     >
   </div>
   <div v-else>

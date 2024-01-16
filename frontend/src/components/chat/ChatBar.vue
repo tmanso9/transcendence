@@ -140,7 +140,7 @@ const store = chatAppStore();
                 v-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
                 @click="
-                  () => {
+                  async () => {
                     const friend = store.currentUser?.friends.find(
                       (friend: User) => {
                         if (friend.username == item.channelName) return true;

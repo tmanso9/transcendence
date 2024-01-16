@@ -12,13 +12,13 @@ import router from "./router";
 import { fetchMe } from "./utils";
 import { chatAppStore } from "./store/chat";
 import { io } from "socket.io-client";
+import { computed } from "vue";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
 const showChat = ref(false);
 const showNotifications = ref(false);
 const permissionToOpenChat = ref(false);
-const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
@@ -26,6 +26,9 @@ const chatStore = chatAppStore();
 const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
+const chatText = computed(() => {
+  return chatStore.chatOpen ? "Hide chat" : "Show chat";
+});
 
 onBeforeMount(async () => {
   await fetchMe(cookies, user);
@@ -72,12 +75,10 @@ router.beforeEach(async (to, from) => {
 const toggleChat = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted == 0) {
-    showChat.value = false;
-    chatText.value = "Show Chat";
+    chatStore.chatOpen = false;
   }
   if (permissionGranted) {
-    showChat.value = !showChat.value;
-    chatText.value = showChat.value ? "Hide chat" : "Show chat";
+    chatStore.chatOpen = !chatStore.chatOpen;
   }
   toggleChatPermission();
 };
@@ -88,12 +89,8 @@ const toggleChatPermission = async () => {
   else chatStore.permissionToOpenChat = false;
 };
 
-const handleCloseChat = () => {
-  if (showChat.value) toggleChat();
-};
-
 const handleOpenChat = () => {
-  if (!showChat.value) toggleChat();
+  if (!chatStore.chatOpen) toggleChat();
 };
 
 const toggleLogin = async () => {
@@ -123,7 +120,6 @@ const handleNotificationResolve = async () => {
       :showLogin="showLogin"
       @login="toggleLogin"
       @logout="fetchMe(cookies, user)"
-      @chat="handleCloseChat"
       @notifications="showNotifications = !showNotifications"
       class="navbar included"
     />
@@ -157,14 +153,13 @@ const handleNotificationResolve = async () => {
       <RouterView
         :key="`${$route.fullPath}--${user.username}--${toReload}`"
         v-if="ready"
-        @chat="handleOpenChat"
       />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
-        v-if="showChat"
+        v-if="chatStore.chatOpen"
         v-click-outside="{
           handler: () => {
-            if (showChat) toggleChat();
+            if (chatStore.chatOpen) toggleChat();
           },
           include,
         }"

@@ -31,7 +31,7 @@ import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
-const emit = defineEmits(["friendRequest", "chat"]);
+const emit = defineEmits(["friendRequest"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
 const chat = chatAppStore();
@@ -96,15 +96,14 @@ const openChatChannel = async () => {
     if (personalChat.length) {
       chat.selectChannel(personalChat[0].id);
     } else {
-      const newChat = await chat.createChannel("personal", "", "", [
-        props.account,
-      ]);
-      newChat && chat.selectChannel(newChat);
+      chat.chatOpen = true;
+      await chat.getAllChatData();
+      chat.createChannel("personal", "", "", [props.account]);
     }
+    chat.chatOpen = true;
   } catch (error) {
     error instanceof Error && console.log(error.message);
   }
-  emit("chat");
 };
 
 const headerButtons = computed(() => {

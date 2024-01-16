@@ -50,8 +50,10 @@ const cookies = inject<VueCookies>("$cookies");
           class="channelSettings-content-buttons-btn"
           append-icon="mdi-table-tennis"
           @click="
-            () =>
-              inviteToGame(store.selectedUserProfile?.id || '', game, cookies)
+            () => {
+              inviteToGame(store.selectedUserProfile?.id || '', game, cookies);
+              store.chatOpen = false;
+            }
           "
           >Play Game</v-btn
         >

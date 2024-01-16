@@ -18,7 +18,6 @@ onMounted(async () => {
 
 function updateScroll() {
   var element = document.getElementById("scrollMessages");
-  console.log("updateScroll: ", element);
   if (element) element.scrollTop = element.scrollHeight;
 }
 
