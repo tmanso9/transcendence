@@ -72,12 +72,12 @@ router.beforeEach(async (to, from) => {
 const toggleChat = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted == 0) {
-    showChat.value = false;
+    chatStore.chatOpen = false;
     chatText.value = "Show Chat";
   }
   if (permissionGranted) {
-    showChat.value = !showChat.value;
-    chatText.value = showChat.value ? "Hide chat" : "Show chat";
+    chatStore.chatOpen = !chatStore.chatOpen;
+    chatText.value = chatStore.chatOpen ? "Hide chat" : "Show chat";
   }
   toggleChatPermission();
 };
@@ -88,12 +88,8 @@ const toggleChatPermission = async () => {
   else chatStore.permissionToOpenChat = false;
 };
 
-const handleCloseChat = () => {
-  if (showChat.value) toggleChat();
-};
-
 const handleOpenChat = () => {
-  if (!showChat.value) toggleChat();
+  if (!chatStore.chatOpen) toggleChat();
 };
 
 const toggleLogin = async () => {
@@ -123,7 +119,6 @@ const handleNotificationResolve = async () => {
       :showLogin="showLogin"
       @login="toggleLogin"
       @logout="fetchMe(cookies, user)"
-      @chat="handleCloseChat"
       @notifications="showNotifications = !showNotifications"
       class="navbar included"
     />
@@ -157,14 +152,13 @@ const handleNotificationResolve = async () => {
       <RouterView
         :key="`${$route.fullPath}--${user.username}--${toReload}`"
         v-if="ready"
-        @chat="handleOpenChat"
       />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
-        v-if="showChat"
+        v-if="chatStore.chatOpen"
         v-click-outside="{
           handler: () => {
-            if (showChat) toggleChat();
+            if (chatStore.chatOpen) toggleChat();
           },
           include,
         }"
