@@ -176,16 +176,10 @@ const handleNotificationResolve = async () => {
     >
       <v-btn
         v-if="chatStore.permissionToOpenChat"
-        :append-icon="
-          chatStore.notifications && !showChat ? 'mdi-message-badge' : ''
-        "
-        :color="chatStore.notifications && !showChat ? 'red' : ''"
         class="chat mx-auto"
         @click="
           () => {
-            chatStore.notifications = false;
             toggleChat();
-            console.log('n: ', chatStore.numberOfUnreadMsgs);
           }
         "
         >{{ chatText }}
