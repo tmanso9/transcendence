@@ -19,6 +19,7 @@ class Message {
   sender: string;
   content: string;
   date: string;
+  read: string[];
 }
 
 type JsonValue = {
@@ -29,7 +30,9 @@ type JsonValue = {
 
 const clientsMap: Map<string, Socket> = new Map();
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  namespace: '/chat',
+  cors: { origin: '*' } })
 export class ChannelsGateway {
   constructor(
     private readonly channelsService: ChannelsService,
@@ -155,6 +158,7 @@ export class ChannelsGateway {
                 sender: user.username,
                 content: data.message,
                 date: '',
+                read: [user.username],
               },
             },
           },
@@ -167,13 +171,17 @@ export class ChannelsGateway {
             sender: msg.sender,
             content: msg.content,
             date: msg.date,
+            read: [msg.sender],
           });
         });
         updatedChannel.members.map((member) => {
           if (member.id != user.id) {
             const client = clientsMap.get(member.id);
             if (client && client.connected) {
-              client.emit('channelMessages', messages);
+              client.emit('channelMessages', {
+                id: channel.id,
+                messages: messages,
+              });
             }
           }
         });
@@ -183,6 +191,7 @@ export class ChannelsGateway {
             sender: msg.sender,
             content: msg.content,
             date: msg.date,
+            read: [msg.sender],
           });
         });
       }
@@ -200,6 +209,7 @@ export class ChannelsGateway {
     data: {
       token: string;
       channelId: string;
+      password: string;
     },
   ): Promise<Channels[]> {
     try {
@@ -225,6 +235,9 @@ export class ChannelsGateway {
         if (member.id == user.id)
           throw new ForbiddenException('user is already member of channel');
       });
+      if (data.password != channel.password) {
+        throw new ForbiddenException('wrong password - cant join');
+      }
       const updatedChannel = await this.prisma.channels.update({
         where: { id: channel.id },
         data: {
@@ -676,6 +689,106 @@ export class ChannelsGateway {
       return 1;
     } catch (error) {
       this.logger.debug('problem in blockOrUnblockUser');
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('changeChannelPassword')
+  async changeChannelPassword(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+      password: string;
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+          admins: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+        include: {
+          admins: true,
+        },
+      });
+      if (!channel)
+        throw new ForbiddenException(
+          'channel doesnt exist or user is not admin',
+        );
+      const updatedChannel = await this.prisma.channels.update({
+        where: {
+          id: data.channelId,
+        },
+        data: {
+          password: data.password,
+        },
+        include: {
+          members: true,
+        },
+      });
+      updatedChannel.members.map((member) => {
+        const client = clientsMap.get(member.id);
+        if (client && client.connected) {
+          client.emit('updateInfo');
+        }
+      });
+      return 1;
+    } catch (error) {
+      this.logger.debug('problem in changeChannelPassword');
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('readChannelMessages')
+  async readChannelMessages(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+        },
+      });
+      if (!channel) throw new ForbiddenException('channel doesnt exist');
+      const updatedMessages = (
+        channel.messages as {
+          sender: string;
+          content: string;
+          date: string;
+          read: string[];
+        }[]
+      ).map((message) => {
+        const updatedMessage = Object.assign({}, message);
+        updatedMessage.read = message.read
+          ? message.read.concat(user.username)
+          : [user.username];
+        return updatedMessage;
+      });
+
+      // Update the channel with the modified messages
+      await this.prisma.channels.update({
+        where: { id: data.channelId },
+        data: { messages: { set: updatedMessages } },
+      });
+
+      return 1;
+    } catch (error) {
+      this.logger.debug('problem in readChannelMessages');
       return 0;
     }
   }

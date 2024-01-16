@@ -96,7 +96,7 @@ export const useUserStore = defineStore("user", () => {
       loginType.value = data.login;
       alerts.value = data.alerts;
       id.value = data.id;
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;

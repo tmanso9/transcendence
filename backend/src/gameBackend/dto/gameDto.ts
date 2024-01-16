@@ -11,4 +11,12 @@ export class GameDTO {
 
 	@IsNotEmpty()
 	loserScore: any
+
+	@IsString()
+	@IsNotEmpty()
+	winnerUsername: string
+
+	@IsString()
+	@IsNotEmpty()
+	loserUsername: string
 }

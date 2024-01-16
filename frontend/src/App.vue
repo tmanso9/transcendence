@@ -22,7 +22,7 @@ const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
-chatStore.startConection();
+// chatStore.startConection();
 const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
@@ -69,6 +69,10 @@ router.beforeEach(async (to, from) => {
 
 const toggleChat = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
+  if (permissionGranted == 0) {
+    showChat.value = false;
+    chatText.value = "Show Chat";
+  }
   if (permissionGranted) {
     showChat.value = !showChat.value;
     chatText.value = showChat.value ? "Hide chat" : "Show chat";
@@ -82,7 +86,11 @@ const toggleChatPermission = async () => {
   else chatStore.permissionToOpenChat = false;
 };
 
-const handleActivateChat = () => {
+const handleCloseChat = () => {
+  if (showChat.value) toggleChat();
+};
+
+const handleOpenChat = () => {
   if (!showChat.value) toggleChat();
 };
 
@@ -113,6 +121,7 @@ const handleNotificationResolve = async () => {
       :showLogin="showLogin"
       @login="toggleLogin"
       @logout="fetchMe(cookies, user)"
+      @chat="handleCloseChat"
       @notifications="showNotifications = !showNotifications"
       class="navbar included"
     />
@@ -146,7 +155,7 @@ const handleNotificationResolve = async () => {
       <RouterView
         :key="`${$route.fullPath}--${user.username}--${toReload}`"
         v-if="ready"
-        @chat="handleActivateChat"
+        @chat="handleOpenChat"
       />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
@@ -162,15 +171,25 @@ const handleNotificationResolve = async () => {
     <v-footer
       height="1"
       class="pa-0 included"
-      style="z-index: 2"
+      style="z-index: 2410"
       v-click-outside="toggleChatPermission()"
     >
       <v-btn
         v-if="chatStore.permissionToOpenChat"
         class="chat mx-auto"
-        @click="toggleChat"
-        >{{ chatText }}</v-btn
-      >
+        @click="
+          () => {
+            toggleChat();
+          }
+        "
+        >{{ chatText }}
+        <v-badge
+          v-if="chatStore.numberOfUnreadMsgs"
+          :content="chatStore.numberOfUnreadMsgs"
+        >
+          <v-icon icon="mdi-bell" size="x-large"></v-icon>
+        </v-badge>
+      </v-btn>
       <v-btn
         v-else
         class="chat mx-auto"
