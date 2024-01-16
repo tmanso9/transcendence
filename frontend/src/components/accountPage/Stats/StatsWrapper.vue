@@ -9,7 +9,7 @@
             v-for="(stat, i) in stats"
             :key="i"
             width="30%"
-            class="my-2 mx-2 text-center friends__card"
+            class="my-2 mx-2 text-center stats__card"
             height="60px"
           >
             <v-card-title class="text-overline mb-n5 mt-n2">{{
@@ -52,11 +52,16 @@ const fetchData = async () => {
     if (!result.ok) throw new Error(await result.text());
     const data = await result.json();
     stats.value.length = 0;
-    for (const key in data) {
+    for (let key in data) {
       if (Object.values(desirableStats).includes(key) && data[key] !== null) {
         let value = data[key];
-        if (key === "win_ratio") {
-          value = `${(value * 100).toFixed(0)}%`;
+        switch (key) {
+          case "win_ratio":
+            key = "win ratio";
+            value = `${(value * 100).toFixed(0)}%`;
+            break;
+          case "streak":
+            key = "win streak";
         }
         stats.value.push({ key, value });
       }
