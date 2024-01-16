@@ -11,11 +11,15 @@ const openMessages = ref(false);
 
 onMounted(async () => {
   await store.channelMessages(store.selectedChannel, "get", "");
-  if (store.channelMessagesVar) openMessages.value = true;
+  if (store.channelMessagesVar) {
+    openMessages.value = true;
+    // updateScroll();
+  }
 });
 
 function updateScroll() {
   var element = document.getElementById("scrollMessages");
+  console.log("updateScroll: ", element);
   if (element) element.scrollTop = element.scrollHeight;
 }
 
@@ -24,17 +28,18 @@ function nextValue(index: number) {
   const nextItem = store.channelMessagesVar[index];
   return nextItem;
 }
-// aaaaaaaaaaaaaaaaaaaaaaaaa 25
-// aaaaaaaaaaaaaaaaaaa 19
+
+const mensagens = computed(() => {
+  setTimeout(() => updateScroll(), 100);
+  return store.channelMessagesVar;
+});
 </script>
 <template>
   <div class="messageScroll" v-if="openMessages">
     <v-virtual-scroll
-      v-if="store.channelMessagesVar.length != 0"
-      :items="store.channelMessagesVar"
+      :items="mensagens || ['No messages']"
       :height="height > 700 ? 382 : 282"
       id="scrollMessages"
-      @vue-updated="updateScroll"
     >
       <template v-slot:default="{ item, index }">
         <div class="messageSentOrReceived">
@@ -98,20 +103,12 @@ function nextValue(index: number) {
         </div>
       </template>
     </v-virtual-scroll>
-    <v-virtual-scroll
-      v-else
-      :items="['No messages']"
-      :height="height > 700 ? 400 : 300"
-      id="scrollMessages"
+    <div
+      class="messageScroll-noMessages"
+      v-if="store.channelMessagesVar.length == 0"
     >
-      <template v-slot:default="{ item }">
-        <div class="messageScroll-noMessages">
-          <v-chip size="x-large" color="secondary">
-            {{ item }}
-          </v-chip>
-        </div>
-      </template>
-    </v-virtual-scroll>
+      <v-chip size="x-large" color="secondary"> No messages </v-chip>
+    </div>
   </div>
 </template>
 <style scoped lang="scss"></style>

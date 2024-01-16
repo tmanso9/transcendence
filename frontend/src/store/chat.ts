@@ -88,9 +88,7 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   async function startConection() {
-    socket.on("connect", () => {
-      console.log("connection id: ", socket.id);
-    });
+    socket.on("connect", () => {});
     socket.on("disconnect", () => {
       socket.close();
       window.location.reload();
@@ -242,7 +240,7 @@ export const chatAppStore = defineStore("chat", () => {
   };
 
   function getChannelInfo(channelId: string) {
-    if (!currentUser.value?.channels.length || channelId == "")
+    if (!currentUser.value?.channels?.length || channelId == "")
       return undefined;
     const channels: Channel[] = currentUser.value.channels;
     const channelFound = ref<Channel>();
