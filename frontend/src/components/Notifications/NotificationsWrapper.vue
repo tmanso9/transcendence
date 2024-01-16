@@ -19,12 +19,16 @@
 </template>
 
 <script lang="ts" setup>
+import { useGameStore } from "@/store/game";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 import { useRoute, useRouter } from "vue-router";
 
 defineProps(["alerts"]);
 const emit = defineEmits(["notificationResolve"]);
 const router = useRouter();
-const route = useRoute();
+const game = useGameStore();
+const cookies = inject<VueCookies>("$cookies");
 
 type Alert = {
   id: string;
@@ -44,8 +48,10 @@ const response = (alert: Alert, action: string) => {
 
 const respondGame = async (id: string, action: string, alert: Alert) => {
   if (action === "accept") {
-    if (route.path === "/game") router.go(0);
-    else router.push("/game");
+    game.connectSocket(cookies?.get("access_token"));
+    setTimeout(() => {
+      game.joinRoom(alert.id);
+    }, 200);
   } else {
     rejectGame(alert);
   }

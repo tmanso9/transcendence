@@ -352,7 +352,7 @@ export class UserService {
 	//TODO: Check if request already sent
     //TODO: Add new connection to database
 
-	await this.prisma.alert.create({
+	const alert = await this.prisma.alert.create({
 		data: {
 	      message: 'invited you to a game',
 		  sender: sender.username,
@@ -361,6 +361,8 @@ export class UserService {
 		  action: true
 		}
 	})
+
+	return alert.id
 	}
 
 	async gameReject(id: string, sender_info: any) {

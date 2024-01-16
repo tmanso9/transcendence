@@ -121,10 +121,10 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Post('game-request/:id')
   async requestGame(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
-    await this.userService.gameRequest(user_id, decoded_jwt);
+    const alertId = await this.userService.gameRequest(user_id, decoded_jwt);
     const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
-    return HttpCode(201);
+    return alertId;
   }
 
   // Reject Game Request
