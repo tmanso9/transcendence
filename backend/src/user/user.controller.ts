@@ -33,8 +33,14 @@ export class UserController {
 
 	@UseGuards(JwtGuard)
 	@Get('gamestats/:username')
-	getUserGamestats(@Param('username') username: string, @decodeJwt() decoded_jwt: any) {
-		return this.userService.getUserGamestats(username, decodeJwt);
+	getUserGamestats(@Param('username') username: string) {
+		return this.userService.getUserGamestats(username);
+	}
+
+  @UseGuards(JwtGuard)
+	@Get('achievements/:username')
+	getUserAchievements(@Param('username') username: string) {
+		return this.userService.getUserAchievements(username);
 	}
 
 	@UseGuards(JwtGuard)
