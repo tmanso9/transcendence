@@ -36,7 +36,7 @@ export class UserService {
   }
 
 	// Returns gamestats of a specific player
-	async getUserGamestats(username: string, decoded_jwt: any) {
+	async getUserGamestats(username: string) {
 		const user = await this.prisma.user.findFirst({
 			where: {
 				username: username
@@ -60,6 +60,16 @@ export class UserService {
 			win_ratio: user.gamestats.wins / (user.gamestats.wins + user.gamestats.losses)
 		}
 	}
+
+  async getUserAchievements(username: string) {
+    const user = await this.prisma.user.findFirst({
+			where: {
+				username: username
+			},
+		});
+
+    return user.achievements;
+  }
 
 	// Returns User Info
 	getMe(user: any) {
