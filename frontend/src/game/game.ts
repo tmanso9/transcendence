@@ -5,7 +5,7 @@ import {el, he} from "vuetify/locale";
 
 const gStore = useGameStore();
 
-class object {
+class Object {
   constructor(public x: number, public y: number, public color: string, public collidable: boolean = true, public orientation: string = 'horizontal') {
   }
 
@@ -14,7 +14,7 @@ class object {
   }
 }
 
-class rectangle extends object {
+class rectangle extends Object {
   constructor(public x: number, public y: number, public width: number, public height: number, public color: string, public orientation: string) {
     super(x, y, color);
   }
@@ -34,7 +34,7 @@ class paddle extends rectangle {
   }
 }
 
-class Ball extends object {
+class Ball extends Object {
   constructor(public x: number, public y: number, public radius: number, public dx: number, public dy: number, public color: string, collidable: boolean = false) {
     super(x, y, color, collidable);
   }
@@ -78,8 +78,8 @@ function drawBoard(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: nu
 
 export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, height: number, img?: HTMLImageElement) {
   const lineWidth = width / 100;
-  let winner = null;
-  let quitter = null;
+  let winner: string | null = null;
+  let quitter: string | null = null;
   const paddleWidth = width / 50;
   const paddleHeight = height / 5;
   const paddleStartY = height / 2 - paddleHeight / 2;
@@ -109,19 +109,23 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
   });
 
   function gameOver(winner: string) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'White'; // Text color
-    ctx.font = '30px Arial'; // Font size and family
-    ctx.textAlign = 'center'; // Align text in the center
-    ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'White'; // Text color
+      ctx.font = '30px Arial'; // Font size and family
+      ctx.textAlign = 'center'; // Align text in the center
+      ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
+    }
   }
 
   function gameOverQuitter(quitter: string) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'White'; // Text color
-    ctx.font = '30px Arial'; // Font size and family
-    ctx.textAlign = 'center'; // Align text in the center
-    ctx.fillText(`Player ${winner} wins, because player ${quitter} either quit or disconnected`, canvas.width / 2, canvas.height / 2);
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'White'; // Text color
+      ctx.font = '30px Arial'; // Font size and family
+      ctx.textAlign = 'center'; // Align text in the center
+      ctx.fillText(`Player ${winner} wins, because player ${quitter} either quit or disconnected`, canvas.width / 2, canvas.height / 2);
+    }
   }
   function drawFrame() {
     if (winner != null && quitter == null)
@@ -130,19 +134,19 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
       gameOverQuitter(quitter);
     }
     else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (img) {
-        ctx.drawImage(img, 0, 0, width, height);
+        if (ctx) ctx.drawImage(img, 0, 0, width, height);
       }
       for (const e of elements) {
         e.draw(ctx)
       }
-      drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
+      if (ctx) drawBoard(ctx, width / 2, lineWidth, width / 2, height - lineWidth);
       requestAnimationFrame(drawFrame)
     }
   }
 
-  function keyDownHandler(e) {
+  function keyDownHandler(e: any) {
     socket.emit('movePaddle', e.key);
   }
 

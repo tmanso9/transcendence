@@ -52,9 +52,9 @@ onMounted(() => {
 const orderedUsers = (): User[] => {
   return users.value
     .sort(function (prev: User, curr: User) {
-      if (!curr.gamestats.points) curr.gamestats.points = 0;
-      if (!prev.gamestats.points) prev.gamestats.points = 0;
-      return curr.gamestats.points - prev.gamestats.points;
+      if (!curr.gamestats?.points) curr.gamestats!.points = 0;
+      if (!prev.gamestats?.points) prev.gamestats!.points = 0;
+      return curr.gamestats!.points - prev.gamestats!.points;
     })
     .map((user, index) => {
       return {
