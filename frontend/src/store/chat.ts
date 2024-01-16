@@ -48,7 +48,7 @@ export interface Message {
 export const chatAppStore = defineStore("chat", () => {
   // conection's variables
   const cookies = inject<VueCookies>("$cookies");
-  const socket = io("http://localhost:3000");
+  const socket = io("http://localhost:3000/chat");
 
   // user's data
   const currentUser = ref<User>();

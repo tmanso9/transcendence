@@ -22,7 +22,7 @@ const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
-chatStore.startConection();
+// chatStore.startConection();
 const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
