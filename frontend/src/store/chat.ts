@@ -59,6 +59,7 @@ export const chatAppStore = defineStore("chat", () => {
   const selectedChannel = ref("");
   const channelStd = ref<Channel>();
   const channelMessagesVar = ref<Message[]>([]);
+  const notifications = ref(false);
 
   // condicional variables
   const createChannelPopUp = ref(false);
@@ -97,6 +98,7 @@ export const chatAppStore = defineStore("chat", () => {
     await getAllChatData();
 
     socket.on("channelMessages", (obj) => {
+      notifications.value = true;
       if (obj.id == selectedChannel.value) {
         channelMessagesVar.value = obj.messages;
         channelMessagesVar.value.forEach((msg) => {
@@ -334,7 +336,7 @@ export const chatAppStore = defineStore("chat", () => {
   function userIsBlocked(userName: string) {
     const isBlocked = ref(false);
 
-    currentUser.value?.blockedUsers.map((user) => {
+    currentUser.value?.blockedUsers?.map((user) => {
       if (user == userName) isBlocked.value = true;
     });
     return isBlocked.value;
@@ -510,6 +512,7 @@ export const chatAppStore = defineStore("chat", () => {
     channelMessagesVar,
     channelStd,
     channelSettings,
+    notifications,
     startConection,
     checkTokenConection,
     selectChannel,
