@@ -98,8 +98,7 @@ const logOut = async () => {
   await fetchMe(cookies, props.user);
   await props.user.logout();
   emit("logout");
-  // chatStore.permissionToOpenChat = false;
-  emit("chat");
+  chatStore.chatOpen = false;
 };
 </script>
 
