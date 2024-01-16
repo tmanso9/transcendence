@@ -96,10 +96,9 @@ const openChatChannel = async () => {
     if (personalChat.length) {
       chat.selectChannel(personalChat[0].id);
     } else {
-      const newChat = await chat.createChannel("personal", "", "", [
-        props.account,
-      ]);
-      newChat && chat.selectChannel(newChat);
+      chat.chatOpen = true;
+      await chat.getAllChatData();
+      chat.createChannel("personal", "", "", [props.account]);
     }
     chat.chatOpen = true;
   } catch (error) {

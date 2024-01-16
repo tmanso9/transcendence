@@ -12,13 +12,13 @@ import router from "./router";
 import { fetchMe } from "./utils";
 import { chatAppStore } from "./store/chat";
 import { io } from "socket.io-client";
+import { computed } from "vue";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
 const showChat = ref(false);
 const showNotifications = ref(false);
 const permissionToOpenChat = ref(false);
-const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
@@ -26,6 +26,9 @@ const chatStore = chatAppStore();
 const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
+const chatText = computed(() => {
+  return chatStore.chatOpen ? "Hide chat" : "Show chat";
+});
 
 onBeforeMount(async () => {
   await fetchMe(cookies, user);
@@ -73,11 +76,9 @@ const toggleChat = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted == 0) {
     chatStore.chatOpen = false;
-    chatText.value = "Show Chat";
   }
   if (permissionGranted) {
     chatStore.chatOpen = !chatStore.chatOpen;
-    chatText.value = chatStore.chatOpen ? "Hide chat" : "Show chat";
   }
   toggleChatPermission();
 };
