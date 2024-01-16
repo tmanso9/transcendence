@@ -30,11 +30,13 @@ const ready = ref(false);
 onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  const s = io("http://localhost:3000/login");
+  if (user.username) {
+    const s = io("http://localhost:3000/login");
 
-  s.on("connect", () => {
-    s.emit("setOnline", user.username);
-  });
+    s.on("connect", () => {
+      s.emit("setOnline", user.username);
+    });
+  }
 
   setTimeout(() => {
     ready.value = true;

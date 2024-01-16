@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
+import { useGameStore } from "@/store/game";
+import { inviteToGame } from "@/utils";
+import { inject } from "vue";
+import { VueCookies } from "vue-cookies";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const store = chatAppStore();
+const game = useGameStore();
+const cookies = inject<VueCookies>("$cookies");
 </script>
 <template>
   <div class="channelSettings">
@@ -43,6 +49,10 @@ const store = chatAppStore();
           :disabled="store.selectedUserProfile?.status !== 'ONLINE'"
           class="channelSettings-content-buttons-btn"
           append-icon="mdi-table-tennis"
+          @click="
+            () =>
+              inviteToGame(store.selectedUserProfile?.id || '', game, cookies)
+          "
           >Play Game</v-btn
         >
         <v-btn
