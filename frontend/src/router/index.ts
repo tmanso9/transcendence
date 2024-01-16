@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import AboutView from '../views/AboutView.vue';
-import PlayView from '../views/PlayView.vue';
 import RankingView from '@/views/RankingView.vue';
 import TwoFAView from '../views/TwoFAView.vue';
 import FirstLoginView from '../views/FirstLoginView.vue';
@@ -24,9 +23,11 @@ const router = createRouter({
     {
       path: "/play",
       component: () => import('../views/PlayView.vue'),
+      // component : PlayView,
     },
     {
       path: '/game',
+      // component: GameView,
       component: () => import('../views/GameView.vue')
     },
     {
