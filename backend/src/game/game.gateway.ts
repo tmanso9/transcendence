@@ -74,7 +74,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.games.get(payload.room).initGame(payload.width, payload.height);
     this.games.get(payload.room).registerPlayer(client.id, this.connectedUsers.get(client.id));
     this.rooms.set(client.id, payload.room);
-    this.server.emit('availableRooms', Array.from(this.games.keys()) as any);
+    this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
   @SubscribeMessage('joinRoom')
@@ -97,7 +97,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     const prismaUser = await this.prismService.user.findUnique({where: {id: decoded.sub}});
     const user = {username: prismaUser.username, id: decoded.sub, score: 0, paddle: null as any};
     this.connectedUsers.set(client.id, user);
-    client.emit('availableRooms', Array.from(this.games.keys()) as any);
+    client.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
 
@@ -131,13 +131,14 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         game.spectators.splice(game.spectators.indexOf(client.id), 1);
       }
       this.rooms.delete(client.id);
+      this.games.delete(room);
     }
     this.connectedUsers.delete(client.id);
-    this.server.emit('availableRooms', Array.from(this.games.keys()) as any);
+    this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
   handleConnection(client: Socket, ...args: any[]): any {
-    this.server.emit('availableRooms', Array.from(this.games.keys()) as any);
+    this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
 }
