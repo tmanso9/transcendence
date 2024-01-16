@@ -25,12 +25,14 @@ import { computed } from "vue";
 import { useDisplay } from "vuetify";
 import { isFriend } from "@/utils";
 import { chatAppStore } from "@/store/chat";
+import { useRouter } from "vue-router";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
 const emit = defineEmits(["friendRequest", "chat"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
 const chat = chatAppStore();
+const router = useRouter();
 
 const friendAction = computed(() => {
   const { alreadyFriends, pending } = isFriend(
@@ -75,6 +77,7 @@ const playAction = computed(() => {
             },
           );
           if (!result.ok) throw new Error(await result.text());
+          router.push("/play");
         } catch (error) {
           if (error instanceof Error) console.error(error.message);
         }
