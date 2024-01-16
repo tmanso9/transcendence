@@ -29,7 +29,9 @@ type JsonValue = {
 
 const clientsMap: Map<string, Socket> = new Map();
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  namespace: '/chat',
+  cors: { origin: '*' } })
 export class ChannelsGateway {
   constructor(
     private readonly channelsService: ChannelsService,
