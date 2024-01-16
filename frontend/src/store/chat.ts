@@ -69,6 +69,7 @@ export const chatAppStore = defineStore("chat", () => {
   const selectedUserProfile = ref<User>();
   const permissionToOpenChat = ref(false);
   const channelSettings = ref(false);
+  const chatOpen = ref(false);
 
   // setup conection functions & condicional functions
 
@@ -560,6 +561,7 @@ export const chatAppStore = defineStore("chat", () => {
     channelStd,
     channelSettings,
     numberOfUnreadMsgs,
+	chatOpen,
     startConection,
     checkTokenConection,
     selectChannel,
