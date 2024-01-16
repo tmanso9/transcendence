@@ -21,8 +21,10 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
-function goToGame(alertId?: string) {
-  gameStore.getSocket().emit("createRoom", {room: "room" +roomsList.value.length.toString(), width: width, height: height});
+function goToGame(alertId: string = undefined) {
+  const room = alertId ? alertId : "room " + roomsList.value.length.toString();
+  console.log("goToGame: ", room, alertId, roomsList.value.length.toString())
+  gameStore.getSocket().emit("createRoom", {room: room, width: width, height: height});
   router.push("/game");
 }
 
@@ -56,7 +58,7 @@ function joinRoom(room: string) {
     </div>
   </div>
   <h1 v-else>No rooms available</h1>
-  <v-btn variant="outlined" color="white" @click="goToGame" style="margin: 10px">
+  <v-btn variant="outlined" color="white" @click="goToGame()" style="margin: 10px">
     Create new Game!
   </v-btn>
 </template>
