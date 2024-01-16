@@ -25,6 +25,7 @@
       @friend-request="handleFriendRequest"
       :isSelf="isSelf"
     />
+    <achievements-wrapper :account="account" :isSelf="isSelf" />
     <stats-wrapper :account="account" />
     <match-history :account="account" />
   </v-expansion-panels>
@@ -34,6 +35,7 @@
 import { computed } from "vue";
 import AccountHeader from "./Header/AccountHeader.vue";
 import FriendsWrapper from "./Friends/FriendsWrapper.vue";
+import AchievementsWrapper from "./Achievements/AchievementsWrapper.vue";
 import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
