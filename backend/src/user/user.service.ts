@@ -4,7 +4,6 @@ import * as argon from 'argon2';
 import { channel } from 'diagnostics_channel';
 import * as fs from 'fs';
 import { join } from 'path';
-import { AuthService } from '../auth/auth.service';
 
 type Alert = {
   id: string;
