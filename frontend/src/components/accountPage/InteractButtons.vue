@@ -31,7 +31,7 @@ import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
-const emit = defineEmits(["friendRequest", "chat"]);
+const emit = defineEmits(["friendRequest"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
 const chat = chatAppStore();
@@ -101,10 +101,10 @@ const openChatChannel = async () => {
       ]);
       newChat && chat.selectChannel(newChat);
     }
+    chat.chatOpen = true;
   } catch (error) {
     error instanceof Error && console.log(error.message);
   }
-  emit("chat");
 };
 
 const headerButtons = computed(() => {

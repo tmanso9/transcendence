@@ -13,7 +13,6 @@
     :myFriends="myFriends"
     :connections="connections"
     @friend-request="handleFriendRequest"
-    @chat="$emit('chat')"
   />
   <v-expansion-panels
     variant="popout"
@@ -53,7 +52,6 @@ const router = useRouter();
 
 const cookies = inject<VueCookies>("$cookies");
 const props = defineProps(["account", "myFriends", "connections"]);
-defineEmits(["chat"]);
 
 const isSelf = computed(() => {
   return user.username && user.username === props.account.username;

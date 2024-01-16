@@ -4,7 +4,6 @@
     :account="account"
     :myFriends="myFriends"
     :connections="connections"
-    @chat="$emit('chat')"
   />
   <h2 v-else-if="unauthorized">
     You must be logged in to see {{ getUsername }}'s profile
@@ -22,8 +21,6 @@ import { User } from "@/types";
 import { onMounted } from "vue";
 
 const route = useRoute();
-
-defineEmits(["chat"]);
 
 const getUsername = computed(() => {
   const path = route.path;
