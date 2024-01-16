@@ -1,5 +1,6 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
+import { RefSymbol } from "@vue/reactivity";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -97,24 +98,26 @@ export const chatAppStore = defineStore("chat", () => {
 
     await getAllChatData();
 
-    socket.on("channelMessages", (messages) => {
-      channelMessagesVar.value = messages;
-      channelMessagesVar.value.forEach((msg) => {
-        let newMessage = "";
-        let j = 0;
-        let lineMaxWight = 24;
-        if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
-        for (let i = 0; i < msg.content.length; i++) {
-          newMessage = newMessage + msg.content[i];
-          if (msg.content[i] != " ") j++;
-          if (j == lineMaxWight) {
-            newMessage = newMessage + "\n";
-            j = 0;
+    socket.on("channelMessages", (obj) => {
+      if (obj.id == selectedChannel.value) {
+        channelMessagesVar.value = obj.messages;
+        channelMessagesVar.value.forEach((msg) => {
+          let newMessage = "";
+          let j = 0;
+          let lineMaxWight = 24;
+          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          for (let i = 0; i < msg.content.length; i++) {
+            newMessage = newMessage + msg.content[i];
+            if (msg.content[i] != " ") j++;
+            if (j == lineMaxWight) {
+              newMessage = newMessage + "\n";
+              j = 0;
+            }
           }
-        }
-        msg.content = newMessage;
-      });
-      removeMessagesFromBlockeUsers();
+          msg.content = newMessage;
+        });
+        removeMessagesFromBlockeUsers();
+      }
     });
 
     socket.on("updateInfo", () => {
@@ -341,13 +344,14 @@ export const chatAppStore = defineStore("chat", () => {
 
   // active database functions
 
-  async function joinChannel(channelId: string) {
+  async function joinChannel(channelId: string, password: string) {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
     await socketSend<Channel[]>("joinChannel", {
       token,
       channelId,
+      password,
     })
       .then((channels) => {
         getAllChatData();
@@ -367,7 +371,7 @@ export const chatAppStore = defineStore("chat", () => {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    return socketSend<string>("createChannel", {
+    return await socketSend<string>("createChannel", {
       token,
       type,
       password,
@@ -476,6 +480,24 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function changeChannelPassword(channelId: string, password: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("changeChannelPassword", {
+      token,
+      channelId,
+      password,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant change password");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -507,5 +529,6 @@ export const chatAppStore = defineStore("chat", () => {
     isMember,
     promoteOrDespromoteAdmin,
     blockOrUnblockUser,
+    changeChannelPassword,
   };
 });

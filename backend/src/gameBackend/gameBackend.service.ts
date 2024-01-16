@@ -129,4 +129,17 @@ export class GameBackendService {
 		const updated_achievements = {};
 		return updated_achievements;
 	}
+
+	async getUserGames(id: string) {
+    const games = await this.prismaService.games.findMany({
+      where: {
+        OR: [
+			{ winnerId: id },
+			{ loserId: id },
+		],
+      },
+    });
+
+	return games
+  }
 }

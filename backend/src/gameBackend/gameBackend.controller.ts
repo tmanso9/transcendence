@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Post } from "@nestjs/common";
+import { Body, Controller, ForbiddenException, Get, Param, Post } from "@nestjs/common";
 import { GameBackendService } from "./gameBackend.service";
 import { GameDTO } from "./dto";
 
@@ -12,5 +12,10 @@ export class GameBackendController {
 		if (isNaN(dto.loserScore))
 			throw new ForbiddenException('Invalid loserScore');
 		return this.gameService.createGame(dto);
+	}
+
+	@Get('games/:id')
+	getUserGames(@Param('id') id: any){
+		return this.gameService.getUserGames(id);
 	}
 }

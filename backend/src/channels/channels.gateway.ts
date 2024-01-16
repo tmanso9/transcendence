@@ -175,7 +175,10 @@ export class ChannelsGateway {
           if (member.id != user.id) {
             const client = clientsMap.get(member.id);
             if (client && client.connected) {
-              client.emit('channelMessages', messages);
+              client.emit('channelMessages', {
+                id: channel.id,
+                messages: messages,
+              });
             }
           }
         });
@@ -202,6 +205,7 @@ export class ChannelsGateway {
     data: {
       token: string;
       channelId: string;
+      password: string;
     },
   ): Promise<Channels[]> {
     try {
@@ -227,6 +231,9 @@ export class ChannelsGateway {
         if (member.id == user.id)
           throw new ForbiddenException('user is already member of channel');
       });
+      if (data.password != channel.password) {
+        throw new ForbiddenException('wrong password - cant join');
+      }
       const updatedChannel = await this.prisma.channels.update({
         where: { id: channel.id },
         data: {
@@ -678,6 +685,60 @@ export class ChannelsGateway {
       return 1;
     } catch (error) {
       this.logger.debug('problem in blockOrUnblockUser');
+      return 0;
+    }
+  }
+
+  @SubscribeMessage('changeChannelPassword')
+  async changeChannelPassword(
+    @ConnectedSocket() Client: Socket,
+    @MessageBody()
+    data: {
+      token: string;
+      channelId: string;
+      password: string;
+    },
+  ): Promise<number> {
+    try {
+      const user = await this.authService.getUserFromToken(data.token);
+      if (!user) throw new ForbiddenException('user not loged in');
+      const channel = await this.prisma.channels.findFirst({
+        where: {
+          id: data.channelId,
+          admins: {
+            some: {
+              id: user.id,
+            },
+          },
+        },
+        include: {
+          admins: true,
+        },
+      });
+      if (!channel)
+        throw new ForbiddenException(
+          'channel doesnt exist or user is not admin',
+        );
+      const updatedChannel = await this.prisma.channels.update({
+        where: {
+          id: data.channelId,
+        },
+        data: {
+          password: data.password,
+        },
+        include: {
+          members: true,
+        },
+      });
+      updatedChannel.members.map((member) => {
+        const client = clientsMap.get(member.id);
+        if (client && client.connected) {
+          client.emit('updateInfo');
+        }
+      });
+      return 1;
+    } catch (error) {
+      this.logger.debug('problem in changeChannelPassword');
       return 0;
     }
   }
