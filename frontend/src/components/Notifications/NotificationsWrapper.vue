@@ -5,10 +5,14 @@
         >{{ alert.sender }} {{ alert.message }}</v-banner-text
       ><v-spacer />
       <v-banner-actions v-if="alert.action">
-        <v-btn color="success" @click="respondFriend(alert.id, 'accept')"
+        <v-btn
+          color="success"
+          @click="respondFriend(alert.senderId, 'accept', alert)"
           >accept</v-btn
         >
-        <v-btn color="error" @click="respondFriend(alert.id, 'reject')"
+        <v-btn
+          color="error"
+          @click="respondFriend(alert.senderId, 'reject', alert)"
           >reject</v-btn
         >
       </v-banner-actions>
@@ -31,14 +35,14 @@ const router = useRouter();
 
 type Alert = {
   id: string;
+  senderId: string;
   message: string;
   sender: string;
   action: boolean;
 };
 
 console.log();
-const respondFriend = async (id: string, action: string) => {
-  console.log(id);
+const respondFriend = async (id: string, action: string, alert: Alert) => {
   try {
     const result = await fetch(
       `http://localhost:3000/users/friend-response/${id}/${action}`,
@@ -48,6 +52,7 @@ const respondFriend = async (id: string, action: string) => {
       },
     );
     if (!result.ok) throw new Error(await result.text());
+    await dismissAlert(alert);
     router.go(0);
   } catch (error) {
     if (error instanceof Error) console.error(error);
@@ -55,10 +60,10 @@ const respondFriend = async (id: string, action: string) => {
 };
 
 const dismissAlert = async (alert: Alert) => {
-  const { id, message, sender, action } = alert;
+  const { id } = alert;
   try {
     const result = await fetch(
-      `http://localhost:3000/users/dismiss-alert/alert?id=${id}&message=${message}&sender=${sender}&action=${action}`,
+      `http://localhost:3000/users/dismiss-alert/alert?id=${id}`,
       {
         credentials: "include",
       },

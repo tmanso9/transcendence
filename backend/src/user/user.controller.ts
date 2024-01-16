@@ -17,13 +17,13 @@ import { decodeJwt } from './decorator';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { userGateway } from './user.gateway';
+import { notificationsGateway } from './user.gateway';
 
 @Controller('users')
 export class UserController {
   constructor(
     private userService: UserService,
-    private userGateway: userGateway,
+    private notificationsGateway: notificationsGateway,
   ) {}
 
   @Get()
@@ -31,17 +31,37 @@ export class UserController {
     return this.userService.getUsers();
   }
 
-  @UseGuards(JwtGuard)
-  @Get('me')
-  getMe(@getUser() user: any) {
-    return this.userService.getMe(user);
-  }
+	@UseGuards(JwtGuard)
+	@Get('gamestats/:username')
+	getUserGamestats(@Param('username') username: string, @decodeJwt() decoded_jwt: any) {
+		return this.userService.getUserGamestats(username, decodeJwt);
+	}
 
-  @UseGuards(JwtGuard)
-  @Get('me/friends')
-  getMyFriends(@getUser() user: any) {
-    return this.userService.getFriends(user.id);
-  }
+	@UseGuards(JwtGuard)
+	@Get('me')
+	getMe(@getUser() user: any) {
+		return this.userService.getMe(user);
+	}
+
+	@UseGuards(JwtGuard)
+	@Get('me/friends')
+	getFriends(@decodeJwt('sub') id: string) {
+		return this.userService.getFriends(id);
+	}
+
+	// Get user channels
+	@UseGuards(JwtGuard)
+	@Get('me/channels')
+	async getUserChannels(@decodeJwt('sub') id: string) {
+		return this.userService.getUserChannels(id);
+	}
+
+	// Get user channels
+	@UseGuards(JwtGuard)
+	@Get('me/other-channels')
+	async getNonUserChannels(@decodeJwt('sub') id: string) {
+		return this.userService.getNonUserChannels(id);
+	}
 
   @UseGuards(JwtGuard)
   @Get('connections')
@@ -59,13 +79,9 @@ export class UserController {
   @UseGuards(JwtGuard)
   @Get('dismiss-alert/alert?')
   dismissAlert(
-    @getUser() user: any,
     @Query('id') id: string,
-    @Query('sender') sender: string,
-    @Query('message') message: string,
-    @Query('action') action: boolean,
   ) {
-    return this.userService.dismissAlert(user, id, message, sender, action);
+    return this.userService.dismissAlert(id);
   }
 
   // Send Friend Request
@@ -76,7 +92,7 @@ export class UserController {
     @decodeJwt() decoded_jwt: any,
   ) {
     await this.userService.requestFriend(user_id, decoded_jwt);
-    const socket = this.userGateway.usersConnected.get(user_id);
+    const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
     return HttpCode(201);
   }
@@ -84,11 +100,9 @@ export class UserController {
   // Respond to Friend Request
   @UseGuards(JwtGuard)
   @Post('friend-response/:id/:action')
-  async respondFriend(@Param() params: any, @decodeJwt() decoded_jwt: any) {
-    const user_id = params.id;
-    const action = params.action;
+  async respondFriend(@Param('id') user_id: any, @Param('action') action: any, @decodeJwt() decoded_jwt: any) {
     await this.userService.respondFriend(user_id, action, decoded_jwt);
-    const socket = this.userGateway.usersConnected.get(user_id);
+    const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
     return HttpCode(201);
   }
@@ -98,7 +112,7 @@ export class UserController {
   @Post('remove-friend/:id')
   async removeFriend(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
     await this.userService.removeFriend(user_id, decoded_jwt);
-    const socket = this.userGateway.usersConnected.get(user_id);
+    const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
     return HttpCode(201);
   }

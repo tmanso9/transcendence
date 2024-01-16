@@ -1,5 +1,6 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
+import { RefSymbol } from "@vue/reactivity";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -36,6 +37,7 @@ export interface User {
   channels: Channel[];
   adminOf: Channel[];
   bannedFrom: Channel[];
+  blockedUsers: string[];
 }
 
 export interface Message {
@@ -47,7 +49,7 @@ export interface Message {
 export const chatAppStore = defineStore("chat", () => {
   // conection's variables
   const cookies = inject<VueCookies>("$cookies");
-  const socket = io("http://localhost:3000");
+  const socket = io("http://localhost:3000/chat");
 
   // user's data
   const currentUser = ref<User>();
@@ -64,6 +66,7 @@ export const chatAppStore = defineStore("chat", () => {
   const settingsAdminPopUp = ref(false);
   const selectedUserProfile = ref<User>();
   const permissionToOpenChat = ref(false);
+  const channelSettings = ref(false);
 
   // setup conection functions & condicional functions
 
@@ -95,16 +98,26 @@ export const chatAppStore = defineStore("chat", () => {
 
     await getAllChatData();
 
-    socket.on("channelMessages", (messages) => {
-      channelMessagesVar.value = messages;
-    });
-
-    socket.on("createChannel", (num) => {
-      getAllChatData();
-    });
-
-    socket.on("joinChannel", () => {
-      getAllChatData();
+    socket.on("channelMessages", (obj) => {
+      if (obj.id == selectedChannel.value) {
+        channelMessagesVar.value = obj.messages;
+        channelMessagesVar.value.forEach((msg) => {
+          let newMessage = "";
+          let j = 0;
+          let lineMaxWight = 24;
+          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          for (let i = 0; i < msg.content.length; i++) {
+            newMessage = newMessage + msg.content[i];
+            if (msg.content[i] != " ") j++;
+            if (j == lineMaxWight) {
+              newMessage = newMessage + "\n";
+              j = 0;
+            }
+          }
+          msg.content = newMessage;
+        });
+        removeMessagesFromBlockeUsers();
+      }
     });
 
     socket.on("updateInfo", () => {
@@ -118,6 +131,12 @@ export const chatAppStore = defineStore("chat", () => {
     await getPublicChannelsUserIsNotIn();
     setupFriendsWithTick();
     setupPublicChannelsUserIsNotIn();
+    channelStd.value = getChannelInfo(selectedChannel.value);
+    if (!channelStd.value?.id || isMember(channelStd.value?.id) == false) {
+      personalPopUpSettings.value = false;
+      channelSettings.value = false;
+      selectChannel("");
+    }
   }
 
   function selectChannel(channel: string) {
@@ -180,6 +199,19 @@ export const chatAppStore = defineStore("chat", () => {
     });
   }
 
+  function removeMessagesFromBlockeUsers() {
+    const messagesWithoutBlockUsers = ref<Message[]>([]);
+    channelMessagesVar.value.map((msg) => {
+      const userIsBlocked = ref(false);
+      currentUser.value?.blockedUsers.map((user) => {
+        if (user == msg.sender) userIsBlocked.value = true;
+      });
+      if (userIsBlocked.value == false)
+        messagesWithoutBlockUsers.value.push(msg);
+    });
+    channelMessagesVar.value = messagesWithoutBlockUsers.value;
+  }
+
   // get data functions
 
   async function getUser() {
@@ -210,7 +242,8 @@ export const chatAppStore = defineStore("chat", () => {
   };
 
   function getChannelInfo(channelId: string) {
-    if (!currentUser.value?.channels.length) return undefined;
+    if (!currentUser.value?.channels.length || channelId == "")
+      return undefined;
     const channels: Channel[] = currentUser.value.channels;
     const channelFound = ref<Channel>();
     channels.map((channel) => {
@@ -235,6 +268,22 @@ export const chatAppStore = defineStore("chat", () => {
     })
       .then((messages) => {
         channelMessagesVar.value = messages;
+        channelMessagesVar.value.forEach((msg) => {
+          let newMessage = "";
+          let j = 0;
+          let lineMaxWight = 24;
+          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          for (let i = 0; i < msg.content.length; i++) {
+            newMessage = newMessage + msg.content[i];
+            if (msg.content[i] != " ") j++;
+            if (j == lineMaxWight) {
+              newMessage = newMessage + "\n";
+              j = 0;
+            }
+          }
+          msg.content = newMessage;
+        });
+        removeMessagesFromBlockeUsers();
       })
       .catch(() => {
         console.log("chat debug: no acessible channel messages");
@@ -249,17 +298,26 @@ export const chatAppStore = defineStore("chat", () => {
     return undefined;
   }
 
+  function isMember(channelId: string): boolean {
+    if (!currentUser.value?.channels) return false;
+    const isMember = ref(false);
+    currentUser.value.channels.map((channel) => {
+      if (channel.id == channelId) isMember.value = true;
+    });
+    return isMember.value;
+  }
+
   function isAdmin(channelId: string, userId: string) {
     const channel = getChannelInfo(channelId);
     if (!channel || !channel.members) return false;
 
-    let isAdmin = false;
+    const isAdmin = ref(false);
 
     channel.admins.map((member) => {
-      if (member.id == userId) isAdmin = true;
+      if (member.id == userId) isAdmin.value = true;
     });
 
-    return isAdmin;
+    return isAdmin.value;
   }
 
   function isBlockedFromChannel(channelId: string, userId: string) {
@@ -275,15 +333,25 @@ export const chatAppStore = defineStore("chat", () => {
     return isBlockedFromChannel;
   }
 
+  function userIsBlocked(userName: string) {
+    const isBlocked = ref(false);
+
+    currentUser.value?.blockedUsers.map((user) => {
+      if (user == userName) isBlocked.value = true;
+    });
+    return isBlocked.value;
+  }
+
   // active database functions
 
-  async function joinChannel(channelId: string) {
+  async function joinChannel(channelId: string, password: string) {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
     await socketSend<Channel[]>("joinChannel", {
       token,
       channelId,
+      password,
     })
       .then((channels) => {
         getAllChatData();
@@ -299,11 +367,11 @@ export const chatAppStore = defineStore("chat", () => {
     password: string,
     channelName: string,
     members: User[],
-  ): Promise<string | undefined> {
+  ): Promise<string | void> {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
     const userId = currentUser.value.id;
-    await socketSend<string>("createChannel", {
+    return await socketSend<string>("createChannel", {
       token,
       type,
       password,
@@ -362,7 +430,71 @@ export const chatAppStore = defineStore("chat", () => {
         }
       })
       .catch(() => {
-        console.log("chat debug: no acessible channel messages");
+        console.log("chat debug: cant ban, kick or mute user");
+      });
+  }
+
+  async function promoteOrDespromoteAdmin(
+    channelId: string,
+    option: "promote" | "despromote",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("promoteOrDespromoteAdmin", {
+      token,
+      channelId,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant promote or despromote admin");
+      });
+  }
+
+  async function blockOrUnblockUser(
+    option: "block" | "unblock",
+    userId: string,
+  ) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("blockOrUnblockUser", {
+      token,
+      option,
+      userId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+          if (selectedChannel.value)
+            channelMessages(selectedChannel.value, "get", "");
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant block or unblock users");
+      });
+  }
+
+  async function changeChannelPassword(channelId: string, password: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("changeChannelPassword", {
+      token,
+      channelId,
+      password,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: cant change password");
       });
   }
 
@@ -379,6 +511,7 @@ export const chatAppStore = defineStore("chat", () => {
     permissionToOpenChat,
     channelMessagesVar,
     channelStd,
+    channelSettings,
     startConection,
     checkTokenConection,
     selectChannel,
@@ -388,9 +521,14 @@ export const chatAppStore = defineStore("chat", () => {
     isAdmin,
     isBlockedFromChannel,
     getAllChatData,
+    userIsBlocked,
     joinChannel,
     createChannel,
     leaveChannel,
     banMuteKickUserFromChannnel,
+    isMember,
+    promoteOrDespromoteAdmin,
+    blockOrUnblockUser,
+    changeChannelPassword,
   };
 });

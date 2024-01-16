@@ -99,7 +99,17 @@ export class AuthController {
     @Get('callback')
     async authCallback(@getUser() user: any, @Res({ passthrough: true }) response: Response) {
         const logged_user = await this.authService.login42(user);
-        response.cookie('access_token', logged_user.accessToken);
+        response.cookie('access_token', logged_user.accessToken, {
+          maxAge: 2592000000,
+          sameSite: true,
+          secure: false,
+        });
+
+        response.cookie('refresh_token', logged_user.refresh_token, {
+          maxAge: 2592000000,
+          sameSite: true,
+          secure: false,
+        });
 		
 		if (logged_user.tfa_enabled)
 		{

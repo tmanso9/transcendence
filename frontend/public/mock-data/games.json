@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "loserScore": 6,
+    "winnerUsername": "touteiro",
+	"loserUsername": "teresa_manso",
+	"playedAt": "2024-01-14"
+  },
+  {
+    "id": 1,
+    "loserScore": 3,
+    "winnerUsername": "teresa_manso",
+	"loserUsername": "touteiro",
+	"playedAt": "2024-01-14"
+  }
+]

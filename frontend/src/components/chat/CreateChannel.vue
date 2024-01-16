@@ -52,33 +52,6 @@ const channelName = ref("");
         </v-list-item>
       </template>
     </v-virtual-scroll>
-    <v-virtual-scroll
-      :items="store.currentUser?.friends"
-      height="150"
-      class="createChannelPopUp-friends"
-    >
-      <template v-slot:default="{ item }">
-        <v-list-item
-          :key="item.id"
-          @click="
-            async () => {
-              store
-                .createChannel('personal', '', '', [item])
-                .then((channelId: string | undefined) => {
-                  console.log('test: ', channelId);
-                  if (channelId) store.selectChannel(channelId);
-                });
-              store.createChannelPopUp = false;
-            }
-          "
-        >
-          <template v-slot:prepend>
-            <v-icon icon="mdi-account"></v-icon>
-          </template>
-          <v-list-item-title v-text="item.username"></v-list-item-title>
-        </v-list-item>
-      </template>
-    </v-virtual-scroll>
   </div>
   <!-- CHOOSE CHANNEL MEMBERS -->
   <div v-if="newChannelPopUp" class="createChannelPopUp">

@@ -5,7 +5,7 @@ import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
 import NotificationsWrapper from "./components/Notifications/NotificationsWrapper.vue";
 import NavBar from "./components/NavBar.vue";
-import { onMounted, ref, inject } from "vue";
+import { onBeforeMount, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
@@ -22,19 +22,30 @@ const chatText = ref("Show chat");
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
-chatStore.startConection();
+// chatStore.startConection();
 const interval = ref();
 const toReload = ref(0);
+const ready = ref(false);
 
-onMounted(async () => {
+onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  const s = io("http://localhost:3000/notifications");
+  const s = io("http://localhost:3000/login");
+
   s.on("connect", () => {
-    s.emit("userInfo", user.id);
+    s.emit("setOnline", user.username);
   });
 
-  s.on("newAlert", async () => {
+  setTimeout(() => {
+    ready.value = true;
+  }, 2);
+
+  const notifications = io("http://localhost:3000/notifications");
+  notifications.on("connect", () => {
+    notifications.emit("userInfo", user.id);
+  });
+
+  notifications.on("newAlert", async () => {
     await fetchMe(cookies, user);
     toReload.value++;
   });
@@ -69,6 +80,10 @@ const toggleChatPermission = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted) chatStore.permissionToOpenChat = true;
   else chatStore.permissionToOpenChat = false;
+};
+
+const handleActivateChat = () => {
+  if (!showChat.value) toggleChat();
 };
 
 const toggleLogin = async () => {
@@ -128,7 +143,11 @@ const handleNotificationResolve = async () => {
           include,
         }"
       />
-      <RouterView :key="`${$route.fullPath}--${user.username}--${toReload}`" />
+      <RouterView
+        :key="`${$route.fullPath}--${user.username}--${toReload}`"
+        v-if="ready"
+        @chat="handleActivateChat"
+      />
       <v-spacer class="h-10"></v-spacer>
       <chat-wrapper
         v-if="showChat"
@@ -143,7 +162,7 @@ const handleNotificationResolve = async () => {
     <v-footer
       height="1"
       class="pa-0 included"
-      style="z-index: 2"
+      style="z-index: 2410"
       v-click-outside="toggleChatPermission()"
     >
       <v-btn

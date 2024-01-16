@@ -43,60 +43,86 @@ enum ChannelType {
 model Connections {
   id       String           @id @default(uuid())
   status   ConnectionStatus @default(PENDING)
-  creator String
+  creator  String
   receiver String
 }
 
+model Alert {
+  id		String           @id @default(uuid())
+  message	String
+  sender	String
+  targetId	String
+  senderId	String
+  action	Boolean
+  user		User @relation("Alerts", fields: [targetId], references: [id], onDelete: Cascade)
+}
+
 model User {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) // user creation time
-  editedAt  DateTime @updatedAt() // last user edit
-  email     String   @unique // user email
-  password  String // hashed password
-  username  String   @unique // username
-  status    Status // user status
-  avatar    String // user avatar
-  rank Rank @default(NOOBIE) // player rank
+  id String @id @default(uuid())
+  createdAt DateTime @default(now())  // user creation time
+  editedAt DateTime @updatedAt()  // last user edit
+  email String @unique  // user email
+  password String // hashed password
+  username String @unique // username
+  status Status // user status
+  avatar String // user avatar
+  rank  String @default("NOOBIE") // User rank
+  achievements Json
   login Login //user login method
   tfa_secret String // secret string associated with two factor authentication
   tfa_enabled Boolean // does the user have tfa enabled
+  alerts	Alert[] @relation("Alerts")
 
-  points Int @default(0) // Total points of the user
-  wins   Int @default(0) // Number of wins
-  losses Int @default(0) // Number of losses
+  gamestats Gamestats?
 
-  friends  User[] @relation("Friends") // array of friends
-  friendOf User[] @relation("Friends") // array of friends
-  alerts	Json[] @default([])
+  friends User[]  @relation("Friends") // array of friends
+  friendOf User[]  @relation("Friends") // array of friends
 
-  channels   Channels[] @relation("Members") // array of channels of which the user is part
-  adminOf    Channels[] @relation("Admins") // array of channels of which the user is an admin
+  channels Channels[] @relation("Members")  // array of channels of which the user is part
+  adminOf Channels[] @relation("Admins")  // array of channels of which the user is an admin
   bannedFrom Channels[] @relation("Banned") //array of channels from which the user is banned
-  mutedOn    Channels[] @relation("Muted") // array of channels on which the user is muted
+  mutedOn Channels[] @relation("Muted") // array of channels on which the user is muted
+  blockedUsers String[]
 }
 
 model Blacklist {
-  id        String      @id @default(uuid())
-  token     String	@unique
-  email     String
+  id String @id @default(uuid())
+  token String
+  email String
   expiresIn Int
   createdAt DateTime @default(now())
 }
 
+model Games {
+  id String @id @default(uuid())
+  winnerId String // ID of the winner
+  loserId String  // ID of the loser
+  loserScore Int  // Score of the loser
+  playedAt DateTime @default(now()) // Date at which the game was played
+  winnerUsername String // Username of the winner
+  loserUsername String // Username of the loser
+}
+
 model Gamestats {
   id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique // ID of the user
+  points Int @default(0)  // Total points of the user
+  wins Int @default(0)  // Number of wins
+  losses Int @default(0)  // Number of losses
+  streak Int @default(0)  // Win Streak of the player
 }
 
 model Channels {
-  id          String @id @default(uuid()) // id of the channel
-  creator     String // id of the User who created the chat
-  type        String
+  id String @id @default(uuid())  // id of the channel
+  creator String  // id of the User who created the chat
+  password String @default("")  // hashed password to access the chat (optional - empty of not desired)
+  type String  // type of the channel
+  channelName String  // name of the channel
   avatar      String
-  password    String @default("") // hashed password to access the chat (optional - empty of not desired)
-  channelName String // name of the channel
-  members     User[] @relation("Members") // array of members who are part of the channel
-  messages    Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
-  admins      User[] @relation("Admins") // array of IDs of the admins
-  bannedUsers User[] @relation("Banned") // array of banned users
-  mutedUsers  User[] @relation("Muted") // array of muted users
+  messages Json[] // array of messages in the format { sender: sender_id, content: string, date: sent_at }
+  members User[] @relation("Members") // array of members who are part of the channel
+  admins User[] @relation("Admins") // array of IDs of the admins
+  bannedUsers User[] @relation("Banned")  // array of banned users
+  mutedUsers User[] @relation("Muted")  // array of muted users
 }
