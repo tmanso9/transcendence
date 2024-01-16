@@ -77,7 +77,7 @@ const playAction = computed(() => {
             },
           );
           if (!result.ok) throw new Error(await result.text());
-          router.push("/play");
+          router.push("/game");
         } catch (error) {
           if (error instanceof Error) console.error(error.message);
         }

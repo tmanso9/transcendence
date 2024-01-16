@@ -19,11 +19,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 defineProps(["alerts"]);
 const emit = defineEmits(["notificationResolve"]);
 const router = useRouter();
+const route = useRoute();
 
 type Alert = {
   id: string;
@@ -43,7 +44,8 @@ const response = (alert: Alert, action: string) => {
 
 const respondGame = async (id: string, action: string, alert: Alert) => {
   if (action === "accept") {
-    router.push("/play");
+    if (route.path === "/game") router.go(0);
+    else router.push("/game");
   } else {
     rejectGame(alert);
   }
