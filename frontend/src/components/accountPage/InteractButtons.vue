@@ -23,7 +23,7 @@
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
-import { isFriend } from "@/utils";
+import { isFriend, inviteToGame } from "@/utils";
 import { chatAppStore } from "@/store/chat";
 import { useRouter } from "vue-router";
 import { useGameStore } from "@/store/game";
@@ -71,27 +71,7 @@ const friendAction = computed(() => {
 const playAction = computed(() => {
   switch (props.account.status) {
     case "ONLINE":
-      //implement endpoint here
-      return async (id: string) => {
-        try {
-          const result = await fetch(
-            `http://localhost:3000/users/game-request/${props.account.id}`,
-            {
-              method: "post",
-              credentials: "include",
-            },
-          );
-          if (!result.ok) throw new Error(await result.text());
-          const data = await result.text();
-
-          game.connectSocket(cookies?.get("access_token"));
-          setTimeout(() => {
-            game.goToGame(data);
-          }, 300);
-        } catch (error) {
-          if (error instanceof Error) console.error(error.message);
-        }
-      };
+      return () => inviteToGame(props.account.id, game, cookies);
     default:
       return null;
   }
