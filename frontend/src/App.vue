@@ -149,6 +149,7 @@ const handleNotificationResolve = async () => {
         class="mt-n3 notifications"
         :alerts="user.alerts"
         @notification-resolve="handleNotificationResolve"
+        @close-notification="showNotifications = false"
         v-click-outside="{
           handler: () => (showNotifications = false),
           include,

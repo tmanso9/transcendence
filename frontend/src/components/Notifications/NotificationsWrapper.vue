@@ -26,7 +26,7 @@ import { VueCookies } from "vue-cookies";
 import { useRoute, useRouter } from "vue-router";
 
 defineProps(["alerts"]);
-const emit = defineEmits(["notificationResolve"]);
+const emit = defineEmits(["notificationResolve", "closeNotification"]);
 const router = useRouter();
 const game = useGameStore();
 const cookies = inject<VueCookies>("$cookies");
@@ -53,6 +53,7 @@ const respondGame = async (id: string, action: string, alert: Alert) => {
     setTimeout(() => {
       game.joinRoom(alert.id);
     }, 200);
+    emit("closeNotification");
   } else {
     rejectGame(alert);
   }
