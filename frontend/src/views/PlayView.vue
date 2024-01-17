@@ -28,38 +28,41 @@ onMounted(async () => {
   if (gameStore.getSocket() != null) {
     gameStore.getSocket().on("availableRooms", (rooms: string[]) => {
       roomsList.value = rooms;
+      gameStore.roomsList = rooms;
     });
   }
 });
 </script>
 
 <template>
-  <div v-if="roomsList.length > 0">
-    <h1>Available Rooms</h1>
-    <div v-for="room in roomsList" :key="room">
-      <v-btn
-        variant="outlined"
-        color="white"
-        @click="gameStore.joinRoom(room)"
-        style="margin: 10px"
-      >
-        Join {{ room }}
-      </v-btn>
+  <div class="playViewBox">
+    <div v-if="roomsList.length > 0">
+      <h1>Available Rooms</h1>
+      <div v-for="room in roomsList" :key="room">
+        <v-btn
+          variant="outlined"
+          color="white"
+          @click="gameStore.joinRoom(room)"
+          style="margin: 10px"
+        >
+          Join {{ room }}
+        </v-btn>
+      </div>
     </div>
+    <h1 v-else>No rooms available</h1>
+    <v-btn
+      variant="outlined"
+      color="white"
+      @click="gameStore.goToGame()"
+      style="margin: 10px"
+    >
+      Create new Game!
+    </v-btn>
   </div>
-  <h1 v-else>No rooms available</h1>
-  <v-btn
-    variant="outlined"
-    color="white"
-    @click="gameStore.goToGame()"
-    style="margin: 10px"
-  >
-    Create new Game!
-  </v-btn>
 </template>
 
 <style>
-body {
+.playViewBox {
   text-align: center;
 }
 canvas {

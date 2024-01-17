@@ -79,7 +79,7 @@ const chatStore = chatAppStore();
 const cookies = inject<VueCookies>("$cookies");
 
 const notificationBell = computed(() => {
-  return props.user.alerts.length
+  return props.user?.alerts?.length
     ? "mdi-bell-badge-outline"
     : "mdi-bell-outline";
 });
