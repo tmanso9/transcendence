@@ -115,7 +115,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
   async handleDisconnect(client: any) {
     const room = this.rooms.get(client.id);
     if (room) {
-      const game = this.games.get(room);
+      let game = this.games.get(room);
       if (game && game.gameState.has(client.id)) {
         this.pauseGame(client, null);
         //fazer com que o outro jogador ganhe 10-0
@@ -145,11 +145,12 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         }, 1500);
         //remover o jogo da lista de jogos
         //fechar o room
+        this.games.delete(room);
+        game = null as any;
       } else if (game && game.spectators.includes(client.id)) {
         game.spectators.splice(game.spectators.indexOf(client.id), 1);
       }
       this.rooms.delete(client.id);
-      this.games.delete(room);
     }
     await this.prismService.user.update({
       where: {id: this.connectedUsers.get(client.id).id},
