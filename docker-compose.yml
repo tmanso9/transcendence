@@ -24,8 +24,7 @@ services:
             - db_network
         env_file:
             - ./backend/.env
-        volumes:
-            - ./backend/public:/app/public
+
     frontend:
         container_name: frontend
         build:
