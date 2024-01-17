@@ -413,8 +413,26 @@ export class UserService {
 
 		if (unique)
 			throw new ForbiddenException("Username already taken");
+    
+    const updated = await this.prisma.user.update({where: {email: user.email}, data: {username: username}})
+    
+    await this.prisma.games.updateMany({
+      where: {
+          winnerId: user.id
+      },
+      data: {
+        winnerUsername: username
+      }
+    })
 
-		const updated = await this.prisma.user.update({where: {email: user.email}, data: {username: username}})
+    await this.prisma.games.updateMany({
+      where: {
+          loserId: user.id
+      },
+      data: {
+        loserUsername: username
+      }
+    })
 		return updated;
 	}
 
