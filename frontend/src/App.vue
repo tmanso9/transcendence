@@ -33,7 +33,7 @@ onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
   if (user.id) {
-  const s = io(`${apiURI}/login`);
+  const s = io(`http://localhost:3000/login`);
 
     s.on("connect", () => {
       s.emit("setOnline", user.id);
