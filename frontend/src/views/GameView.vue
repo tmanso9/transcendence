@@ -4,6 +4,7 @@ import { Socket} from "socket.io-client";
 import { game } from "@/game/game";
 import router from "@/router";
 import { useGameStore } from "@/store/game";
+import { apiURI } from "@/utils";
 
 const canvasRef = ref(null);
 
@@ -36,7 +37,7 @@ onUnmounted(() => {
 });
 
 function changeStyle() {
-  img.value.src = img.value.src == "http://localhost:3001/afonsinho.jpeg" ? "http://localhost:3001/black.png" : "http://localhost:3001/afonsinho.jpeg";
+  img.value.src = img.value.src == `${apiURI.replace("3000", "3001")}/afonsinho.jpeg` ? `${apiURI.replace("3000", "3001")}/black.png` : `${apiURI.replace("3000", "3001")}/afonsinho.jpeg`;
 }
 
 const source = computed(() => {
