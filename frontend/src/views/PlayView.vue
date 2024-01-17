@@ -28,6 +28,7 @@ onMounted(async () => {
   if (gameStore.getSocket() != null) {
     gameStore.getSocket().on("availableRooms", (rooms: string[]) => {
       roomsList.value = rooms;
+      gameStore.roomsList = rooms;
     });
   }
 });
