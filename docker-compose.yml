@@ -33,6 +33,8 @@ services:
             dockerfile: Dockerfile
         volumes:
             - ./vue-app:/dist
+        env_file:
+            - ./frontend/.env
         ports:
             - '3001:80'
 
