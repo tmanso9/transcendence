@@ -78,8 +78,8 @@ class Ball extends baseObject {
           this.y = height / 2;
           this.dx = dx * ((Math.random() - 0.5) < 0 ? 1 : -1);
           this.dy = dy * ((Math.random() - 0.5) < 0 ? 1 : -1);
-          return e;
         }
+        return e;
       }
     }
   }
@@ -111,6 +111,7 @@ export class GameService {
   private width;
   private height;
   public finished = false;
+  private tempBool = false;
 
   constructor() {
   }
@@ -173,14 +174,25 @@ export class GameService {
 
   moveBall() {
     const collidedObject = this.checkCollision();
-    if (collidedObject instanceof rectangle && collidedObject.orientation == 'vertical') {
+    if (collidedObject instanceof rectangle && collidedObject.orientation == 'vertical' && !(collidedObject instanceof paddle)) {
+      const player1 = Array.from(this.gameState.values()).find(p => p.paddle == this.paddle1);
+      const player2 = Array.from(this.gameState.values()).find(p => p.paddle == this.paddle2);
       if (collidedObject.x == 0) {
-        const player = Array.from(this.gameState.values()).find(p => p.paddle == this.paddle2);
-        player.score = player.score + 1;
+        player2.score = player2.score + 1;
       } else {
-        const player = Array.from(this.gameState.values()).find(p => p.paddle == this.paddle1)
-        player.score = player.score + 1;
+        player1.score = player1.score + 1;
       }
+      if (player1.score == scoreToWin || player2.score == scoreToWin) {
+        this.tempBool = true;
+      } else if (player1.score - player2.score > 6) {
+        player2.paddle.moveSpeed = 60;
+      } else if (player2.score - player1.score > 6) {
+        player1.paddle.moveSpeed = 60;
+      }
+    } else if (collidedObject) {
+      this.ball.dx = this.ball.dx + (this.ball.dx > 0 ? 1 : -1) / 10;
+      this.ball.dy = this.ball.dy + (this.ball.dy > 0 ? 1 : -1) / 10;
+
     }
     this.ball.x += this.ball.dx;
     this.ball.y += this.ball.dy;
@@ -205,15 +217,15 @@ export class GameService {
   playG(server, room) {
     if (this.intervalId == null) {
       this.intervalId = setInterval(() => {
-        const min = Array.from(this.gameState.values()).map(p => p.score).reduce((a, b) => Math.min(a, b));
-        const max = Array.from(this.gameState.values()).map(p => p.score).reduce((a, b) => Math.max(a, b));
-        if (Array.from(this.gameState.values()).find(p => p.score == scoreToWin)) {
+        // const min = Array.from(this.gameState.values()).map(p => p.score).reduce((a, b) => Math.min(a, b));
+        // const max = Array.from(this.gameState.values()).map(p => p.score).reduce((a, b) => Math.max(a, b));
+        if (this.tempBool) {
           this.finishG(server, room);
         } else {
-          if (max - min > 6) {
-            let player = Array.from(this.gameState.values()).find(p => p.score == min);
-            player.paddle.moveSpeed = 60;
-          }
+          // if (max - min > 6) {
+          //   let player = Array.from(this.gameState.values()).find(p => p.score == min);
+          //   player.paddle.moveSpeed = 60;
+          // }
           server.to(room).emit('gameState', this.getGameState() as any);
         }
         this.moveBall();
