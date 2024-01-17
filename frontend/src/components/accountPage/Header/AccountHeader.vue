@@ -18,7 +18,7 @@
           offset-x="-13"
           :color="mapColor"
         >
-          <p class="text-subtitle-1 text-sm-h6">{{ account.status }}</p>
+          <p class="text-subtitle-1 text-sm-h6">{{ account.status.replace("_", " ") }}</p>
         </v-badge>
         <p class="text-overline text-sm-button text-deep-purple-lighten-3">
           Rank: <span class="text-white">{{ account.rank }}</span>
