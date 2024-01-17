@@ -32,11 +32,11 @@ const chatText = computed(() => {
 onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  if (user.username) {
-    const s = io("http://localhost:3000/login");
+  if (user.id) {
+  const s = io(`${apiURI}/login`);
 
     s.on("connect", () => {
-      s.emit("setOnline", user.username);
+      s.emit("setOnline", user.id);
     });
   }
 
