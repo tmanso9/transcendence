@@ -1,29 +1,28 @@
 <script setup lang="ts">
-import {ref, onMounted, nextTick, onUnmounted, watch, inject} from "vue";
+import {ref, onMounted, nextTick, onUnmounted, watch, inject, computed} from "vue";
 import { Socket} from "socket.io-client";
 import { game } from "@/game/game";
-import {disconnectSocket, getSocket} from "@/utils/socket/socketManager";
 import router from "@/router";
-import { gameStore } from "@/store/game";
-import {useDisplay} from "vuetify";
-
-const {mdAndDown} = useDisplay();
+import { useGameStore } from "@/store/game";
 
 const canvasRef = ref(null);
 
-let s: Socket = null as any;
 
 const width = 1000;
 const height = 700;
-
-
-
+const gameStore = useGameStore();
+const img = ref(new Image());
 onMounted(async () => {
   await nextTick();
-  s = getSocket();
 
-  if (s) {
-    game(canvasRef.value as any, s, width, height);
+  if (gameStore.getSocket()) {
+
+    img.value.src = "/black.png";
+    game(canvasRef.value as any, gameStore.getSocket(), width, height, source.value);
+    gameStore.getSocket().on("kick", args => {
+      router.push("/play");
+    });
+
   }
   else {
     await router.push("/play");
@@ -31,37 +30,45 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  disconnectSocket();
+  gameStore.score.set("paddle1", 0);
+  gameStore.score.set("paddle2", 0);
+  gameStore.disconnectSocket();
 });
 
-function play() {
-  s.emit("play", "play");
+function changeStyle() {
+  img.value.src = img.value.src == "http://localhost:3001/afonsinho.jpeg" ? "http://localhost:3001/black.png" : "http://localhost:3001/afonsinho.jpeg";
 }
+
+const source = computed(() => {
+  return img.value;
+});
 function pause() {
-  s.emit("pause", "play");
+  gameStore.getSocket().emit("pause", "play");
 }
 
 function reset() {
-  s.emit("reset", "reset");
+  gameStore.getSocket().emit("reset", "reset");
 }
 </script>
 
 <template>
-  <div class="score-display">
-    <h2>Score</h2>
-    <p>{{ gameStore().score.get("paddle1")}} : {{ gameStore().score.get("paddle2") }}</p>
+  <div class="div-score mx-auto">
+    <div>
+      Player 1
+    </div>
+    <div class="score-display">
+      <h2>Score</h2>
+      <p>{{ useGameStore().score.get("paddle1")}} : {{ useGameStore().score.get("paddle2") }}</p>
+    </div>
+    <div>
+      Player 2
+    </div>
   </div>
-  <canvas :width="width" :height="height" id="game-canvas" ref="canvasRef"></canvas>
+  <canvas width="1000" height="700" id="game-canvas" ref="canvasRef"></canvas>
   <h4>Move left paddle up and down with the arrow keys</h4>
-  <div v-if="!gameStore().isSpectator">
-    <v-btn variant="outlined" color="white" @click="play" style="margin: 10px"
-    >Play</v-btn
-    >
-    <v-btn variant="outlined" color="white" @click="pause" style="margin: 10px"
-    >Pause</v-btn
-    >
-    <v-btn variant="outlined" color="white" @click="reset" style="margin: 10px"
-    >Reset</v-btn
+  <div v-if="!useGameStore().isSpectator">
+    <v-btn variant="outlined" color="white" @click="changeStyle" style="margin: 10px"
+    >Change Style</v-btn
     >
   </div>
   <div v-else>
@@ -93,4 +100,13 @@ canvas {
 .score-display p {
   font-size: 1.5em;
 }
+
+.div-score {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 1000px;
+}
 </style>
+

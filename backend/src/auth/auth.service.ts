@@ -41,10 +41,9 @@ export class AuthService {
 
     try {
       const achievements = {
-				social: "",
-				games_played: "",
-				ratio: "",
-				streak: ""
+				games_played: null,
+				ratio: null,
+				streak: null
 			};
       // Add user to the db
       const user = await this.prisma.user.create({
@@ -146,10 +145,10 @@ export class AuthService {
           });
         // Add user to the db
         const achievements = {
-          social: "",
-          games_played: "",
-          ratio: "",
-          streak: ""
+
+          games_played: null,
+          ratio: null,
+          streak: null
         }
         user = await this.prisma.user.create({
           data: {
@@ -222,10 +221,9 @@ export class AuthService {
           console.error('Error:', error);
         });
       const achievements = {
-        social: "",
-        games_played: "",
-        ratio: "",
-        streak: ""
+        games_played: null,
+        ratio: null,
+        streak: null
       };
       let check_username = await this.prisma.user.findFirst({where: {username: user.username}})
       if (check_username)

@@ -9,6 +9,7 @@
         :loading="loadingData"
         :cell-props="getCellProps"
         class="match-history"
+        :items-per-page="5"
       >
       </v-data-table>
     </v-expansion-panel-text>

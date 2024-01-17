@@ -1,7 +1,7 @@
 <template>
   <v-expansion-panel title="Friends">
     <v-expansion-panel-text class="friends">
-      <div class="friends d-flex">
+      <div class="friends d-flex flex-wrap">
         <v-card
           v-for="friend in friends"
           :key="friend.id"
@@ -67,12 +67,19 @@ const avatar = (source: string, id: string) => {
 <style lang="scss">
 .friends {
   &__card {
-    max-width: 200px !important;
-    min-width: fit-content !important;
+    // max-width: 200px !important;
+    width: 275px !important;
     background-color: rgb(var(--v-theme-code));
     &__icon:hover {
       color: #c62828;
     }
+  }
+}
+
+.stats {
+  &__card {
+    min-width: fit-content !important;
+    background-color: rgb(var(--v-theme-code));
   }
 }
 </style>

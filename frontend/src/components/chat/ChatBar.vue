@@ -28,8 +28,8 @@ const store = chatAppStore();
     </div>
     <div class="chatConversations">
       <v-virtual-scroll
-        v-if="store.currentUser?.channels.length != 0"
-        :items="store.currentUser?.channels"
+        v-if="store.currentUser && store.currentUser?.channels?.length != 0"
+        :items="store.currentUser.channels"
         :height="height > 700 ? 200 : 150"
         class="contactsScroller"
       >
@@ -44,6 +44,14 @@ const store = chatAppStore();
                 :icon="item.avatar"
                 :size="height > 700 ? 'small' : 'x-small'"
               ></v-icon>
+            </template>
+            <template v-slot:append>
+              <v-chip
+                v-if="item.unreadMsgs"
+                :size="height > 700 ? 'small' : 'x-small'"
+                color="purple"
+                >{{ item.unreadMsgs }}</v-chip
+              >
             </template>
             <v-list-item-title v-text="item.channelName"></v-list-item-title>
           </v-list-item>
@@ -132,7 +140,7 @@ const store = chatAppStore();
                 v-if="item.type == 'personal'"
                 :size="height > 700 ? 'small' : 'x-small'"
                 @click="
-                  () => {
+                  async () => {
                     const friend = store.currentUser?.friends.find(
                       (friend: User) => {
                         if (friend.username == item.channelName) return true;

@@ -33,8 +33,14 @@ export class UserController {
 
 	@UseGuards(JwtGuard)
 	@Get('gamestats/:username')
-	getUserGamestats(@Param('username') username: string, @decodeJwt() decoded_jwt: any) {
-		return this.userService.getUserGamestats(username, decodeJwt);
+	getUserGamestats(@Param('username') username: string) {
+		return this.userService.getUserGamestats(username);
+	}
+
+  @UseGuards(JwtGuard)
+	@Get('achievements/:username')
+	getUserAchievements(@Param('username') username: string) {
+		return this.userService.getUserAchievements(username);
 	}
 
 	@UseGuards(JwtGuard)
@@ -112,6 +118,26 @@ export class UserController {
   @Post('remove-friend/:id')
   async removeFriend(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
     await this.userService.removeFriend(user_id, decoded_jwt);
+    const socket = this.notificationsGateway.usersConnected.get(user_id);
+    if (socket) socket.emit('newAlert');
+    return HttpCode(201);
+  }
+
+  // Send Game Request
+  @UseGuards(JwtGuard)
+  @Post('game-request/:id')
+  async requestGame(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
+    const alertId = await this.userService.gameRequest(user_id, decoded_jwt);
+    const socket = this.notificationsGateway.usersConnected.get(user_id);
+    if (socket) socket.emit('newAlert');
+    return alertId;
+  }
+
+  // Reject Game Request
+  @UseGuards(JwtGuard)
+  @Post('game-reject/:id')
+  async rejectGame(@Param('id') user_id: any, @decodeJwt() decoded_jwt: any) {
+    await this.userService.gameReject(user_id, decoded_jwt);
     const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');
     return HttpCode(201);

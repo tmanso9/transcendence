@@ -4,7 +4,6 @@ import * as argon from 'argon2';
 import { channel } from 'diagnostics_channel';
 import * as fs from 'fs';
 import { join } from 'path';
-import { AuthService } from '../auth/auth.service';
 
 type Alert = {
   id: string;
@@ -37,7 +36,7 @@ export class UserService {
   }
 
 	// Returns gamestats of a specific player
-	async getUserGamestats(username: string, decoded_jwt: any) {
+	async getUserGamestats(username: string) {
 		const user = await this.prisma.user.findFirst({
 			where: {
 				username: username
@@ -61,6 +60,16 @@ export class UserService {
 			win_ratio: user.gamestats.wins / (user.gamestats.wins + user.gamestats.losses)
 		}
 	}
+
+  async getUserAchievements(username: string) {
+    const user = await this.prisma.user.findFirst({
+			where: {
+				username: username
+			},
+		});
+
+    return user.achievements;
+  }
 
 	// Returns User Info
 	getMe(user: any) {
@@ -329,6 +338,73 @@ export class UserService {
     });
 
 	}
+
+	async gameRequest(id: string, sender_info: any){
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: { friends: true, friendOf: true },
+    });
+
+    // Check if the user exists. If it doesn't, throw.
+    if (!user) throw new ForbiddenException('User does not exist');
+
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
+
+    const sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
+    if (!sender) throw new ForbiddenException('Something went wrong');
+
+	//TODO: Check if request already sent
+    //TODO: Add new connection to database
+
+	const alert = await this.prisma.alert.create({
+		data: {
+	      message: 'invited you to a game',
+		  sender: sender.username,
+		  senderId: sender.id,
+		  targetId: id,
+		  action: true
+		}
+	})
+
+	return alert.id
+	}
+
+	async gameReject(id: string, sender_info: any) {
+    // Save target user
+    let user = await this.prisma.user.findUnique({
+      where: { id },
+	  include: { alerts: true}
+    });
+
+    // Check if the user exists. If it doesn't, throw.
+    if (!user) throw new ForbiddenException('User does not exist');
+
+    // Check that sender != receiver. If same, throw.
+    if (id == sender_info.sub)
+      throw new ForbiddenException('Sender is same as Receiver');
+
+    let sender = await this.prisma.user.findUnique({
+      where: { id: sender_info.sub },
+      include: { friends: true, friendOf: true },
+    });
+
+    if (!sender) throw new ForbiddenException('Something went wrong');
+
+	  await this.prisma.alert.create({
+      data: {
+        sender: sender.username,
+        senderId: sender.id,
+        targetId: id,
+        message: 'rejected your game request',
+        action: false,
+      },
+    });
+}
 
 /* CHANGE USER DETAILS */
 	async changeUsername(user: any, username: string) {

@@ -1,6 +1,7 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
 import { apiURI } from "@/utils";
+import { RefSymbol } from "@vue/reactivity";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -14,9 +15,10 @@ export interface Channel {
   password: string;
   channelName: string;
   members: User[];
-  messages: { sender: string; content: string; date: string }[];
+  messages: { sender: string; content: string; date: string; read: string[] }[];
   admins: User[];
   bannedUsers: User[];
+  unreadMsgs?: number;
 }
 
 export interface User {
@@ -49,7 +51,7 @@ export interface Message {
 export const chatAppStore = defineStore("chat", () => {
   // conection's variables
   const cookies = inject<VueCookies>("$cookies");
-  const socket = io(apiURI);
+  const socket = io(`${apiURI}/chat`);
 
   // user's data
   const currentUser = ref<User>();
@@ -59,6 +61,7 @@ export const chatAppStore = defineStore("chat", () => {
   const selectedChannel = ref("");
   const channelStd = ref<Channel>();
   const channelMessagesVar = ref<Message[]>([]);
+  const numberOfUnreadMsgs = ref(0);
 
   // condicional variables
   const createChannelPopUp = ref(false);
@@ -67,6 +70,7 @@ export const chatAppStore = defineStore("chat", () => {
   const selectedUserProfile = ref<User>();
   const permissionToOpenChat = ref(false);
   const channelSettings = ref(false);
+  const chatOpen = ref(false);
 
   // setup conection functions & condicional functions
 
@@ -88,9 +92,7 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   async function startConection() {
-    socket.on("connect", () => {
-      console.log("connection id: ", socket.id);
-    });
+    socket.on("connect", () => {});
     socket.on("disconnect", () => {
       socket.close();
       window.location.reload();
@@ -98,24 +100,29 @@ export const chatAppStore = defineStore("chat", () => {
 
     await getAllChatData();
 
-    socket.on("channelMessages", (messages) => {
-      channelMessagesVar.value = messages;
-      channelMessagesVar.value.forEach((msg) => {
-        let newMessage = "";
-        let j = 0;
-        let lineMaxWight = 24;
-        if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
-        for (let i = 0; i < msg.content.length; i++) {
-          newMessage = newMessage + msg.content[i];
-          if (msg.content[i] != " ") j++;
-          if (j == lineMaxWight) {
-            newMessage = newMessage + "\n";
-            j = 0;
+    socket.on("channelMessages", async (obj) => {
+      if (obj.id == selectedChannel.value) {
+        channelMessagesVar.value = obj.messages;
+        channelMessagesVar.value.forEach((msg) => {
+          let newMessage = "";
+          let j = 0;
+          let lineMaxWight = 24;
+          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          for (let i = 0; i < msg.content.length; i++) {
+            newMessage = newMessage + msg.content[i];
+            if (msg.content[i] != " ") j++;
+            if (j == lineMaxWight) {
+              newMessage = newMessage + "\n";
+              j = 0;
+            }
           }
-        }
-        msg.content = newMessage;
-      });
-      removeMessagesFromBlockeUsers();
+          msg.content = newMessage;
+        });
+        removeMessagesFromBlockeUsers();
+      }
+      if (selectedChannel.value)
+        await readChannelMessages(selectedChannel.value);
+      else await getAllChatData();
     });
 
     socket.on("updateInfo", () => {
@@ -125,6 +132,12 @@ export const chatAppStore = defineStore("chat", () => {
 
   async function getAllChatData() {
     await getUser();
+    numberOfUnreadMsgs.value = 0;
+    currentUser.value?.channels?.map((channel) => {
+      const n = countUnreadMessages(channel.id);
+      channel.unreadMsgs = n;
+      numberOfUnreadMsgs.value += n;
+    });
     setupPersonalChannels();
     await getPublicChannelsUserIsNotIn();
     setupFriendsWithTick();
@@ -140,6 +153,9 @@ export const chatAppStore = defineStore("chat", () => {
   function selectChannel(channel: string) {
     selectedChannel.value = channel;
     if (channel == "") channelStd.value = undefined;
+    if (channel != "") {
+      readChannelMessages(channel);
+    }
   }
 
   function setupFriendsWithTick() {
@@ -209,6 +225,24 @@ export const chatAppStore = defineStore("chat", () => {
     });
     channelMessagesVar.value = messagesWithoutBlockUsers.value;
   }
+
+  const countUnreadMessages = (channelId: string) => {
+    if (!currentUser.value?.channels?.length || channelId == "") return 0;
+    const numberOfMessages = ref(0);
+    currentUser.value.channels?.map((channel) => {
+      if (channel.id == channelId) {
+        channel.messages.map((msg) => {
+          const hasRed = ref(false);
+          if (msg.sender == currentUser.value?.username) hasRed.value = true;
+          msg.read?.map((user) => {
+            if (user == currentUser.value?.username) hasRed.value = true;
+          });
+          if (hasRed.value == false) numberOfMessages.value += 1;
+        });
+      }
+    });
+    return numberOfMessages.value;
+  };
 
   // get data functions
 
@@ -334,7 +368,7 @@ export const chatAppStore = defineStore("chat", () => {
   function userIsBlocked(userName: string) {
     const isBlocked = ref(false);
 
-    currentUser.value?.blockedUsers.map((user) => {
+    currentUser.value?.blockedUsers?.map((user) => {
       if (user == userName) isBlocked.value = true;
     });
     return isBlocked.value;
@@ -376,8 +410,9 @@ export const chatAppStore = defineStore("chat", () => {
       channelName,
       members,
     })
-      .then((channelId) => {
-        getAllChatData();
+      .then(async (channelId) => {
+        await getAllChatData();
+        selectChannel(channelId);
         return channelId;
       })
       .catch(() => {
@@ -496,6 +531,23 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  async function readChannelMessages(channelId: string) {
+    if (!currentUser.value) return;
+    const token = cookies?.get("access_token");
+    await socketSend<number>("readChannelMessages", {
+      token,
+      channelId,
+    })
+      .then((number) => {
+        if (number == 1) {
+          getAllChatData();
+        }
+      })
+      .catch(() => {
+        console.log("chat debug: problem reading messages");
+      });
+  }
+
   return {
     currentUser,
     allUsers,
@@ -510,6 +562,8 @@ export const chatAppStore = defineStore("chat", () => {
     channelMessagesVar,
     channelStd,
     channelSettings,
+    numberOfUnreadMsgs,
+    chatOpen,
     startConection,
     checkTokenConection,
     selectChannel,
@@ -528,5 +582,6 @@ export const chatAppStore = defineStore("chat", () => {
     promoteOrDespromoteAdmin,
     blockOrUnblockUser,
     changeChannelPassword,
+    countUnreadMessages,
   };
 });

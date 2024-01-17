@@ -13,7 +13,6 @@
     :myFriends="myFriends"
     :connections="connections"
     @friend-request="handleFriendRequest"
-    @chat="$emit('chat')"
   />
   <v-expansion-panels
     variant="popout"
@@ -26,6 +25,7 @@
       :isSelf="isSelf"
     />
     <stats-wrapper :account="account" />
+    <achievements-wrapper :account="account" :isSelf="isSelf" />
     <match-history :account="account" />
   </v-expansion-panels>
 </template>
@@ -34,6 +34,7 @@
 import { computed } from "vue";
 import AccountHeader from "./Header/AccountHeader.vue";
 import FriendsWrapper from "./Friends/FriendsWrapper.vue";
+import AchievementsWrapper from "./Achievements/AchievementsWrapper.vue";
 import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
@@ -51,7 +52,6 @@ const router = useRouter();
 
 const cookies = inject<VueCookies>("$cookies");
 const props = defineProps(["account", "myFriends", "connections"]);
-defineEmits(["chat"]);
 
 const isSelf = computed(() => {
   return user.username && user.username === props.account.username;
