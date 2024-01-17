@@ -2,6 +2,7 @@ import {defineStore} from "pinia";
 import {Ref, ref} from "vue";
 import {io, Socket} from "socket.io-client";
 import { useRouter } from "vue-router";
+import { apiURI } from "@/utils";
 
 
 export const useGameStore = defineStore("game", () => {
@@ -17,7 +18,7 @@ export const useGameStore = defineStore("game", () => {
 
   function connectSocket(token: string) {
     if (!socket.value && token.length > 0) {
-      socket.value = io("http://localhost:3000/play");
+      socket.value = io(`${apiURI}/play`);
       // const query = querystring.stringify({userId: userId, userName: username});
       socket.value.on("connect", () => {
         socket.value.emit("addPlayer", token);

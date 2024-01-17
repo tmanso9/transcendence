@@ -140,7 +140,6 @@ const handleNotificationResolve = async () => {
       <signup-wrapper @signup="toggleSignUp" />
     </div>
     <v-main class="px-5 mt-4 h-75 overflow-y-auto">
-      {{ apiURI }}
       <notifications-wrapper
         v-if="showNotifications"
         class="mt-n3 notifications"

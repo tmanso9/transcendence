@@ -26,7 +26,7 @@ describe('Test test', () => {
 
     prisma = app.get(PrismaService);
     await prisma.cleanDb();
-    pactum.request.setBaseUrl('http://localhost:3000');
+    pactum.request.setBaseUrl(`${process.env.HOST}:${process.env.BE_PORT}`);
   });
 
   afterAll(() => {

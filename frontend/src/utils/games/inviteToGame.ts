@@ -1,5 +1,6 @@
 import { Store } from "pinia";
 import { VueCookies } from "vue-cookies";
+import { apiURI } from "../apiURI";
 
 export const inviteToGame = async (
   id: string,
@@ -8,7 +9,7 @@ export const inviteToGame = async (
 ) => {
   try {
     const result = await fetch(
-      `http://localhost:3000/users/game-request/${id}`,
+      `${apiURI}/users/game-request/${id}`,
       {
         method: "post",
         credentials: "include",

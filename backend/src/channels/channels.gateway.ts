@@ -32,7 +32,7 @@ const clientsMap: Map<string, Socket> = new Map();
 
 @WebSocketGateway({
   namespace: '/chat',
-  cors: { origin: '*' },
+  cors: { origin: `${process.env.HOST}:${process.env.FE_PORT}` },
 })
 export class ChannelsGateway {
   constructor(

@@ -79,12 +79,12 @@ export class AuthController {
 				sameSite: true,
 				secure: false,
 			});
-			response.redirect('http://localhost:3001/2fa');
+			response.redirect(`${process.env.HOST}:${process.env.FE_PORT}/2fa`);
 		}
 		else {
-			let url = `http://localhost:3001/users/${logged_user.username}`;
+			let url = `${process.env.HOST}:${process.env.FE_PORT}/users/${logged_user.username}`;
 			if (logged_user.firstLogin) {
-				url = `http://localhost:3001/firstLogin`;
+				url = `${process.env.HOST}:${process.env.FE_PORT}/firstLogin`;
 			}
 			response.redirect(url)
 		}
@@ -118,12 +118,12 @@ export class AuthController {
 				sameSite: true,
 				secure: false,
 			});
-			response.redirect('http://localhost:3001/2fa');
+			response.redirect(`${process.env.HOST}:${process.env.FE_PORT}/2fa`);
 		}
 		else {
-			let url = `http://localhost:3001/users/${logged_user.username}`;
+			let url = `${process.env.HOST}:${process.env.FE_PORT}/users/${logged_user.username}`;
 			if (logged_user.firstLogin) {
-				url = `http://localhost:3001/firstLogin`;
+				url = `${process.env.HOST}:${process.env.FE_PORT}/firstLogin`;
 			}
 			response.redirect(url)
 		}

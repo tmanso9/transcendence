@@ -62,7 +62,7 @@ const respondGame = async (id: string, action: string, alert: Alert) => {
 const rejectGame = async (alert: Alert) => {
   try {
     const result = await fetch(
-      `http://localhost:3000/users/game-reject/${alert.senderId}`,
+      `${apiURI}/users/game-reject/${alert.senderId}`,
       {
         method: "post",
         credentials: "include",

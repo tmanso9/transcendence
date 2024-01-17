@@ -20,7 +20,7 @@ export interface Player {
 }
 @WebSocketGateway({
     namespace: '/play',
-    cors: {origin: 'http://localhost:3001'}})
+    cors: {origin: `${process.env.HOST}:${process.env.FE_PORT}`}})
 export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
   @WebSocketServer()
   server: Server;

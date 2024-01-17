@@ -184,7 +184,7 @@ export class UserController {
     const me = this.getMe(user);
     await this.userService.changeAvatar(
       me,
-      `http://localhost:3000/${file.filename}`,
+      `${process.env.HOST}:${process.env.BE_PORT}/${file.filename}`,
     );
     return true;
   }

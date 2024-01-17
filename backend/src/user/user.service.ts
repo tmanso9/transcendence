@@ -500,10 +500,10 @@ export class UserService {
 
   async changeAvatar(user: any, newPath: string) {
     const oldAvatar: string = user.avatar;
-    if (oldAvatar.indexOf('http://localhost:3000') === 0) {
+    if (oldAvatar.indexOf(`${process.env.HOST}:${process.env.BE_PORT}`) === 0) {
       fs.unlink(
         oldAvatar.replace(
-          'http://localhost:3000/',
+          `${process.env.HOST}:${process.env.BE_PORT}`,
           join(__dirname, '../..', 'public/'),
         ),
         (err) => {

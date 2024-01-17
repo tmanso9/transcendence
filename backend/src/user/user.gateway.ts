@@ -10,7 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @WebSocketGateway({
   namespace: '/notifications',
-  cors: { origin: 'http://localhost:3001' },
+  cors: { origin: `${process.env.HOST}:${process.env.FE_PORT}` },
 })
 export class notificationsGateway implements OnGatewayConnection {
   @WebSocketServer()
@@ -27,7 +27,7 @@ export class notificationsGateway implements OnGatewayConnection {
 
 @WebSocketGateway({
   namespace: '/login',
-  cors: { origin: 'http://localhost:3001' },
+  cors: { origin: `${process.env.HOST}:${process.env.FE_PORT}` },
 })
 export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server
