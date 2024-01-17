@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { useUserStore } from "@/stores/user";
-import { fetchMe } from "@/utils";
+import { apiURI, fetchMe } from "@/utils";
 import { inject } from "vue";
 import { ref } from "vue";
 import { VueCookies } from "vue-cookies";
@@ -79,7 +79,7 @@ const upload = async () => {
     try {
       await fetchMe(cookies, user);
       const response = await fetch(
-        `http://localhost:3000/users/change-avatar`,
+        `${apiURI}/users/change-avatar`,
         {
           method: "post",
           body: formData,

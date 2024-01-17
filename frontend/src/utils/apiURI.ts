@@ -1,0 +1,1 @@
+export const apiURI = import.meta.env.VITE_BACKEND_IP || "http://localhost:3000"

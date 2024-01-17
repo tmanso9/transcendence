@@ -20,6 +20,7 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import type { VDataTable } from "vuetify/components";
+import { apiURI } from "@/utils"
 
 const props = defineProps(["account"]);
 
@@ -83,7 +84,7 @@ const parsedMatches = (): ParsedMatch[] => {
 const getHistory = async () => {
   try {
     const result = await fetch(
-      `http://localhost:3000/game-backend/games/${props.account.id}`,
+      `${apiURI}/game-backend/games/${props.account.id}`,
     );
     if (!result.ok) throw new Error(await result.text());
     const data = await result.json();

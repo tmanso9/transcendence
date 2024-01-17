@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 import {gameStore} from "@/store/game";
+import { apiURI } from "../apiURI";
 
 let s : any = null;
 const game = gameStore();
@@ -8,7 +9,7 @@ const game = gameStore();
 export function connectSocket(userId: string, username: string) {
   console.log("connecting: ", userId, username);
   if (!s && userId.length > 0) {
-    s = io("http://localhost:3000/play", { query: { userId: userId, userName: username } });
+    s = io(`${apiURI}/play`, { query: { userId: userId, userName: username } });
     s.on("connect", () => {
       s.emit("reset", "reset");
     });

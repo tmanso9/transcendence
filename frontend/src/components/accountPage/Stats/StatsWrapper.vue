@@ -25,6 +25,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
+import { apiURI } from "@/utils";
 
 type Stat = {
   key: string;
@@ -44,7 +45,7 @@ const stats = ref<Stat[]>([]);
 const fetchData = async () => {
   try {
     const result = await fetch(
-      `http://localhost:3000/users/gamestats/${props.account.username}`,
+      `${apiURI}/users/gamestats/${props.account.username}`,
       {
         credentials: "include",
       },

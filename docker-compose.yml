@@ -7,13 +7,14 @@ services:
         ports:
             - 5432:5432
         env_file:
-            - backend/.env.container
+            - backend/.env
         volumes:
             - postgres_data:/var/lib/postgresql/data
         networks:
             - db_network
         restart: always
     backend:
+        container_name: backend
         build: ./backend
         ports:
             - '3000:3000'
@@ -22,14 +23,14 @@ services:
         networks:
             - db_network
         env_file:
-            - ./backend/.env.container
+            - ./backend/.env
         volumes:
             - ./backend/public:/app/public
     frontend:
+        container_name: frontend
         build:
             context: ./frontend
             dockerfile: Dockerfile
-        container_name: frontend
         volumes:
             - ./vue-app:/dist
         ports:

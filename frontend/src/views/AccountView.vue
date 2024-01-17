@@ -17,7 +17,7 @@ import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
 import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
 import { ref, onBeforeMount, computed } from "vue";
 import { useRoute } from "vue-router";
-import { fetchOtherUser } from "@/utils";
+import { fetchOtherUser, apiURI } from "@/utils";
 import { User } from "@/types";
 import { onMounted } from "vue";
 
@@ -41,7 +41,7 @@ onMounted(async () => {
   try {
     isLoaded.value = false;
     account.value = await fetchOtherUser(getUsername.value);
-    const result = await fetch(`http://localhost:3000/users/me/friends`, {
+    const result = await fetch(`${apiURI}/users/me/friends`, {
       credentials: "include",
     });
     if (!result.ok) throw new Error(await result.text());
@@ -49,7 +49,7 @@ onMounted(async () => {
     for (const friend of data.values()) {
       myFriends.value.push(friend);
     }
-    const pending = await fetch(`http://localhost:3000/users/connections`, {
+    const pending = await fetch(`${apiURI}/users/connections`, {
       credentials: "include",
     });
     if (!pending.ok) throw new Error(await pending.text());

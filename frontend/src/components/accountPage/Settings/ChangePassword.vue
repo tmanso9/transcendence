@@ -68,7 +68,7 @@
 
 <script lang="ts" setup>
 import { useUserStore } from "@/stores/user";
-import { noEmpty, fetchMe } from "@/utils";
+import { noEmpty, fetchMe, apiURI } from "@/utils";
 import { computed } from "vue";
 import { ref } from "vue";
 
@@ -125,7 +125,7 @@ const changePwd = async () => {
     // console.log(isValid);
   }
   if (!isValid.valid) return;
-  const path = `http://localhost:3000/users/change-password`;
+  const path = `${apiURI}/users/change-password`;
   const body = `password=${pwd.value}&currentPwd=${currentPwd.value}`;
   hasError.value = false;
   errText.value = "";

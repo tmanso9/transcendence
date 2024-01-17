@@ -22,6 +22,7 @@ import { computed, onMounted, ref } from "vue";
 import type { User } from "@/types";
 import { useUserStore } from "@/stores/user";
 import type { VDataTable } from "vuetify/components";
+import { apiURI } from "@/utils";
 
 type ReadOnlyHeaders = VDataTable["headers"];
 const headers: ReadOnlyHeaders = [
@@ -36,7 +37,7 @@ const loggedUser = useUserStore();
 
 async function getUsers() {
   try {
-    const response = await fetch("http://localhost:3000/users");
+    const response = await fetch(`${apiURI}/users`);
     if (!response.ok) throw new Error();
     const data = await response.json();
     users.value = data;

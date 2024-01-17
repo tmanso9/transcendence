@@ -23,7 +23,7 @@
 import { useUserStore } from "@/stores/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
-import { isFriend } from "@/utils";
+import { isFriend, apiURI } from "@/utils";
 import { chatAppStore } from "@/store/chat";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
@@ -73,7 +73,7 @@ const playAction = computed(() => {
 
 const openChatChannel = async () => {
   try {
-    const result = await fetch("http://localhost:3000/channels", {
+    const result = await fetch(`${apiURI}/channels`, {
       credentials: "include",
     });
     if (!result.ok) throw new Error(await result.text());

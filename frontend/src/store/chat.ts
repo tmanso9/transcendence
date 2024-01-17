@@ -1,5 +1,6 @@
 // Utilities
 // import { useUserStore } from "@/stores/user";
+import { apiURI } from "@/utils";
 import { defineStore } from "pinia";
 import { Socket, io } from "socket.io-client";
 import { ref, onMounted, inject } from "vue";
@@ -48,7 +49,7 @@ export interface Message {
 export const chatAppStore = defineStore("chat", () => {
   // conection's variables
   const cookies = inject<VueCookies>("$cookies");
-  const socket = io("http://localhost:3000");
+  const socket = io(apiURI);
 
   // user's data
   const currentUser = ref<User>();

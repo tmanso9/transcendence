@@ -46,7 +46,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { defineEmits } from "vue";
-import { encodeFormData } from "@/utils";
+import { encodeFormData, apiURI } from "@/utils";
 import SigninFormElements from "./SigninFormElements.vue";
 import { useUserStore } from "@/stores/user";
 import { inject } from "vue";
@@ -56,7 +56,7 @@ import { useRouter } from "vue-router";
 const emit = defineEmits(["login", "showSignUp"]);
 const email = ref("");
 const password = ref("");
-const authUrl = "http://localhost:3000/auth/";
+const authUrl = `${apiURI}/auth/`;
 const fetchError = ref("");
 const form = ref<HTMLFormElement>();
 const user = useUserStore();

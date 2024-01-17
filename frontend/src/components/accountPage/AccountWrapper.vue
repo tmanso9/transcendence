@@ -40,7 +40,7 @@ import InteractButtons from "./InteractButtons.vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/stores/user";
 import { User } from "@/types";
-import { fetchMe } from "@/utils";
+import { apiURI, fetchMe } from "@/utils";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { useRouter } from "vue-router";
@@ -65,7 +65,7 @@ const updateAccount = async (newUser: User) => {
 
 const handleFriendRequest = async (path: string, id: string) => {
   try {
-    const url = `http://localhost:3000/users/${path}/${id}`;
+    const url = `${apiURI}/users/${path}/${id}`;
     const result = await fetch(url, {
       method: "post",
       credentials: "include",

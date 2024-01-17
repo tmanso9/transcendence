@@ -22,6 +22,7 @@
 import { Selected, User } from "@/types";
 import { ref } from "vue";
 import SendCodeForm from "./SendCodeForm.vue";
+import { apiURI } from "@/utils";
 
 const emit = defineEmits(["codeSent"]);
 const QRSource = ref("");
@@ -35,7 +36,7 @@ const handleCodeSent = (user: User) => {
 const generateCode = async (val: Selected) => {
   if (!val.value || QRSource.value.length) return;
   try {
-    const result = await fetch("http://localhost:3000/auth/2fa/generate", {
+    const result = await fetch(`${apiURI}/auth/2fa/generate`, {
       credentials: "include",
     });
     if (!result.ok) throw new Error(await result.text());

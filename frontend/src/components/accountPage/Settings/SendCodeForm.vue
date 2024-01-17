@@ -24,7 +24,7 @@ import { useUserStore } from "@/stores/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { computed } from "vue";
-import { fetchMe } from "@/utils";
+import { fetchMe, apiURI } from "@/utils";
 
 const p = defineProps(["path"]);
 const e = defineEmits(["codeSent"]);
@@ -56,7 +56,7 @@ const sendCode = async () => {
     const isValid = await form.value.validate();
     if (!isValid.valid) return;
   }
-  const path = `http://localhost:3000/auth/2fa/${p.path}`;
+  const path = `${apiURI}/auth/2fa/${p.path}`;
   const body = `tfa_code=${code.value || ""}&email=${emailValue.value}`;
   try {
     const result = await fetch(path, {

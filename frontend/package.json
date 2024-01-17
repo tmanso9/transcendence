@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"dev": "vite --port 3001",
+		"dev": "vite --port 3001 --host 10.12.246.173",
 		"build": "vue-tsc --noEmit && vite build",
 		"preview": "vite preview",
 		"lint": "eslint . --fix --ignore-path .gitignore",

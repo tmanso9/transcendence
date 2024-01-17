@@ -3,3 +3,4 @@ export { encodeFormData } from "./forms/encodeFormData";
 export { fetchOtherUser } from "./account/fetchOtherUser";
 export { isFriend } from "./account/isFriend";
 export { noEmpty } from "./forms/rules/noEmpty";
+export { apiURI } from "./apiURI";

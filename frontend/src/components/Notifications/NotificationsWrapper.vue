@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import { apiURI } from "@/utils";
 import { useRouter } from "vue-router";
 
 defineProps(["alerts"]);
@@ -45,7 +46,7 @@ console.log();
 const respondFriend = async (id: string, action: string, alert: Alert) => {
   try {
     const result = await fetch(
-      `http://localhost:3000/users/friend-response/${id}/${action}`,
+      `${apiURI}/users/friend-response/${id}/${action}`,
       {
         method: "post",
         credentials: "include",
@@ -63,7 +64,7 @@ const dismissAlert = async (alert: Alert) => {
   const { id } = alert;
   try {
     const result = await fetch(
-      `http://localhost:3000/users/dismiss-alert/alert?id=${id}`,
+      `${apiURI}/users/dismiss-alert/alert?id=${id}`,
       {
         credentials: "include",
       },

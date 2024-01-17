@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { defineStore } from "pinia";
+import { apiURI } from "@/utils";
 
 export const useUserStore = defineStore("user", () => {
   const username = ref("");
@@ -37,7 +38,7 @@ export const useUserStore = defineStore("user", () => {
 
   const logout = async () => {
     try {
-      const result = await fetch("http://localhost:3000/auth/logout", {
+      const result = await fetch(`${apiURI}/auth/logout`, {
         credentials: "include",
       });
       if (!result.ok) throw new Error("Error logging out");
@@ -49,13 +50,13 @@ export const useUserStore = defineStore("user", () => {
   };
 
   const getMe = async () => {
-    return await fetch("http://localhost:3000/users/me", {
+    return await fetch(`${apiURI}/users/me`, {
       credentials: "include",
     });
   };
 
   const getRefreshMe = async () => {
-    return await fetch("http://localhost:3000/auth/refresh-token", {
+    return await fetch(`${apiURI}/auth/refresh-token`, {
       credentials: "include",
     });
   };

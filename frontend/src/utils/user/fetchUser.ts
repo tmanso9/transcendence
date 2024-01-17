@@ -1,6 +1,8 @@
+import { apiURI } from "../apiURI"
+
 export const fetchUser = async (username: string) => {
   try {
-    const result = await fetch(`http://localhost:3000/users/${username}`, {
+    const result = await fetch(`${apiURI}/users/${username}`, {
       credentials: "include",
     });
     if (!result.ok) {

@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { ref } from "vue";
-import { noEmpty, fetchMe } from "@/utils";
+import { noEmpty, fetchMe, apiURI } from "@/utils";
 import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
 
@@ -47,7 +47,7 @@ const changeUsername = async () => {
     isValid = await usernameForm.value.validate();
   }
   if (!isValid.valid) return;
-  const path = `http://localhost:3000/users/change-username`;
+  const path = `${apiURI}/users/change-username`;
   const body = `username=${username.value}`;
   try {
     const result = await fetch(path, {

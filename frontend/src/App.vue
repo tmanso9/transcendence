@@ -9,7 +9,7 @@ import { onBeforeMount, ref, inject } from "vue";
 import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
-import { fetchMe } from "./utils";
+import { fetchMe, apiURI } from "./utils";
 import { chatAppStore } from "./store/chat";
 import { io } from "socket.io-client";
 
@@ -30,7 +30,7 @@ const ready = ref(false);
 onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  const s = io("http://localhost:3000/login");
+  const s = io(`${apiURI}/login`);
 
   s.on("connect", () => {
     s.emit("setOnline", user.username);
@@ -40,7 +40,7 @@ onBeforeMount(async () => {
     ready.value = true;
   }, 2);
 
-  const notifications = io("http://localhost:3000/notifications");
+  const notifications = io(`${apiURI}/notifications`);
   notifications.on("connect", () => {
     notifications.emit("userInfo", user.id);
   });
@@ -133,6 +133,7 @@ const handleNotificationResolve = async () => {
       <signup-wrapper @signup="toggleSignUp" />
     </div>
     <v-main class="px-5 mt-4 h-75 overflow-y-auto">
+      {{ apiURI }}
       <notifications-wrapper
         v-if="showNotifications"
         class="mt-n3 notifications"
