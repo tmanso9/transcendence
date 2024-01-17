@@ -236,7 +236,7 @@ export const chatAppStore = defineStore("chat", () => {
           const hasRed = ref(false);
           if (msg.sender == currentUser.value?.username) hasRed.value = true;
           msg.read?.map((user) => {
-            if (user == currentUser.value?.username) hasRed.value = true;
+            if (user == currentUser.value?.id) hasRed.value = true;
           });
           if (hasRed.value == false) numberOfMessages.value += 1;
         });
