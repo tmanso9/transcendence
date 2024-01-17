@@ -91,7 +91,9 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   async function startConection() {
-    socket.on("connect", () => {});
+    socket.on("connect", () => {
+			window.location.reload();
+		});
     socket.on("disconnect", () => {
       socket.close();
       window.location.reload();

@@ -22,7 +22,6 @@ const permissionToOpenChat = ref(false);
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
-// chatStore.startConection();
 const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
@@ -54,6 +53,8 @@ onBeforeMount(async () => {
     await fetchMe(cookies, user);
     toReload.value++;
   });
+
+  await chatStore.startConection();
 });
 
 router.beforeEach(async (to, from) => {
@@ -69,6 +70,7 @@ router.beforeEach(async (to, from) => {
     15 * 60 * 1000,
   );
   const now = new Date();
+
   console.log(user.username, now.toLocaleString());
 });
 
@@ -97,11 +99,13 @@ const toggleLogin = async () => {
   showLogin.value = !showLogin.value;
   showSignup.value = false;
   await fetchMe(cookies, user);
+  await chatStore.getAllChatData();
 };
 
 const toggleSignUp = async () => {
   showSignup.value = !showSignup.value;
   await fetchMe(cookies, user);
+  await chatStore.getAllChatData();
 };
 
 function include() {
