@@ -15,6 +15,7 @@ export const useGameStore = defineStore("game", () => {
   const socket: Ref<Socket> = ref(null as any);
   const router = useRouter();
   const roomsList: Ref<string[]> = ref([]);
+  const playersList: Ref<string[]> = ref([]);
 
   function connectSocket(token: string) {
     if (!socket.value && token.length > 0) {
@@ -22,6 +23,9 @@ export const useGameStore = defineStore("game", () => {
       // const query = querystring.stringify({userId: userId, userName: username});
       socket.value.on("connect", () => {
         socket.value.emit("addPlayer", token);
+      });
+      socket.value.on("playerList", (players: string[]) => {
+        playersList.value = players;
       });
       socket.value.on("spectator", (isSpectator) => {
         isSpectator.value = isSpectator;
@@ -75,6 +79,7 @@ export const useGameStore = defineStore("game", () => {
     disconnectSocket,
     getSocket,
 	goToGame,
-	joinRoom
+	joinRoom,
+    playersList,
   }
 });

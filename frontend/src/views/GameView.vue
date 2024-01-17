@@ -8,7 +8,6 @@ import { apiURI } from "@/utils";
 
 const canvasRef = ref(null);
 
-
 const width = 1000;
 const height = 700;
 const gameStore = useGameStore();
@@ -55,14 +54,14 @@ function reset() {
 <template>
   <div class="div-score mx-auto">
     <div>
-      Player 1
+      {{gameStore.playersList[0] || ''}}
     </div>
     <div class="score-display">
       <h2>Score</h2>
       <p>{{ useGameStore().score.get("paddle1")}} : {{ useGameStore().score.get("paddle2") }}</p>
     </div>
     <div>
-      Player 2
+      {{gameStore.playersList[1] || ''}}
     </div>
   </div>
   <canvas width="1000" height="700" id="game-canvas" ref="canvasRef"></canvas>

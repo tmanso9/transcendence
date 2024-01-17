@@ -92,7 +92,9 @@ export const chatAppStore = defineStore("chat", () => {
   }
 
   async function startConection() {
-    socket.on("connect", () => {});
+    socket.on("connect", () => {
+      window.location.reload();
+    });
     socket.on("disconnect", () => {
       socket.close();
       window.location.reload();
@@ -235,7 +237,7 @@ export const chatAppStore = defineStore("chat", () => {
           const hasRed = ref(false);
           if (msg.sender == currentUser.value?.username) hasRed.value = true;
           msg.read?.map((user) => {
-            if (user == currentUser.value?.username) hasRed.value = true;
+            if (user == currentUser.value?.id) hasRed.value = true;
           });
           if (hasRed.value == false) numberOfMessages.value += 1;
         });
@@ -385,8 +387,9 @@ export const chatAppStore = defineStore("chat", () => {
       channelId,
       password,
     })
-      .then((channels) => {
-        getAllChatData();
+      .then(async (channels) => {
+        await getAllChatData();
+        selectChannel(channelId);
         return channels;
       })
       .catch(() => {

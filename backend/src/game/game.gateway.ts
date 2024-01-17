@@ -74,6 +74,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.games.get(payload.room).initGame(payload.width, payload.height);
     this.games.get(payload.room).registerPlayer(client.id, this.connectedUsers.get(client.id));
     this.rooms.set(client.id, payload.room);
+    this.server.to(payload.room).emit('playerList', Array.from(this.games.get(payload.room).gameState.values()).map(p => p.username) as any);
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
@@ -84,6 +85,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
       if (!this.games.get(payload).registerPlayer(client.id, this.connectedUsers.get(client.id))) {
         client.emit('spectator', true);
       }
+      this.server.to(payload).emit('playerList', Array.from(this.games.get(payload).gameState.values()).map(p => p.username) as any);
       this.rooms.set(client.id, payload);
       if (this.games.get(payload).gameState.size == 2 && this.games.get(payload).spectators.length == 0)
         this.games.get(payload).playG(this.server, payload)
@@ -109,9 +111,11 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
         this.pauseGame(client, null);
         //fazer com que o outro jogador ganhe 10-0
         if (game.gameState.size == 2) {
-          Array.from(game.gameState.values()).forEach(p => {
-            p == game.gameState.get(client.id) ? p.score = 0 : p.score = 3
-          });
+          if (!game.finished){
+            Array.from(game.gameState.values()).forEach(p => {
+              p == game.gameState.get(client.id) ? p.score = 0 : p.score = 10
+            });
+          }
           //avisar a room que o outro jogador ganhou por desistencia/disconnect
           this.server.to(room).emit('gaveUpOrDisconnected', {quitter: game.gameState.get(client.id).username, winner: Array.from(game.gameState.values()).find(p => p != game.gameState.get(client.id)).username});
           if (!game.finished){
@@ -124,7 +128,8 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
           this.server.to(room).emit('gameState', game.getGameState() as any);
         }
         //emitir o kick para os players
-        this.server.to(room).emit('kick', null);
+        setTimeout(() => {
+        this.server.to(room).emit('kick', null);}, 1500);
         //remover o jogo da lista de jogos
         //fechar o room
       } else if (game && game.spectators.includes(client.id)) {

@@ -788,8 +788,8 @@ export class ChannelsGateway {
       ).map((message) => {
         const updatedMessage = Object.assign({}, message);
         updatedMessage.read = message.read
-          ? message.read.concat(user.username)
-          : [user.username];
+          ? message.read.concat(user.id)
+          : [user.id];
         return updatedMessage;
       });
 
