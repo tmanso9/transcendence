@@ -35,7 +35,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="playViewBox">
+  <div v-if="user.id" class="playViewBox">
     <div v-if="roomsList.length > 0">
       <h1>Available Rooms</h1>
       <div v-for="room in roomsList" :key="room">
@@ -58,6 +58,9 @@ onMounted(async () => {
     >
       Create new Game!
     </v-btn>
+  </div>
+  <div v-else>
+    <h1>You need to be logged in to play</h1>
   </div>
 </template>
 
