@@ -409,7 +409,7 @@ export class UserService {
 
 /* CHANGE USER DETAILS */
 	async changeUsername(user: any, username: string) {
-		this.validareUsername(username);
+		this.validateUsername(username);
 		const unique = await this.prisma.user.findUnique({where: {username: username}});
 
 		if (unique)
