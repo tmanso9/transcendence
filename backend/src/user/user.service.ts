@@ -409,7 +409,7 @@ export class UserService {
 
 /* CHANGE USER DETAILS */
 	async changeUsername(user: any, username: string) {
-		this.validareUsername(username);
+		this.validateUsername(username);
 		const unique = await this.prisma.user.findUnique({where: {username: username}});
 
 		if (unique)
@@ -541,8 +541,10 @@ export class UserService {
 			throw new ForbiddenException('Password must contain at least 8 characters, 1 Uppercase, 1 Lowercase and 1 digit');
 	}
 
-	validareUsername(username: string) {
-		if (username.length <= 4 || !/^[a-zA-Z0-9_-]+$/.test(username))
-			throw new ForbiddenException('Username must be at least 5 characters long and can only have alphanumeric characters or -/_');
-	}
+	validateUsername(username: string) {
+    if (username.length <= 4 || username.length > 20 || !/^[a-zA-Z0-9_-]+$/.test(username))
+      throw new ForbiddenException(
+        'Username must be between 5 and 20 characters long and can only have alphanumeric characters or -/_',
+      );
+  }
 }
