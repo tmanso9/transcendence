@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+    postgres:
+        image: postgres
+        container_name: postgres
+        ports:
+            - 5432:5432
+        env_file:
+            - backend/.env
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - db_network
+        restart: always
+    backend:
+        container_name: backend
+        build: ./backend
+        ports:
+            - '3000:3000'
+        depends_on:
+            - postgres
+        networks:
+            - db_network
+        env_file:
+            - ./backend/.env
+        volumes:
+            - backend_public:/app/public
+
+    frontend:
+        container_name: frontend
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        volumes:
+            - ./vue-app:/dist
+        env_file:
+            - ./frontend/.env
+        ports:
+            - '3001:80'
+
+volumes:
+    postgres_data:
+    backend_public:
+        driver: local
+        driver_opts:
+            device: ./backend/public
+            o: bind
+            type: none
+
+networks:
+    db_network:

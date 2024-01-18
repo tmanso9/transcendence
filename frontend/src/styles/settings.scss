@@ -1,0 +1,20 @@
+/**
+ * src/styles/settings.scss
+ *
+ * Configures SASS variables and Vuetify overwrites
+ */
+
+// https://vuetifyjs.com/features/sass-variables/`
+// @use 'vuetify/settings' with (
+//   $color-pack: false
+// );
+$color: (
+  "primary": #582258,
+  "secondary": #ffadff,
+  "light": #545454,
+  "light-dark": #3a3939,
+  "dark": #0a0a0a,
+  "darker": #000000,
+);
+
+
