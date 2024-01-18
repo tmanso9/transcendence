@@ -8,9 +8,6 @@
       <a :href="authUrl + 'forty-two'" class="my-2">
         <v-btn width="200">Login with 42</v-btn>
       </a>
-      <a :href="authUrl + 'google'" class="my-2">
-        <v-btn width="200" color="red">Login with Google</v-btn>
-      </a>
 
       <p v-if="fetchError.length" style="color: red" class="mt-3">
         {{ fetchError }}
