@@ -141,6 +141,7 @@ const channelName = ref("");
     <v-text-field
       v-if="channelIsPublic"
       v-model="password"
+      type="password"
       label="Password (optional)"
       color="secondary"
       variant="outlined"

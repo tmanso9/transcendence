@@ -110,6 +110,7 @@ const store = chatAppStore();
                     <v-card-text
                       ><v-text-field
                         v-model="password"
+												type="password"
                         label="Pasword*"
                         required
                       ></v-text-field
