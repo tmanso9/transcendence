@@ -5,7 +5,7 @@ import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
 import NotificationsWrapper from "./components/Notifications/NotificationsWrapper.vue";
 import NavBar from "./components/NavBar.vue";
-import { onBeforeMount, ref, inject } from "vue";
+import { ref, inject, onMounted } from "vue";
 import { useUserStore } from "./stores/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
@@ -29,7 +29,7 @@ const chatText = computed(() => {
   return chatStore.chatOpen ? "Hide chat" : "Show chat";
 });
 
-onBeforeMount(async () => {
+onMounted(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
   if (user.id) {

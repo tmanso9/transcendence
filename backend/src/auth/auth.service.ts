@@ -89,6 +89,8 @@ export class AuthService {
     // Check if user exists
     if (!user) throw new ForbiddenException('User does not exist');
 
+    if (user.login !== "REGULAR") throw new ForbiddenException('Not a regular user');
+
     const validPassword = await argon.verify(user.password, dto.password);
     if (!validPassword) throw new ForbiddenException('Invalid Password');
 

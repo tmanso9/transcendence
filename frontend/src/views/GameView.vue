@@ -8,8 +8,8 @@ import { apiURI } from "@/utils";
 
 const canvasRef = ref(null);
 
-const width = 1000;
-const height = 700;
+const width = 850;
+const height = 850*.7;
 const gameStore = useGameStore();
 const img = ref(new Image());
 onMounted(async () => {
@@ -64,7 +64,7 @@ function reset() {
       {{gameStore.playersList[1] || ''}}
     </div>
   </div>
-  <canvas width="1000" height="700" id="game-canvas" ref="canvasRef"></canvas>
+  <canvas :width="width" :height="height" id="game-canvas" ref="canvasRef"></canvas>
   <h4>Move left paddle up and down with the arrow keys</h4>
   <div v-if="!useGameStore().isSpectator">
     <v-btn variant="outlined" color="white" @click="changeStyle" style="margin: 10px"
@@ -106,7 +106,7 @@ canvas {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  width: 1000px;
+  width: 850px;
 }
 </style>
 

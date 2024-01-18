@@ -112,7 +112,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
     if (ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = 'White'; // Text color
-      ctx.font = '30px Arial'; // Font size and family
+      ctx.font = '20px Arial'; // Font size and family
       ctx.textAlign = 'center'; // Align text in the center
       ctx.fillText(`Player ${winner} wins!`, canvas.width / 2, canvas.height / 2);
     }
@@ -122,7 +122,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
     if (ctx) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = 'White'; // Text color
-      ctx.font = '30px Arial'; // Font size and family
+      ctx.font = '20px Arial'; // Font size and family
       ctx.textAlign = 'center'; // Align text in the center
       ctx.fillText(`Player ${winner} wins, because player ${quitter} either quit or disconnected`, canvas.width / 2, canvas.height / 2);
     }

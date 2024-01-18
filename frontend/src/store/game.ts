@@ -60,7 +60,7 @@ export const useGameStore = defineStore("game", () => {
       : "room " + roomsList.value.length.toString();
     console.log("goToGame: ", room, alertId, roomsList.value.length.toString());
       getSocket().
-      emit("createRoom", { room: room, width: 1000, height: 700 });
+      emit("createRoom", { room: room, width: 850, height: 850*.7 });
     router.push("/game");
   }
 

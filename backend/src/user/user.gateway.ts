@@ -63,10 +63,10 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
           },
         });
       }
-    }, 100);
+    }, 10);
   }
 
-  handleConnection(client: any, ...args: any[]) {}
+  handleConnection(client: any, ...args: any[]) {  }
 
   handleDisconnect(client: any) {
     if (this.users.has(client.id)) {
