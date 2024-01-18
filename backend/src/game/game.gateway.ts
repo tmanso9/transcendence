@@ -30,7 +30,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
   private connectedUsers = new Map<string, Player>();
   private games = new Map<string, GameService>();
   private rooms = new Map<string, string>();
-  private moving = false;
+  private roomNumber = 0;
 
   constructor(private readonly gameService: GameService, private jwtService: JwtService, private prismService: PrismaService) {
   }
@@ -90,6 +90,8 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.rooms.set(client.id, payload.room);
     this.server.to(payload.room).emit('playerList', Array.from(this.games.get(payload.room).gameState.values()).map(p => p.username) as any);
     await this.prismService.user.update({where: {id: this.connectedUsers.get(client.id).id}, data: {status: "IN_GAME", gameId: payload.room}});
+    this.roomNumber++;
+    this.server.emit("roomNumber", this.roomNumber);
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
@@ -177,6 +179,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
   }
 
   handleConnection(client: Socket, ...args: any[]): any {
+    this.server.emit("roomNumber", this.roomNumber);
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 

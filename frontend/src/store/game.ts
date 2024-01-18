@@ -16,7 +16,7 @@ export const useGameStore = defineStore("game", () => {
   const router = useRouter();
   const roomsList: Ref<string[]> = ref([]);
   const playersList: Ref<string[]> = ref([]);
-
+  const roomNumber = ref(0);
   function connectSocket(token: string) {
     if (!socket.value && token.length > 0) {
       socket.value = io(`${apiURI}/play`);
@@ -29,6 +29,9 @@ export const useGameStore = defineStore("game", () => {
       });
       socket.value.on("spectator", (isSpectator) => {
         isSpectator.value = isSpectator;
+      });
+      socket.value.on("roomNumber", (number: number) => {
+        roomNumber.value = number;
       });
     }
     return socket.value;
@@ -57,7 +60,7 @@ export const useGameStore = defineStore("game", () => {
   function goToGame(alertId: string | undefined = undefined) {
     const room = alertId
       ? alertId
-      : "room " + roomsList.value.length.toString();
+      : "room " + roomNumber.value.toString();
     console.log("goToGame: ", room, alertId, roomsList.value.length.toString());
       getSocket().
       emit("createRoom", { room: room, width: 850, height: 850*.7 });
