@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterView } from "vue-router";
+import { RouterView, useRouter } from "vue-router";
 import ChatWrapper from "@/components/chat/ChatWrapper.vue";
 import LoginWrapper from "./components/LoginWrapper.vue";
 import SignupWrapper from "./components/SignupWrapper.vue";
@@ -25,6 +25,7 @@ const chatStore = chatAppStore();
 const interval = ref();
 const toReload = ref(0);
 const ready = ref(false);
+const route = useRouter();
 const chatText = computed(() => {
   return chatStore.chatOpen ? "Hide chat" : "Show chat";
 });
@@ -123,7 +124,7 @@ const handleNotificationResolve = async () => {
       :user="user"
       :showLogin="showLogin"
       @login="toggleLogin"
-      @logout="fetchMe(cookies, user)"
+      @logout="fetchMe(cookies, user); route.go(0);"
       @notifications="showNotifications = !showNotifications"
       class="navbar included"
     />
