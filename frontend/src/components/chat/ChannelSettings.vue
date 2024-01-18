@@ -14,7 +14,7 @@ const password = ref("");
 onMounted(async () => {
   if (store.channelStd) {
     channelPermission.value = true;
-    password.value = store.channelStd.password;
+    password.value = "";
   }
 });
 </script>
@@ -132,7 +132,11 @@ onMounted(async () => {
         "
         style="display: flex; flex-direction: row; margin: 1em 0 0 0"
       >
-        <v-text-field v-model="password" variant="outlined"></v-text-field>
+        <v-text-field
+          type="password"
+          v-model="password"
+          variant="outlined"
+        ></v-text-field>
         <v-btn
           style="padding: 1.5em 1.25em 2.7em 1.25em"
           text="Change password"
@@ -144,7 +148,7 @@ onMounted(async () => {
                   password,
                 );
                 await store.getAllChatData();
-                password = store.channelStd.password;
+                password = '';
               }
             }
           "
