@@ -30,7 +30,8 @@ class rectangle extends baseObject {
 }
 
 export class paddle extends rectangle {
-  constructor(public x: number, public y: number, public width: number, public height: number, public color: string, public orientation: string, public moveSpeed: number = 30) {
+  public moving = 'false';
+  constructor(public x: number, public y: number, public width: number, public height: number, public color: string, public orientation: string, public moveSpeed: number = 9) {
     super(x, y, width, height, color, orientation);
   }
 
@@ -50,7 +51,7 @@ export class paddle extends rectangle {
     else if (this.y + this.height + 30 > height - lineWidth)
       this.y = height - lineWidth - this.height;
     else
-      this.y += 30;
+      this.y += this.moveSpeed;
   }
 }
 
@@ -214,21 +215,24 @@ export class GameService {
     };
   }
 
+  movePaddleG() {
+    Array.from(this.gameState.entries()).forEach(p => {
+      if(p[1].paddle.moving != 'false') {
+        this.movePaddle(p[0], p[1].paddle.moving);
+      }
+    });
+  }
   playG(server, room) {
     if (this.intervalId == null) {
       this.intervalId = setInterval(() => {
-        // const min = Array.from(this.gameState.values()).map(p => p.score).reduce((a, b) => Math.min(a, b));
-        // const max = Array.from(this.gameState.values()).map(p => p.score).reduce((a, b) => Math.max(a, b));
         if (this.tempBool) {
           this.finishG(server, room);
         } else {
-          // if (max - min > 6) {
-          //   let player = Array.from(this.gameState.values()).find(p => p.score == min);
-          //   player.paddle.moveSpeed = 60;
-          // }
           server.to(room).emit('gameState', this.getGameState() as any);
         }
         this.moveBall();
+        this.movePaddleG();
+
       }, 1000 / 60);
     }
   }

@@ -30,6 +30,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
   private connectedUsers = new Map<string, Player>();
   private games = new Map<string, GameService>();
   private rooms = new Map<string, string>();
+  private moving = false;
 
   constructor(private readonly gameService: GameService, private jwtService: JwtService, private prismService: PrismaService) {
   }
@@ -62,8 +63,20 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     if (this.games.size > 0) {
       const room = this.rooms.get(client.id);
       const game = this.games.get(room);
+      if (game.gameState.has(client.id)) {
+        game.gameState.get(client.id).paddle.moving = payload;
+      }
+      this.server.to(room).emit('gameState', game.getGameState() as any);
+    }
+  }
+
+  @SubscribeMessage('stopPaddle')
+  stopPaddle(client: any, payload: string) {
+    if (this.games.size > 0) {
+      const room = this.rooms.get(client.id);
+      const game = this.games.get(room);
       if (game.gameState.has(client.id))
-        game.movePaddle(client.id, payload);
+        game.gameState.get(client.id).paddle.moving = 'false';
       this.server.to(room).emit('gameState', game.getGameState() as any);
     }
   }

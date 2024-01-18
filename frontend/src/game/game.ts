@@ -93,6 +93,7 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
   const ball = new Ball(width / 2, height / 2, width / 200 * 3, width / 200, width / 200, 'white');
   const elements: any[] = [hTop, hBottom, vLeft, vRight, pL, pR, ball];
   window.addEventListener("keydown", keyDownHandler);
+  window.addEventListener("keyup", keyUpHandler);
   socket.on('gameState', (data: any) => {
     pL.y = data.paddle1.y;
     pR.y = data.paddle2.y;
@@ -150,6 +151,9 @@ export function game(canvas: HTMLCanvasElement, socket: Socket, width: number, h
     socket.emit('movePaddle', e.key);
   }
 
+  function keyUpHandler(e: any) {
+    socket.emit('stopPaddle', e.key);
+  }
   drawFrame();
 
 }
