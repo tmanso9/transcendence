@@ -24,6 +24,8 @@ services:
             - db_network
         env_file:
             - ./backend/.env
+        volumes:
+            - backend_public:/app/public
 
     frontend:
         container_name: frontend
@@ -39,6 +41,12 @@ services:
 
 volumes:
     postgres_data:
+    backend_public:
+        driver: local
+        driver_opts:
+            device: ./backend/public
+            o: bind
+            type: none
 
 networks:
     db_network:

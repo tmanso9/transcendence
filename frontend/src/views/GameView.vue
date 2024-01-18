@@ -65,7 +65,7 @@ function reset() {
     </div>
   </div>
   <canvas :width="width" :height="height" id="game-canvas" ref="canvasRef"></canvas>
-  <h4>Move left paddle up and down with the arrow keys</h4>
+  <h4>Move your paddle up and down with W and S</h4>
   <div v-if="!useGameStore().isSpectator">
     <v-btn variant="outlined" color="white" @click="changeStyle" style="margin: 10px"
     >Change Style</v-btn
