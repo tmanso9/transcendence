@@ -113,6 +113,7 @@ export class GameService {
   private height;
   public finished = false;
   private tempBool = false;
+  private moveSpeedTimer = 0;
 
   constructor() {
   }
@@ -158,9 +159,9 @@ export class GameService {
   // }
 
   movePaddle(id: string, payload: string) {
-    if (payload == 'w') {
+    if (payload == 'w' || payload == 'W') {
       this.gameState.get(id).paddle.moveUp(this.lineWidth);
-    } else if (payload == 's') {
+    } else if (payload == 's' || payload == 'S') {
       this.gameState.get(id).paddle.moveDown(this.lineWidth, this.height);
     }
   }
@@ -178,6 +179,14 @@ export class GameService {
     if (collidedObject instanceof rectangle && collidedObject.orientation == 'vertical' && !(collidedObject instanceof paddle)) {
       const player1 = Array.from(this.gameState.values()).find(p => p.paddle == this.paddle1);
       const player2 = Array.from(this.gameState.values()).find(p => p.paddle == this.paddle2);
+      if (player1.paddle.moveSpeed == 60 || player2.paddle.moveSpeed == 60) {
+        if (this.moveSpeedTimer == 2) {
+          player1.paddle.moveSpeed = 9;
+          player2.paddle.moveSpeed = 9;
+          this.moveSpeedTimer = 0;
+        }
+        this.moveSpeedTimer++;
+      }
       if (collidedObject.x == 0) {
         player2.score = player2.score + 1;
       } else {
@@ -185,14 +194,14 @@ export class GameService {
       }
       if (player1.score == scoreToWin || player2.score == scoreToWin) {
         this.tempBool = true;
-      } else if (player1.score - player2.score > 6) {
-        player2.paddle.moveSpeed = 60;
-      } else if (player2.score - player1.score > 6) {
+      } else if (player1.score - player2.score > 6 && player1.paddle.moveSpeed == 9) {
         player1.paddle.moveSpeed = 60;
+      } else if (player2.score - player1.score > 6 && player2.paddle.moveSpeed == 9) {
+        player2.paddle.moveSpeed = 60;
       }
     } else if (collidedObject) {
-      this.ball.dx = this.ball.dx + (this.ball.dx > 0 ? 1 : -1) / 10;
-      this.ball.dy = this.ball.dy + (this.ball.dy > 0 ? 1 : -1) / 10;
+      this.ball.dx = this.ball.dx + (this.ball.dx > 0 ? 1 : -1) / 8;
+      this.ball.dy = this.ball.dy + (this.ball.dy > 0 ? 1 : -1) / 8;
 
     }
     this.ball.x += this.ball.dx;
