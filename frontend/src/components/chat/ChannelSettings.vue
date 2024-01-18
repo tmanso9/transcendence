@@ -127,7 +127,8 @@ onMounted(async () => {
         v-if="
           store.channelStd &&
           store.currentUser &&
-          store.isAdmin(store.channelStd.id, store.currentUser.id) == true
+          store.isAdmin(store.channelStd.id, store.currentUser.id) == true &&
+          store.channelStd.type === 'public'
         "
         style="display: flex; flex-direction: row; margin: 1em 0 0 0"
       >
