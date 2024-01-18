@@ -108,7 +108,7 @@ export const chatAppStore = defineStore("chat", () => {
           let newMessage = "";
           let j = 0;
           let lineMaxWight = 24;
-          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          if (msg.sender != currentUser.value?.id) lineMaxWight = 19;
           for (let i = 0; i < msg.content.length; i++) {
             newMessage = newMessage + msg.content[i];
             if (msg.content[i] != " ") j++;
@@ -200,7 +200,7 @@ export const chatAppStore = defineStore("chat", () => {
       ) {
         publicChannelsUserIsNotIn.value?.push({
           id: "0",
-          creator: currentUser.value.username,
+          creator: currentUser.value.id,
           type: "personal",
           avatar: "mdi-account",
           password: "",
@@ -234,7 +234,8 @@ export const chatAppStore = defineStore("chat", () => {
       if (channel.id == channelId) {
         channel.messages.map((msg) => {
           const hasRed = ref(false);
-          if (msg.sender == currentUser.value?.username) hasRed.value = true;
+          if (msg.sender == currentUser.value?.id || userIsBlocked(msg.sender))
+            hasRed.value = true;
           msg.read?.map((user) => {
             if (user == currentUser.value?.id) hasRed.value = true;
           });
@@ -305,7 +306,7 @@ export const chatAppStore = defineStore("chat", () => {
           let newMessage = "";
           let j = 0;
           let lineMaxWight = 24;
-          if (msg.sender != currentUser.value?.username) lineMaxWight = 19;
+          if (msg.sender != currentUser.value?.id) lineMaxWight = 19;
           for (let i = 0; i < msg.content.length; i++) {
             newMessage = newMessage + msg.content[i];
             if (msg.content[i] != " ") j++;
@@ -366,11 +367,11 @@ export const chatAppStore = defineStore("chat", () => {
     return isBlockedFromChannel;
   }
 
-  function userIsBlocked(userName: string) {
+  function userIsBlocked(userId: string) {
     const isBlocked = ref(false);
 
     currentUser.value?.blockedUsers?.map((user) => {
-      if (user == userName) isBlocked.value = true;
+      if (user == userId) isBlocked.value = true;
     });
     return isBlocked.value;
   }
@@ -550,6 +551,22 @@ export const chatAppStore = defineStore("chat", () => {
       });
   }
 
+  function getUserFromChannel(
+    userId: string,
+    channelId: string,
+  ): User | undefined {
+    if (!currentUser.value?.channels) return undefined;
+    const user = ref<User>();
+    currentUser.value.channels.map((channel) => {
+      if (channel.id == channelId) {
+        channel.members.map((member) => {
+          if (member.id == userId) user.value = member;
+        });
+      }
+    });
+    return user.value;
+  }
+
   return {
     currentUser,
     allUsers,
@@ -585,5 +602,6 @@ export const chatAppStore = defineStore("chat", () => {
     blockOrUnblockUser,
     changeChannelPassword,
     countUnreadMessages,
+    getUserFromChannel,
   };
 });

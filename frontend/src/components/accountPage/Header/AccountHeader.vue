@@ -76,7 +76,7 @@ const friendVal = ref(
 const blockFriend = computed(() => {
   const { alreadyFriends } = friendVal.value;
   if (alreadyFriends) {
-    if (chat.userIsBlocked(props.account.username)) {
+    if (chat.userIsBlocked(props.account.id)) {
       return {
         text: "Unblock",
         icon: "mdi-cancel",

@@ -156,10 +156,10 @@ export class ChannelsGateway {
           data: {
             messages: {
               push: {
-                sender: user.username,
+                sender: user.id,
                 content: data.message,
                 date: '',
-                read: [user.username],
+                read: [user.id],
               },
             },
           },
@@ -307,7 +307,7 @@ export class ChannelsGateway {
           );
         const newChannel = await this.prisma.channels.create({
           data: {
-            creator: user.username,
+            creator: user.id,
             type: data.type,
             avatar: 'mdi-account-group',
             password: data.password,
@@ -339,7 +339,7 @@ export class ChannelsGateway {
         const possibleChannel = await this.prisma.channels.findFirst({
           where: {
             type: 'personal',
-            creator: data.members[0].username || user.username,
+            creator: data.members[0].id || user.id,
             members: {
               some: {
                 id: user.id || data.members[0].id,
@@ -350,7 +350,7 @@ export class ChannelsGateway {
         if (possibleChannel) return possibleChannel.id;
         const newChannel = await this.prisma.channels.create({
           data: {
-            creator: user.username,
+            creator: user.id,
             type: data.type,
             avatar: 'mdi-account',
             password: '',
@@ -507,7 +507,7 @@ export class ChannelsGateway {
           where: {
             id: data.channelId,
             NOT: {
-              creator: userToBanKickOrMute.username,
+              creator: userToBanKickOrMute.id,
             },
           },
           data: {
@@ -607,7 +607,7 @@ export class ChannelsGateway {
           members: true,
         },
       });
-      if (!channel || channel.creator == userToPromoteOrDespromote.username)
+      if (!channel || channel.creator == userToPromoteOrDespromote.id)
         throw new ForbiddenException(
           'user to promote or despromote is the creator',
         );
@@ -677,14 +677,14 @@ export class ChannelsGateway {
           },
           data: {
             blockedUsers: {
-              push: userToBlockOrUnblock.username,
+              push: userToBlockOrUnblock.id,
             },
           },
         });
       } else {
         let newList = [];
         userToBlockOrUnblock.blockedUsers.map((usr) => {
-          if (usr != userToBlockOrUnblock.username) newList.push(usr);
+          if (usr != userToBlockOrUnblock.id) newList.push(usr);
         });
         await this.prisma.user.update({
           where: {

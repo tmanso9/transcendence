@@ -60,7 +60,7 @@ const cookies = inject<VueCookies>("$cookies");
         <v-btn
           v-if="
             store.selectedUserProfile &&
-            store.userIsBlocked(store.selectedUserProfile?.username) == false
+            store.userIsBlocked(store.selectedUserProfile?.id) == false
           "
           class="channelSettings-content-buttons-btn"
           color="warning"
