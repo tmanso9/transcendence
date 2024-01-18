@@ -89,7 +89,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.games.get(payload.room).registerPlayer(client.id, this.connectedUsers.get(client.id));
     this.rooms.set(client.id, payload.room);
     this.server.to(payload.room).emit('playerList', Array.from(this.games.get(payload.room).gameState.values()).map(p => p.username) as any);
-    await this.prismService.user.update({where: {id: this.connectedUsers.get(client.id).id}, data: {status: "IN_GAME"}});
+    await this.prismService.user.update({where: {id: this.connectedUsers.get(client.id).id}, data: {status: "IN_GAME", gameId: payload.room}});
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
@@ -102,7 +102,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
       } else {
         await this.prismService.user.update({
           where: {id: this.connectedUsers.get(client.id).id},
-          data: {status: "IN_GAME"}
+          data: {status: "IN_GAME", gameId: payload}
         });
       }
       this.server.to(payload).emit('playerList', Array.from(this.games.get(payload).gameState.values()).map(p => p.username) as any);
@@ -169,7 +169,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     if (user && user.status == "IN_GAME") {
       await this.prismService.user.update({
         where: {id: user.id},
-        data: {status: "ONLINE"}
+        data: {status: "ONLINE", gameId: ""}
       });
     }
     this.connectedUsers.delete(client.id);
