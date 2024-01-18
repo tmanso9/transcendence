@@ -73,6 +73,12 @@ const avatar = (source: string, id: string) => {
     &__icon:hover {
       color: #c62828;
     }
+    & .v-card-item {
+      width: inherit;
+    }
+    & .v-card-title {
+      overflow-x: hidden;
+    }
   }
 }
 
