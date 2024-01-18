@@ -91,8 +91,9 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
     this.server.to(payload.room).emit('playerList', Array.from(this.games.get(payload.room).gameState.values()).map(p => p.username) as any);
     await this.prismService.user.update({where: {id: this.connectedUsers.get(client.id).id}, data: {status: "IN_GAME", gameId: payload.room}});
     this.roomNumber++;
-    this.server.emit("roomNumber", this.roomNumber);
+    this.server.emit("roomNumber", this.roomNumber as any);
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
+    this.server.emit("roomNumber", this.roomNumber as any);
   }
 
   @SubscribeMessage('joinRoom')
@@ -179,7 +180,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
   }
 
   handleConnection(client: Socket, ...args: any[]): any {
-    this.server.emit("roomNumber", this.roomNumber);
+    this.server.emit("roomNumber", this.roomNumber as any);
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
 
