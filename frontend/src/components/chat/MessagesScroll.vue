@@ -35,7 +35,8 @@ const mensagens = computed(() => {
 <template>
   <div class="messageScroll" v-if="openMessages">
     <v-virtual-scroll
-      :items="mensagens || ['No messages']"
+      v-if="mensagens?.length > 0"
+      :items="mensagens"
       :height="height > 700 ? 382 : 282"
       id="scrollMessages"
     >
@@ -44,7 +45,7 @@ const mensagens = computed(() => {
           <div
             v-if="
               store.currentUser?.username &&
-              item.sender == store.currentUser?.username
+              item.sender == store.currentUser?.id
             "
             class="messageChip messageSentByCurrentUser"
           >
@@ -61,17 +62,6 @@ const mensagens = computed(() => {
               "
             >
               {{ item.content }}
-            </v-chip>
-            <v-chip
-              v-if="
-                nextValue(index + 1)?.sender != item.sender &&
-                item.sender != store.currentUser.username
-              "
-              size="x-small"
-              color="secondary"
-              class="messageSentByCurrentUser messageChip-messageSentChip"
-            >
-              {{ item.sender }}
             </v-chip>
           </div>
           <div v-else class="messageChip">
@@ -95,18 +85,27 @@ const mensagens = computed(() => {
               color="secondary"
               class="messageChip-messageSentChip"
             >
-              {{ item.sender }}
+              {{
+                store.getUserFromChannel(item.sender, store.selectedChannel)
+                  ?.username
+              }}
             </v-chip>
           </div>
         </div>
       </template>
     </v-virtual-scroll>
-    <div
-      class="messageScroll-noMessages"
-      v-if="store.channelMessagesVar.length == 0"
+    <v-virtual-scroll
+      v-else
+      :height="height > 700 ? 382 : 282"
+      id="scrollMessages"
+      :items="['No messages']"
     >
-      <v-chip size="x-large" color="secondary"> No messages </v-chip>
-    </div>
+      <template v-slot:default="{ item }">
+        <div class="messageScroll-noMessages">
+          <v-chip size="x-large" color="secondary">{{ item }}</v-chip>
+        </div>
+      </template>
+    </v-virtual-scroll>
   </div>
 </template>
 <style scoped lang="scss"></style>

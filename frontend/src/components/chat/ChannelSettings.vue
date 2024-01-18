@@ -82,7 +82,7 @@ onMounted(async () => {
                   store.currentUser &&
                   store.selectedUserProfile &&
                   store.isAdmin(store.channelStd.id, store.currentUser.id) &&
-                  store.channelStd.creator != store.selectedUserProfile.username
+                  store.channelStd.creator != store.selectedUserProfile.id
                 )
                   store.settingsAdminPopUp = true;
                 else store.personalPopUpSettings = true;
@@ -98,7 +98,7 @@ onMounted(async () => {
             </div>
             <div
               class="channelSettings-content-users-user-operator"
-              v-if="item.username == store.channelStd.creator"
+              v-if="item.id == store.channelStd.creator"
             >
               <v-icon icon="mdi-crown" size="x-small"></v-icon>
               Admin
