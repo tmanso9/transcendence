@@ -165,10 +165,13 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
       }
       this.rooms.delete(client.id);
     }
-    await this.prismService.user.update({
-      where: {id: this.connectedUsers.get(client.id).id},
-      data: {status: "ONLINE"}
-    });
+    const user = await this.prismService.user.findUnique({where: {id: this.connectedUsers.get(client.id).id}});
+    if (user && user.status == "IN_GAME") {
+      await this.prismService.user.update({
+        where: {id: user.id},
+        data: {status: "ONLINE"}
+      });
+    }
     this.connectedUsers.delete(client.id);
     this.server.emit('availableRooms', Array.from(this.games.keys()).map(k => k).filter(k => k.includes("room")) as any);
   }
