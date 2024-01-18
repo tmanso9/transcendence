@@ -15,6 +15,7 @@ import { Channels, User } from '@prisma/client';
 import { Client } from 'socket.io/dist/client';
 import { Cron } from '@nestjs/schedule';
 import * as argon from 'argon2';
+import { disconnect } from 'process';
 
 class Message {
   sender: string;
@@ -47,24 +48,36 @@ export class ChannelsGateway {
 
   private logger: Logger = new Logger('Chat Log');
 
-  @Cron('0 */10 * * * *')
-  async handleBannedAndMutedCleanup() {
+  async handleBannedAndMutedCleanup(
+    channelId: string,
+    userId: string,
+    option: 'unban' | 'unmute',
+  ) {
+    this.logger.debug(channelId);
+    this.logger.debug(userId);
+    this.logger.debug(option);
     try {
-      const allChannels = await this.prisma.channels.findMany();
-      allChannels.map(async (channel) => {
+      if (option == 'unban') {
         await this.prisma.channels.update({
-          where: { id: channel.id },
-          data: { bannedUsers: { set: [] }, mutedUsers: { set: [] } },
+          where: { id: channelId },
+          data: { bannedUsers: { disconnect: { id: userId } } },
         });
-      });
+      } else {
+        await this.prisma.channels.update({
+          where: { id: channelId },
+          data: { mutedUsers: { disconnect: { id: userId } } },
+        });
+      }
       clientsMap.forEach((client) => {
         if (client && client.connected) {
           client.emit('updateInfo');
         }
       });
+      return 1;
     } catch (error) {
       // Handle errors if needed
       console.error('Error during banned cleanup:', error);
+      return 0;
     }
   }
 
@@ -237,9 +250,15 @@ export class ChannelsGateway {
         if (member.id == user.id)
           throw new ForbiddenException('user is already member of channel');
       });
-      const validPassword = await argon.verify(channel.password, data.password);
-      if (!validPassword) {
-        throw new ForbiddenException('wrong password - cant join');
+      this.logger.debug(1);
+      if (channel.password != '') {
+        const validPassword = await argon.verify(
+          channel.password,
+          data.password,
+        );
+        if (!validPassword) {
+          throw new ForbiddenException('wrong password - cant join');
+        }
       }
       const updatedChannel = await this.prisma.channels.update({
         where: { id: channel.id },
@@ -275,7 +294,8 @@ export class ChannelsGateway {
       });
       return updatedUser.channels;
     } catch (error) {
-      this.logger.debug('problem in joinChannel');
+      console.log(error);
+      this.logger.debug(error);
       return undefined;
     }
   }
@@ -534,6 +554,15 @@ export class ChannelsGateway {
             },
           },
         });
+        setTimeout(
+          () =>
+            this.handleBannedAndMutedCleanup(
+              data.channelId,
+              data.userId,
+              'unban',
+            ),
+          10000,
+        );
       } else if (data.option == 'mute') {
         await this.prisma.channels.update({
           where: {
@@ -545,6 +574,15 @@ export class ChannelsGateway {
             },
           },
         });
+        setTimeout(
+          () =>
+            this.handleBannedAndMutedCleanup(
+              data.channelId,
+              data.userId,
+              'unmute',
+            ),
+          10000,
+        );
       }
       const updatedChannel = await this.prisma.channels.findFirst({
         where: {
