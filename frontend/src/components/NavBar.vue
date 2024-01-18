@@ -54,7 +54,7 @@
     <div class="mr-10">
       <div v-if="user.username">
         <span class="mr-3">hi, {{ user.username }}!</span>
-        <v-icon @click="$emit('notifications')" :color="notificationColor">{{
+        <v-icon @click="handleNotificationClick" :color="notificationColor">{{
           notificationBell
         }}</v-icon>
         <v-btn class="login" @click="logOut"> Logout </v-btn>
@@ -101,6 +101,10 @@ const logOut = async () => {
   chatStore.chatOpen = false;
   chatStore.permissionToOpenChat = false;
 };
+
+const handleNotificationClick = () => {
+  if (props.user.id && props.user.status !== 'IN_GAME') emit('notifications')
+}
 </script>
 
 <style lang="scss">

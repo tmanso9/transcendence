@@ -11,6 +11,7 @@ export const useUserStore = defineStore("user", () => {
   const loginType = ref("REGULAR");
   const alerts = ref([]);
   const id = ref("");
+  const status = ref("");
 
   const signin = async (urlEncoded: BodyInit, path: URL) => {
     try {
@@ -83,7 +84,8 @@ export const useUserStore = defineStore("user", () => {
           loginType.value = refreshData.login;
           alerts.value = refreshData.alerts;
           id.value = refreshData.id;
-          console.log(refreshData);
+          status.value = refreshData.status;
+          // console.log(refreshData);
           return;
         }
         throw new Error(JSON.stringify(error));
@@ -97,6 +99,7 @@ export const useUserStore = defineStore("user", () => {
       loginType.value = data.login;
       alerts.value = data.alerts;
       id.value = data.id;
+      status.value = data.status;
       // console.log(data);
     } catch (error) {
       if (error instanceof Error) {
@@ -116,6 +119,7 @@ export const useUserStore = defineStore("user", () => {
     loginType,
     alerts,
     id,
+    status,
     signin,
     logout,
     fetchUser,

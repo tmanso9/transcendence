@@ -52,7 +52,9 @@ onMounted(async () => {
 
   notifications.on("newAlert", async () => {
     await fetchMe(cookies, user);
-    toReload.value++;
+    if (!user.id || user.status !== "IN_GAME"){
+      toReload.value++;
+    }
   });
 
   await chatStore.startConection();

@@ -6,6 +6,7 @@ import { useUserStore } from "@/stores/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { useGameStore } from "@/store/game";
+import { fetchMe } from "@/utils";
 
 const cookies = inject<VueCookies>("$cookies");
 const user = useUserStore();
@@ -42,7 +43,10 @@ onMounted(async () => {
         <v-btn
           variant="outlined"
           color="white"
-          @click="gameStore.joinRoom(room)"
+          @click="async () => {
+            await fetchMe(cookies, user);
+            gameStore.joinRoom(room);
+          }"
           style="margin: 10px"
         >
           Join {{ room }}
@@ -53,7 +57,10 @@ onMounted(async () => {
     <v-btn
       variant="outlined"
       color="white"
-      @click="gameStore.goToGame()"
+      @click="async () => {
+        await fetchMe(cookies, user);
+        gameStore.goToGame();
+        }"
       style="margin: 10px"
     >
       Create new Game!
