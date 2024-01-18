@@ -1,21 +1,25 @@
 <template>
-  <div
-    v-if="!isSelf"
-    class="d-flex flex-column flex-sm-row justify-space-evenly mx-auto my-10 account__header__buttons"
-    :width="mdAndUp ? '80%' : '100%'"
-  >
-    <v-btn
-      v-for="button in headerButtons"
-      :key="button.text"
-      :width="buttonSize"
-      class="mx-auto my-2 my-sm-0 account__header__buttons__button py-3 d-flex align-center"
-      :color="button.color"
-      @click="button.action"
-      :disabled="button.action === null"
+  <div class="what">
+    <div
+      v-if="!isSelf"
+      class="d-flex flex-column flex-sm-row justify-space-evenly mx-auto my-10 account__header__buttons"
+      :width="mdAndUp ? '80%' : '100%'"
     >
-      <v-icon>{{ button.icon }}</v-icon>
-      <span class="ml-2">{{ button.text }}</span>
-    </v-btn>
+      <v-btn
+        v-for="button in headerButtons"
+        :key="button.text"
+        :width="buttonSize"
+        class="mx-auto my-2 my-sm-0 account__header__buttons__button py-3 d-flex align-center"
+        :color="button.color"
+        @click="button.action"
+        :disabled="button.action === null"
+      >
+        <v-icon>{{ button.icon }}</v-icon>
+        <span class="ml-2">{{ button.text }}</span>
+      </v-btn>
+    </div>
+    <v-btn v-if="account.status === 'IN_GAME'" class="watchButton mx-auto mt-n5 ml-10" color="deep-purple-darken-3"
+    @click="watchGame">watch game</v-btn>
   </div>
 </template>
 
@@ -127,4 +131,19 @@ const headerButtons = computed(() => {
 const buttonSize = computed(() => {
   return sm.value || mdAndUp.value ? "175px" : "75%";
 });
+
+const watchGame = () => {
+  console.log(props.account)
+}
 </script>
+
+<style lang="scss">
+.what{
+  width: 800px;
+  margin: 0 auto;
+}
+.watchButton{
+  width: 90%;
+  margin: 0 auto;
+}
+</style>
