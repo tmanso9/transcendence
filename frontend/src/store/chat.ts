@@ -121,7 +121,7 @@ export const chatAppStore = defineStore("chat", () => {
         });
         removeMessagesFromBlockeUsers();
       }
-      if (selectedChannel.value)
+      if (selectedChannel.value && chatOpen.value)
         await readChannelMessages(selectedChannel.value);
       else await getAllChatData();
     });

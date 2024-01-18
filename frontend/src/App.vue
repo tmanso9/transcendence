@@ -32,11 +32,11 @@ const chatText = computed(() => {
 onBeforeMount(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
-  if (user.username) {
-    const s = io("http://localhost:3000/login");
+  if (user.id) {
+  const s = io(`http://localhost:3000/login`);
 
     s.on("connect", () => {
-      s.emit("setOnline", user.username);
+      s.emit("setOnline", user.id);
     });
   }
 
@@ -149,6 +149,7 @@ const handleNotificationResolve = async () => {
         class="mt-n3 notifications"
         :alerts="user.alerts"
         @notification-resolve="handleNotificationResolve"
+        @close-notification="showNotifications = false"
         v-click-outside="{
           handler: () => (showNotifications = false),
           include,

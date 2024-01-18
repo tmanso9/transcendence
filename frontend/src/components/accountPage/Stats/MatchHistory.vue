@@ -30,7 +30,7 @@ const headers: ReadOnlyHeaders = [
   { title: "result", align: "center", key: "result" },
   { title: "seconduser", align: "center", key: "secondUser" },
   { title: "day", align: "center", key: "day" },
-  { title: "winner", align: "center", key: "winnerUsername" },
+  { title: "winner", align: "center", key: "winnerId" },
   { title: "time", align: "center", key: "time" },
 ];
 
@@ -47,7 +47,7 @@ type Match = {
 };
 
 type ParsedMatch = {
-  winnerUsername: string;
+  winnerId: string;
   loserUsername: string;
   firstUser: string;
   secondUser: string;
@@ -59,8 +59,7 @@ type ParsedMatch = {
 const parsedMatches = (): ParsedMatch[] => {
   return (
     items.value?.map((val: any) => {
-      console.log(val);
-      const accountIsWinner = val.winnerUsername === props.account.username;
+      const accountIsWinner = val.winnerId === props.account.id;
       const result = accountIsWinner
         ? `10 - ${val.loserScore}`
         : `${val.loserScore} - 10`;
@@ -71,7 +70,7 @@ const parsedMatches = (): ParsedMatch[] => {
       return {
         firstUser: props.account.username,
         secondUser,
-        winnerUsername: val.winnerUsername,
+        winnerId: val.winnerId,
         loserUsername: val.loserUsername,
         result,
         day,
@@ -90,7 +89,6 @@ const getHistory = async () => {
     const data = await result.json();
     items.value = data;
     loadingData.value = false;
-    console.log(items.value);
   } catch (error) {
     error instanceof Error && console.error(error.message);
   }
@@ -108,9 +106,8 @@ const handleClick = (event: any) => {
 };
 
 const getCellProps = (item: any) => {
-  if (item.column.key !== "winnerUsername") return;
-  // console.log(item);
-  return item.value === props.account.username
+  if (item.column.key !== "winnerId") return;
+  return item.value === props.account.id
     ? { class: "win-item" }
     : { class: "loss-item" };
 };
