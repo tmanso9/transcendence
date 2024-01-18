@@ -170,6 +170,7 @@ export class gameGateway implements OnGatewayDisconnect, OnGatewayConnection {
       await this.prismService.user.update({
         where: {id: user.id},
         data: {status: "ONLINE", gameId: ""}
+        //cona
       });
     }
     this.connectedUsers.delete(client.id);
