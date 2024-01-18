@@ -133,7 +133,10 @@ const buttonSize = computed(() => {
 });
 
 const watchGame = () => {
-  console.log(props.account)
+  game.connectSocket(cookies?.get("access_token"));
+    setTimeout(() => {
+      game.joinRoom(props.account.gameId);
+    }, 200);
 }
 </script>
 

@@ -10,6 +10,14 @@ const router = useRouter();
 const store = chatAppStore();
 const game = useGameStore();
 const cookies = inject<VueCookies>("$cookies");
+
+const watchGame = async (gameId: string) => {
+  game.connectSocket(cookies?.get("access_token"));
+    setTimeout(() => {
+      game.joinRoom(gameId);
+    }, 200);
+  store.chatOpen = false;
+}
 </script>
 <template>
   <div class="channelSettings">
@@ -88,6 +96,16 @@ const cookies = inject<VueCookies>("$cookies");
             }
           "
           >Unblock</v-btn
+        >
+        <v-btn
+          v-if="
+            store.selectedUserProfile &&
+            store.selectedUserProfile.status == 'IN_GAME'
+          "
+          class="channelSettings-content-buttons-btn"
+          append-icon="mdi-table-tennis"
+          @click="watchGame(store.selectedUserProfile.gameId)"
+          >watch game</v-btn
         >
       </div>
     </div>

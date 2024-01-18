@@ -95,7 +95,7 @@ export class UserService {
 			return {
 				username: friend.username,
 				avatar: friend.avatar,
-				id: friend.id
+				id: friend.id,
 			}
 		});
 
@@ -106,6 +106,7 @@ export class UserService {
 			avatar: requested_user.avatar,
 			id: requested_user.id,
 			gamestats: requested_user.gamestats,
+      gameId: requested_user.gameId,
 			friends,
 		};
 	}

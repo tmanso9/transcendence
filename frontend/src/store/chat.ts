@@ -29,6 +29,7 @@ export interface User {
   status: string;
   avatar: string;
   rank: string;
+  gameId: string;
 
   points: number;
   wins: number;
