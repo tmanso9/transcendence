@@ -64,7 +64,7 @@ onMounted(async () => {
           >Promote to Admin</v-btn
         >
         <v-btn
-          v-else-if="channel?.creator != store.selectedUserProfile?.username"
+          v-else-if="channel?.creator != store.selectedUserProfile?.id"
           color="primary"
           class="userSettingPopUp-content-info-btn"
           append-icon="mdi-account-arrow-down"
