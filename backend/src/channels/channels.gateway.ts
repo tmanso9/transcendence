@@ -561,7 +561,7 @@ export class ChannelsGateway {
               data.userId,
               'unban',
             ),
-          10000,
+          1 * 60 * 1000,
         );
       } else if (data.option == 'mute') {
         await this.prisma.channels.update({
@@ -581,7 +581,7 @@ export class ChannelsGateway {
               data.userId,
               'unmute',
             ),
-          10000,
+          1 * 60 * 1000,
         );
       }
       const updatedChannel = await this.prisma.channels.findFirst({
