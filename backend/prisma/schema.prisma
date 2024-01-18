@@ -72,6 +72,7 @@ model User {
   tfa_secret String // secret string associated with two factor authentication
   tfa_enabled Boolean // does the user have tfa enabled
   alerts	Alert[] @relation("Alerts")
+  gameId    String @default("") // id of the game the user is currently playing
 
   gamestats Gamestats?
 
