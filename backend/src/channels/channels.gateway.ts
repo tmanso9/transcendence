@@ -14,6 +14,7 @@ import { UserService } from 'src/user/user.service';
 import { Channels, User } from '@prisma/client';
 import { Client } from 'socket.io/dist/client';
 import { Cron } from '@nestjs/schedule';
+import * as argon from 'argon2';
 
 class Message {
   sender: string;
@@ -236,7 +237,8 @@ export class ChannelsGateway {
         if (member.id == user.id)
           throw new ForbiddenException('user is already member of channel');
       });
-      if (data.password != channel.password) {
+      const validPassword = await argon.verify(channel.password, data.password);
+      if (!validPassword) {
         throw new ForbiddenException('wrong password - cant join');
       }
       const updatedChannel = await this.prisma.channels.update({
@@ -305,12 +307,13 @@ export class ChannelsGateway {
           throw new ForbiddenException(
             'channel type must be: "personal", "private" or "public"',
           );
+        const hash = data.password == '' ? '' : await argon.hash(data.password);
         const newChannel = await this.prisma.channels.create({
           data: {
             creator: user.id,
             type: data.type,
             avatar: 'mdi-account-group',
-            password: data.password,
+            password: hash,
             channelName: data.channelName,
             members: {
               connect: { id: user.id },
@@ -736,12 +739,13 @@ export class ChannelsGateway {
         throw new ForbiddenException(
           'channel doesnt exist or user is not admin',
         );
+      const hash = data.password == '' ? '' : await argon.hash(data.password);
       const updatedChannel = await this.prisma.channels.update({
         where: {
           id: data.channelId,
         },
         data: {
-          password: data.password,
+          password: hash,
         },
         include: {
           members: true,
