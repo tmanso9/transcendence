@@ -48,7 +48,7 @@ export class paddle extends rectangle {
   moveDown(lineWidth: number, height: number) {
     if (this.y + this.height == height - lineWidth)
       return;
-    else if (this.y + this.height + 30 > height - lineWidth)
+    else if (this.y + this.height + this.moveSpeed > height - lineWidth)
       this.y = height - lineWidth - this.height;
     else
       this.y += this.moveSpeed;
