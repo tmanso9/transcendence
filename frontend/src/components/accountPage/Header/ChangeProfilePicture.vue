@@ -52,7 +52,6 @@ const router = useRouter();
 const selectFile = (files: File[]) => {
   if (files !== null) {
     newPicture.value = files[0];
-    // console.log(newPicture.value)
     form.value && form.value.resetValidation();
     inputError.value = false;
   }

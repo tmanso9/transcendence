@@ -109,7 +109,7 @@ const openChatChannel = async () => {
     }
     chat.chatOpen = true;
   } catch (error) {
-    error instanceof Error && console.log(error.message);
+    error instanceof Error && console.error(error.message);
   }
 };
 

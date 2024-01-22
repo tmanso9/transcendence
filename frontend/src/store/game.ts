@@ -40,7 +40,6 @@ export const useGameStore = defineStore("game", () => {
   function disconnectSocket() {
     if (socket.value) {
       socket.value.disconnect();
-      console.log("disconnected");
       socket.value = null as any;
     }
   }
@@ -53,7 +52,6 @@ export const useGameStore = defineStore("game", () => {
     const room = alertId
       ? alertId
       : "room " + roomNumber.value.toString();
-    console.log("goToGame: ", room, alertId, roomsList.value.length.toString());
       getSocket().
       emit("createRoom", { room: room, width: 850, height: 850*.7 });
     router.push("/game");

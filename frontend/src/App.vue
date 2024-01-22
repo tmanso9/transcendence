@@ -65,14 +65,9 @@ router.beforeEach(async () => {
   interval.value = setInterval(
     async () => {
       await fetchMe(cookies, user);
-      const now = new Date();
-      console.log(user.username, now.toLocaleString());
     },
     15 * 60 * 1000,
   );
-  const now = new Date();
-
-  console.log(user.username, now.toLocaleString());
 });
 
 const toggleChat = async () => {

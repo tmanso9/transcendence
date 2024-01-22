@@ -41,7 +41,6 @@ const generateCode = async (val: Selected) => {
     });
     if (!result.ok) throw new Error(await result.text());
     const data = await result.text();
-    // console.log(data);
     QRSource.value = data;
   } catch (error) {
     hasError.value = true;

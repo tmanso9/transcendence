@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { chatAppStore } from "@/store/chat";
-import { onMounted } from "vue";
 
 const store = chatAppStore();
 const channel = store.getChannelInfo(store.selectedChannel);
-onMounted(async () => {
-  console.log(store.selectedUserProfile);
-});
 </script>
 <template>
   <div class="userSettingPopUp">

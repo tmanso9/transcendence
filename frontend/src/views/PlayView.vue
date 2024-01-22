@@ -23,7 +23,6 @@ const roomsList = ref(gameStore.roomsList);
 onMounted(async () => {
   await nextTick();
   gameStore.disconnectSocket();
-  console.log("onmounted: ", user.id, user.username);
   gameStore.connectSocket(cookies?.get("access_token"));
   if (gameStore.getSocket() != null) {
     gameStore.getSocket().on("availableRooms", (rooms: string[]) => {

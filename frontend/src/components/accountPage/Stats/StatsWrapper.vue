@@ -67,7 +67,6 @@ const fetchData = async () => {
         stats.value.push({ key, value });
       }
     }
-    console.log(data);
   } catch (error) {
     error instanceof Error && console.error(error.message);
   }

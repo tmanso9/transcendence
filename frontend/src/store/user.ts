@@ -28,7 +28,6 @@ export const useUserStore = defineStore("user", () => {
         throw new Error(err);
       }
       const data = await result.json();
-      //   console.log(data);
       return data;
     } catch (error) {
       if (error instanceof Error) {
@@ -43,8 +42,7 @@ export const useUserStore = defineStore("user", () => {
         credentials: "include",
       });
       if (!result.ok) throw new Error("Error logging out");
-      const data = await result.json();
-      console.log(data);
+      await result.json();
     } catch (error) {
       console.error(error);
     }
@@ -85,14 +83,11 @@ export const useUserStore = defineStore("user", () => {
           alerts.value = refreshData.alerts;
           id.value = refreshData.id;
           status.value = refreshData.status;
-          // console.log(refreshData);
           return;
         }
         throw new Error(JSON.stringify(error));
       }
       const data = await result.json();
-      //   console.log("data:");
-      //   console.log(data);
       username.value = data.username;
       tfa_enabled.value = data.tfa_enabled;
       email.value = data.email;
@@ -100,7 +95,6 @@ export const useUserStore = defineStore("user", () => {
       alerts.value = data.alerts;
       id.value = data.id;
       status.value = data.status;
-      // console.log(data);
     } catch (error) {
       if (error instanceof Error) {
         const message = JSON.parse(error.message).message;

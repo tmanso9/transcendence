@@ -42,7 +42,6 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
-import { defineEmits } from "vue";
 import { encodeFormData, apiURI } from "@/utils";
 import SigninFormElements from "./SigninFormElements.vue";
 import { useUserStore } from "@/store/user";
@@ -78,7 +77,6 @@ const login = async () => {
     try {
       const data = await user.signin(urlEncoded, new URL(authUrl + "login"));
       if (cookies?.get("access_token") === null) {
-        console.log(data);
         user.email = data.email;
         emit("login");
         router.push("/2fa");

@@ -59,7 +59,7 @@ onMounted(async () => {
     if (error instanceof Error) {
       if (error.message === "Unauthorized") unauthorized.value = true;
       else if (error.message === "Forbidden") notFound.value = true;
-      console.log(error);
+      console.error(error);
     }
   }
 });

@@ -10,10 +10,8 @@ export const fetchOtherUser = async (username: string) => {
       throw new Error(result.statusText);
     }
     const data = await result.json();
-    // console.log(data);
     return data;
   } catch (error) {
-    // console.error(error);
 	if (error instanceof Error)
 		throw new Error(error.message)
   }

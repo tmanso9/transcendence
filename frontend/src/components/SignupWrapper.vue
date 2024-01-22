@@ -61,8 +61,7 @@ async function signup() {
 
     const urlEncoded = encodeFormData(values, propertyNames);
     try {
-      const data = await user.signin(urlEncoded, new URL(authUrl + "signup"));
-      console.log(data);
+      await user.signin(urlEncoded, new URL(authUrl + "signup"));
       emit("signup");
     } catch (error) {
       if (error instanceof Error) {
