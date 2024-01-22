@@ -12,10 +12,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
 import { Channels, User } from '@prisma/client';
-import { Client } from 'socket.io/dist/client';
-import { Cron } from '@nestjs/schedule';
 import * as argon from 'argon2';
-import { disconnect } from 'process';
 
 class Message {
   sender: string;
@@ -106,7 +103,7 @@ export class ChannelsGateway {
     @MessageBody() data: { token: string; userId: string },
   ): Promise<Channels[]> {
     try {
-      const payload = await this.authService.getUserFromToken(data.token);
+      await this.authService.getUserFromToken(data.token);
       const publicChannels = await this.prisma.channels.findMany({
         where: { type: 'public' },
         include: {
@@ -116,7 +113,7 @@ export class ChannelsGateway {
           mutedUsers: true,
         },
       });
-      let channelsUserIsNotIn: Channels[] = [];
+      const channelsUserIsNotIn: Channels[] = [];
       publicChannels.map((channel) => {
         let userIsMember = 0;
         channel.members.map((member) => {
@@ -152,12 +149,12 @@ export class ChannelsGateway {
           mutedUsers: true,
         },
       });
-      let userIsMuted = [];
+      const userIsMuted = [];
       channel.mutedUsers.map((mutedUser) => {
         if (mutedUser.id == user.id) userIsMuted.push(true);
       });
       if (!channel) throw new ForbiddenException('no channel found');
-      let messages: Message[] = [];
+      const messages: Message[] = [];
       if (
         data.option == 'send' &&
         data.message != '' &&
@@ -723,7 +720,7 @@ export class ChannelsGateway {
           },
         });
       } else {
-        let newList = [];
+        const newList = [];
         userToBlockOrUnblock.blockedUsers.map((usr) => {
           if (usr != userToBlockOrUnblock.id) newList.push(usr);
         });

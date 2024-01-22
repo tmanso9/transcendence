@@ -1,32 +1,37 @@
-import { IsNotEmpty, IsString, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator"
+import {
+  IsNotEmpty,
+  IsString,
+  Validate,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 @ValidatorConstraint()
 export class ChannelTypeRule implements ValidatorConstraintInterface {
-	constructor() {}
+  constructor() {}
 
-	async validate(type: string) {
-		return type === 'PERSONAL' || type === 'PRIVATE' || type === 'PUBLIC';
-	}
+  async validate(type: string) {
+    return type === 'PERSONAL' || type === 'PRIVATE' || type === 'PUBLIC';
+  }
 
-	defaultMessage(args: ValidationArguments) {
-		return `Invalid channel type`;
-	}
+  defaultMessage() {
+    return `Invalid channel type`;
+  }
 }
 
-
 export class CreateChannelDTO {
-	@IsString()
-	@IsNotEmpty()
-	creator: string
+  @IsString()
+  @IsNotEmpty()
+  creator: string;
 
-	@IsString()
-	password: string
+  @IsString()
+  password: string;
 
-	@IsString()
-	@IsNotEmpty()
-	channelName: string
+  @IsString()
+  @IsNotEmpty()
+  channelName: string;
 
-	@IsNotEmpty()
-	@Validate(ChannelTypeRule)
-	channelType: any
+  @IsNotEmpty()
+  @Validate(ChannelTypeRule)
+  channelType: any;
 }

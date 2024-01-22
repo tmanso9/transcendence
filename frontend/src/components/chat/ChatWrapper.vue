@@ -6,8 +6,6 @@ import MessageInput from "./MessageInput.vue";
 import ChatBar from "./ChatBar.vue";
 import ChannelHeader from "./ChannelHeader.vue";
 import MessagesScroll from "./MessagesScroll.vue";
-import CreateChannel from "./CreateChannel.vue";
-import { onUpdated } from "vue";
 
 // Fake data - TODO(Ask backend for this data) -------------------------------------
 const store = chatAppStore();
@@ -15,10 +13,6 @@ const store = chatAppStore();
 // --------------------------------------------------------------------------------
 
 // new channel vars
-const type = ref("public");
-const password = ref("");
-const name = ref("");
-const members = ref([]);
 const haveAllInfoNeeded = ref(false);
 
 onMounted(async () => {

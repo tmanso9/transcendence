@@ -53,7 +53,7 @@ const store = chatAppStore();
                 >{{ item.unreadMsgs }}</v-chip
               >
             </template>
-            <v-list-item-title v-text="item.channelName"></v-list-item-title>
+            <v-list-item-title>{{ item.channelName }}</v-list-item-title>
           </v-list-item>
         </template>
       </v-virtual-scroll>
@@ -89,9 +89,7 @@ const store = chatAppStore();
                   class="contactElement-publicChan-pofile-avatar"
                   :size="height > 700 ? 'small' : 'x-small'"
                 ></v-icon>
-                <v-list-item-title
-                  v-text="item.channelName"
-                ></v-list-item-title>
+                <v-list-item-title>{{ item.channelName }}</v-list-item-title>
               </div>
               <v-dialog width="500" class="included">
                 <template v-slot:activator="{ props }">
@@ -110,7 +108,7 @@ const store = chatAppStore();
                     <v-card-text
                       ><v-text-field
                         v-model="password"
-												type="password"
+                        type="password"
                         label="Pasword*"
                         required
                       ></v-text-field

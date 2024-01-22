@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import AboutView from '../views/AboutView.vue';
-import RankingView from '@/views/RankingView.vue';
-import TwoFAView from '../views/TwoFAView.vue';
-import FirstLoginView from '../views/FirstLoginView.vue';
-import AccountView from '../views/AccountView.vue';
-import NotFound from '../views/NotFound.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import HomeView from "../views/HomeView.vue";
+import AboutView from "../views/AboutView.vue";
+import RankingView from "@/views/RankingView.vue";
+import TwoFAView from "../views/TwoFAView.vue";
+import FirstLoginView from "../views/FirstLoginView.vue";
+import AccountView from "../views/AccountView.vue";
+import NotFound from "../views/NotFound.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,40 +22,40 @@ const router = createRouter({
     },
     {
       path: "/play",
-      component: () => import('../views/PlayView.vue'),
+      component: () => import("../views/PlayView.vue"),
       // component : PlayView,
     },
     {
-      path: '/game',
+      path: "/game",
       // component: GameView,
-      component: () => import('../views/GameView.vue')
+      component: () => import("../views/GameView.vue"),
     },
     {
       path: "/ranking",
-	  name: "ranking",
+      name: "ranking",
       component: RankingView,
     },
     {
       path: "/2fa",
-	  name: "2fa",
+      name: "2fa",
       component: TwoFAView,
     },
     {
       path: "/firstLogin",
-	  name: "firstLogin",
+      name: "firstLogin",
       component: FirstLoginView,
     },
     {
       path: "/users/:username",
-	  name: "account",
+      name: "account",
       component: AccountView,
     },
     {
       path: "/:catchAll(.*)",
-	  name: "catchAll",
+      name: "catchAll",
       component: NotFound,
     },
   ],
 });
 
-export default router
+export default router;

@@ -23,7 +23,7 @@ import { apiURI } from "@/utils";
 import { useGameStore } from "@/store/game";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 defineProps(["alerts"]);
 const emit = defineEmits(["notificationResolve", "closeNotification"]);
@@ -95,12 +95,9 @@ const respondFriend = async (id: string, action: string, alert: Alert) => {
 const dismissAlert = async (alert: Alert) => {
   const { id } = alert;
   try {
-    const result = await fetch(
-      `${apiURI}/users/dismiss-alert/alert?id=${id}`,
-      {
-        credentials: "include",
-      },
-    );
+    const result = await fetch(`${apiURI}/users/dismiss-alert/alert?id=${id}`, {
+      credentials: "include",
+    });
     if (!result.ok) throw new Error(await result.text());
     emit("notificationResolve");
   } catch (error) {

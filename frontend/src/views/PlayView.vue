@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, Ref } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import router from "@/router";
-import { useDisplay } from "vuetify";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { useGameStore } from "@/store/game";
@@ -24,7 +23,6 @@ const roomsList = ref(gameStore.roomsList);
 onMounted(async () => {
   await nextTick();
   gameStore.disconnectSocket();
-  console.log("onmounted: ", user.id, user.username);
   gameStore.connectSocket(cookies?.get("access_token"));
   if (gameStore.getSocket() != null) {
     gameStore.getSocket().on("availableRooms", (rooms: string[]) => {
@@ -43,10 +41,12 @@ onMounted(async () => {
         <v-btn
           variant="outlined"
           color="white"
-          @click="async () => {
-            await fetchMe(cookies, user);
-            gameStore.joinRoom(room);
-          }"
+          @click="
+            async () => {
+              await fetchMe(cookies, user);
+              gameStore.joinRoom(room);
+            }
+          "
           style="margin: 10px"
         >
           Join {{ room }}
@@ -57,10 +57,12 @@ onMounted(async () => {
     <v-btn
       variant="outlined"
       color="white"
-      @click="async () => {
-        await fetchMe(cookies, user);
-        gameStore.goToGame();
-        }"
+      @click="
+        async () => {
+          await fetchMe(cookies, user);
+          gameStore.goToGame();
+        }
+      "
       style="margin: 10px"
     >
       Create new Game!

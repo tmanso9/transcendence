@@ -14,11 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { noEmpty, fetchMe } from "@/utils";
-import { useUserStore } from "@/stores/user";
-import { useRouter } from "vue-router";
 import FormChangeUsername from "./FormChangeUsername.vue";
 
-const props = defineProps(["cookies"]);
+defineProps(["cookies"]);
 </script>

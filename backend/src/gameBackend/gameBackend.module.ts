@@ -5,6 +5,6 @@ import { GameBackendController } from './gameBackend.controller';
 @Module({
   providers: [GameBackendService],
   controllers: [GameBackendController],
-  exports: [GameBackendService]
+  exports: [GameBackendService],
 })
 export class GameBackendModule {}

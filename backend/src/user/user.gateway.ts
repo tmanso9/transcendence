@@ -12,7 +12,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
   namespace: '/notifications',
   cors: { origin: `${process.env.HOST}:${process.env.FE_PORT}` },
 })
-export class notificationsGateway implements OnGatewayConnection {
+export class NotificationsGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
   usersConnected: Map<string, Socket> = new Map();
@@ -22,32 +22,32 @@ export class notificationsGateway implements OnGatewayConnection {
     this.usersConnected.set(payload, client);
   }
 
-  handleConnection(client: any, ...args: any[]) {}
+  handleConnection() {}
 }
 
 @WebSocketGateway({
   namespace: '/login',
   cors: { origin: `${process.env.HOST}:${process.env.FE_PORT}` },
 })
-export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  @WebSocketServer() server: Server
-  users: Map<Socket, String> = new Map();
-  constructor(private prismaService: PrismaService){
-	this.prismaService = prismaService
+export class UserGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  @WebSocketServer() server: Server;
+  users: Map<Socket, string> = new Map();
+  constructor(private prismaService: PrismaService) {
+    this.prismaService = prismaService;
   }
-  
+
   @SubscribeMessage('setOnline')
   async setOnline(client: any, id: any) {
     if (client && id && id.length) {
       this.users.set(client.id, id);
-		  await this.prismaService.user.update({
-			where: {
-			  id,
-			},
-			data: {
-			  status: 'ONLINE',
-			},
-		  });
+      await this.prismaService.user.update({
+        where: {
+          id,
+        },
+        data: {
+          status: 'ONLINE',
+        },
+      });
     }
   }
 
@@ -66,12 +66,12 @@ export class userGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }, 10);
   }
 
-  handleConnection(client: any, ...args: any[]) {  }
+  handleConnection() {}
 
   handleDisconnect(client: any) {
     if (this.users.has(client.id)) {
       this.setOffline(this.users.get(client.id));
-	  this.users.delete(client.id);
+      this.users.delete(client.id);
     }
   }
 }

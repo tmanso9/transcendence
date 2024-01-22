@@ -6,7 +6,7 @@ import SignupWrapper from "./components/SignupWrapper.vue";
 import NotificationsWrapper from "./components/Notifications/NotificationsWrapper.vue";
 import NavBar from "./components/NavBar.vue";
 import { ref, inject, onMounted } from "vue";
-import { useUserStore } from "./stores/user";
+import { useUserStore } from "./store/user";
 import { VueCookies } from "vue-cookies";
 import router from "./router";
 import { fetchMe, apiURI } from "./utils";
@@ -16,9 +16,7 @@ import { computed } from "vue";
 
 const showLogin = ref(false);
 const showSignup = ref(false);
-const showChat = ref(false);
 const showNotifications = ref(false);
-const permissionToOpenChat = ref(false);
 const user = useUserStore();
 const cookies = inject<VueCookies>("$cookies");
 const chatStore = chatAppStore();
@@ -34,7 +32,7 @@ onMounted(async () => {
   await fetchMe(cookies, user);
   await toggleChatPermission();
   if (user.id) {
-  const s = io(`${apiURI}/login`);
+    const s = io(`${apiURI}/login`);
 
     s.on("connect", () => {
       s.emit("setOnline", user.id);
@@ -52,7 +50,7 @@ onMounted(async () => {
 
   notifications.on("newAlert", async () => {
     await fetchMe(cookies, user);
-    if (!user.id || user.status !== "IN_GAME"){
+    if (!user.id || user.status !== "IN_GAME") {
       toReload.value++;
     }
   });
@@ -60,21 +58,16 @@ onMounted(async () => {
   await chatStore.startConection();
 });
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async () => {
   await fetchMe(cookies, user);
   if (interval.value !== null && interval.value !== 0)
     clearInterval(interval.value);
   interval.value = setInterval(
     async () => {
       await fetchMe(cookies, user);
-      const now = new Date();
-      console.log(user.username, now.toLocaleString());
     },
     15 * 60 * 1000,
   );
-  const now = new Date();
-
-  console.log(user.username, now.toLocaleString());
 });
 
 const toggleChat = async () => {
@@ -92,10 +85,6 @@ const toggleChatPermission = async () => {
   let permissionGranted = await chatStore.checkTokenConection();
   if (permissionGranted) chatStore.permissionToOpenChat = true;
   else chatStore.permissionToOpenChat = false;
-};
-
-const handleOpenChat = () => {
-  if (!chatStore.chatOpen) toggleChat();
 };
 
 const toggleLogin = async () => {
@@ -126,7 +115,10 @@ const handleNotificationResolve = async () => {
       :user="user"
       :showLogin="showLogin"
       @login="toggleLogin"
-      @logout="fetchMe(cookies, user); route.go(0);"
+      @logout="
+        fetchMe(cookies, user);
+        route.go(0);
+      "
       @notifications="showNotifications = !showNotifications"
       class="navbar included"
     />

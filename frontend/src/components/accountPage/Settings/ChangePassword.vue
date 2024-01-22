@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { noEmpty, fetchMe, apiURI } from "@/utils";
 import { computed } from "vue";
 import { ref } from "vue";
@@ -83,11 +83,8 @@ const pwdForm = ref<HTMLFormElement>();
 const hasError = ref(false);
 const errText = ref("");
 const hidePwd1 = ref(true);
-const pwd1Type = ref("password");
 const hidePwd2 = ref(true);
-const pwd2Type = ref("password");
 const hidePwd3 = ref(true);
-const pwd3Type = ref("password");
 
 const confirmPwdRules = [
   (input: string) => {
@@ -111,18 +108,10 @@ const pwd3Icon = computed(() => {
   return hidePwd3.value ? "mdi-eye-outline" : "mdi-eye-off-outline";
 });
 
-const handleShowPwd = (pwd: string) => {
-  if (pwd === "hidePwd1") {
-    hidePwd1.value = !hidePwd1.value;
-    pwd1Type.value = hidePwd1.value ? "password" : "text";
-  }
-};
-
 const changePwd = async () => {
   let isValid = { valid: false };
   if (pwdForm.value) {
     isValid = await pwdForm.value.validate();
-    // console.log(isValid);
   }
   if (!isValid.valid) return;
   const path = `${apiURI}/users/change-password`;

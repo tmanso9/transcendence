@@ -37,7 +37,7 @@ import ChangePassword from "./ChangePassword.vue";
 import Enable2FA from "./Enable2FA.vue";
 import Disable2FA from "./Disable2FA.vue";
 import { User } from "@/types";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { computed } from "vue";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";

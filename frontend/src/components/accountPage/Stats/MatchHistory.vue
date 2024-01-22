@@ -21,7 +21,7 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import type { VDataTable } from "vuetify/components";
-import { apiURI } from "@/utils"
+import { apiURI } from "@/utils";
 
 const props = defineProps(["account"]);
 
@@ -41,11 +41,6 @@ const loadingData = ref(true);
 onMounted(() => {
   getHistory();
 });
-
-type Match = {
-  username: string;
-  points: number;
-};
 
 type ParsedMatch = {
   winnerId: string;

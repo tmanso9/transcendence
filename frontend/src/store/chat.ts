@@ -1,10 +1,9 @@
 // Utilities
-// import { useUserStore } from "@/stores/user";
+// import { useUserStore } from "@/store/user";
 import { apiURI } from "@/utils";
-import { RefSymbol } from "@vue/reactivity";
 import { defineStore } from "pinia";
-import { Socket, io } from "socket.io-client";
-import { ref, onMounted, inject } from "vue";
+import { io } from "socket.io-client";
+import { ref, inject } from "vue";
 import { VueCookies } from "vue-cookies";
 
 export interface Channel {
@@ -186,7 +185,7 @@ export const chatAppStore = defineStore("chat", () => {
 
   function setupPublicChannelsUserIsNotIn() {
     if (!currentUser.value?.friends || !publicChannelsUserIsNotIn.value) return;
-    let friendsWithChannel: string[] = [];
+    const friendsWithChannel: string[] = [];
     currentUser.value.channels.map((channel) => {
       if (channel.type == "personal") {
         channel.members.map((member) => {
@@ -295,7 +294,6 @@ export const chatAppStore = defineStore("chat", () => {
   ) {
     if (!currentUser.value?.channels.length) return;
     const token = cookies?.get("access_token");
-    const userId = currentUser.value.id;
     await socketSend<Message[]>("channelMessages", {
       token,
       option,
@@ -383,7 +381,6 @@ export const chatAppStore = defineStore("chat", () => {
   async function joinChannel(channelId: string, password: string) {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
-    const userId = currentUser.value.id;
     await socketSend<Channel[]>("joinChannel", {
       token,
       channelId,
@@ -407,7 +404,6 @@ export const chatAppStore = defineStore("chat", () => {
   ): Promise<string | void> {
     if (!currentUser.value) return;
     const token = cookies?.get("access_token");
-    const userId = currentUser.value.id;
     return await socketSend<string>("createChannel", {
       token,
       type,

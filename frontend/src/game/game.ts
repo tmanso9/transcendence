@@ -1,7 +1,5 @@
 import type {Socket} from "socket.io-client";
 import {useGameStore} from "@/store/game";
-import {el, he} from "vuetify/locale";
-
 
 const gStore = useGameStore();
 

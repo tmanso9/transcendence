@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import FormChangeUsername from "@/components/accountPage/Settings/FormChangeUsername.vue";
 import ChangeProfilePicture from "@/components/accountPage/Header/ChangeProfilePicture.vue";
 import { onBeforeMount, ref } from "vue";

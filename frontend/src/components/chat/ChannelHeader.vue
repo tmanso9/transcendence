@@ -2,11 +2,8 @@
 import { chatAppStore } from "@/store/chat";
 import ChannelSettings from "./ChannelSettings.vue";
 import { ref } from "vue";
-import { useDisplay } from "vuetify/lib/framework.mjs";
-import { Channel } from "../../store/chat";
 import { onMounted } from "vue";
 
-const { height } = useDisplay();
 const store = chatAppStore();
 const channelPermission = ref(false);
 

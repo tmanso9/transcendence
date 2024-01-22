@@ -2,7 +2,6 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddToChannelDTO, CreateChannelDTO } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class ChannelsService {
@@ -10,10 +9,10 @@ export class ChannelsService {
 
   async getChannels() {
     const channels = await this.prisma.channels.findMany({
-		include: {
-			members: true
-		}
-	});
+      include: {
+        members: true,
+      },
+    });
     return channels;
   }
 

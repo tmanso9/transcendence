@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import AccountWrapper from "@/components/accountPage/AccountWrapper.vue";
 import NotFoundWrapper from "@/components/NotFoundWrapper.vue";
-import { ref, onBeforeMount, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { fetchOtherUser, apiURI } from "@/utils";
 import { User } from "@/types";
@@ -59,7 +59,7 @@ onMounted(async () => {
     if (error instanceof Error) {
       if (error.message === "Unauthorized") unauthorized.value = true;
       else if (error.message === "Forbidden") notFound.value = true;
-      console.log(error);
+      console.error(error);
     }
   }
 });

@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { computed } from "vue";

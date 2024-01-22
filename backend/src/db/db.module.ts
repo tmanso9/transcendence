@@ -6,10 +6,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 
 @Module({
-	imports: [
-		HttpModule,
-	],
-	providers: [DbService, AuthService, JwtService],
-	controllers: [DbController],
+  imports: [HttpModule],
+  providers: [DbService, AuthService, JwtService],
+  controllers: [DbController],
 })
 export class DbModule {}

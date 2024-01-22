@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { noEmpty, fetchMe, apiURI } from "@/utils";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { useRouter } from "vue-router";
 
 const props = defineProps(["cookies"]);
