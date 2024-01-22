@@ -1,22 +1,22 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator"
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class GameDTO {
-	@IsString()
-	@IsNotEmpty()
-	winnerId: string
+  @IsString()
+  @IsNotEmpty()
+  winnerId: string;
 
-	@IsString()
-	@IsNotEmpty()
-	loserId: string
+  @IsString()
+  @IsNotEmpty()
+  loserId: string;
 
-	@IsNotEmpty()
-	loserScore: any
+  @IsNotEmpty()
+  loserScore: any;
 
-	@IsString()
-	@IsNotEmpty()
-	winnerUsername: string
+  @IsString()
+  @IsNotEmpty()
+  winnerUsername: string;
 
-	@IsString()
-	@IsNotEmpty()
-	loserUsername: string
+  @IsString()
+  @IsNotEmpty()
+  loserUsername: string;
 }

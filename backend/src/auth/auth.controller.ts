@@ -11,7 +11,7 @@ import {
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { AuthDTO } from './dto';
-import { GoogleGuard, Guard42, JwtGuard } from './guards';
+import { Guard42, JwtGuard } from './guards';
 import { getUser } from './decorator';
 
 @Controller('auth')
@@ -84,23 +84,21 @@ export class AuthController {
       secure: false,
     });
 
-		if (logged_user.tfa_enabled)
-		{
-			response.cookie('email', logged_user.email, {
-				maxAge: 2592000000,
-				sameSite: true,
-				secure: false,
-			});
-			response.redirect(`${process.env.HOST}:${process.env.FE_PORT}/2fa`);
-		}
-		else {
-			let url = `${process.env.HOST}:${process.env.FE_PORT}/users/${logged_user.username}`;
-			if (logged_user.firstLogin) {
-				url = `${process.env.HOST}:${process.env.FE_PORT}/firstLogin`;
-			}
-			response.redirect(url)
-		}
-	}
+    if (logged_user.tfa_enabled) {
+      response.cookie('email', logged_user.email, {
+        maxAge: 2592000000,
+        sameSite: true,
+        secure: false,
+      });
+      response.redirect(`${process.env.HOST}:${process.env.FE_PORT}/2fa`);
+    } else {
+      let url = `${process.env.HOST}:${process.env.FE_PORT}/users/${logged_user.username}`;
+      if (logged_user.firstLogin) {
+        url = `${process.env.HOST}:${process.env.FE_PORT}/firstLogin`;
+      }
+      response.redirect(url);
+    }
+  }
 
   /***** LOGOUT *****/
   @Get('logout')

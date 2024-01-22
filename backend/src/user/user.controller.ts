@@ -14,16 +14,16 @@ import { UserService } from './user.service';
 import { JwtGuard } from '../auth/guards';
 import { getUser } from '../auth/decorator';
 import { decodeJwt } from './decorator';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { notificationsGateway } from './user.gateway';
+import { NotificationsGateway } from './user.gateway';
 
 @Controller('users')
 export class UserController {
   constructor(
     private userService: UserService,
-    private notificationsGateway: notificationsGateway,
+    private notificationsGateway: NotificationsGateway,
   ) {}
 
   @Get()
@@ -31,43 +31,43 @@ export class UserController {
     return this.userService.getUsers();
   }
 
-	@UseGuards(JwtGuard)
-	@Get('gamestats/:username')
-	getUserGamestats(@Param('username') username: string) {
-		return this.userService.getUserGamestats(username);
-	}
+  @UseGuards(JwtGuard)
+  @Get('gamestats/:username')
+  getUserGamestats(@Param('username') username: string) {
+    return this.userService.getUserGamestats(username);
+  }
 
   @UseGuards(JwtGuard)
-	@Get('achievements/:username')
-	getUserAchievements(@Param('username') username: string) {
-		return this.userService.getUserAchievements(username);
-	}
+  @Get('achievements/:username')
+  getUserAchievements(@Param('username') username: string) {
+    return this.userService.getUserAchievements(username);
+  }
 
-	@UseGuards(JwtGuard)
-	@Get('me')
-	getMe(@getUser() user: any) {
-		return this.userService.getMe(user);
-	}
+  @UseGuards(JwtGuard)
+  @Get('me')
+  getMe(@getUser() user: any) {
+    return this.userService.getMe(user);
+  }
 
-	@UseGuards(JwtGuard)
-	@Get('me/friends')
-	getFriends(@decodeJwt('sub') id: string) {
-		return this.userService.getFriends(id);
-	}
+  @UseGuards(JwtGuard)
+  @Get('me/friends')
+  getFriends(@decodeJwt('sub') id: string) {
+    return this.userService.getFriends(id);
+  }
 
-	// Get user channels
-	@UseGuards(JwtGuard)
-	@Get('me/channels')
-	async getUserChannels(@decodeJwt('sub') id: string) {
-		return this.userService.getUserChannels(id);
-	}
+  // Get user channels
+  @UseGuards(JwtGuard)
+  @Get('me/channels')
+  async getUserChannels(@decodeJwt('sub') id: string) {
+    return this.userService.getUserChannels(id);
+  }
 
-	// Get user channels
-	@UseGuards(JwtGuard)
-	@Get('me/other-channels')
-	async getNonUserChannels(@decodeJwt('sub') id: string) {
-		return this.userService.getNonUserChannels(id);
-	}
+  // Get user channels
+  @UseGuards(JwtGuard)
+  @Get('me/other-channels')
+  async getNonUserChannels(@decodeJwt('sub') id: string) {
+    return this.userService.getNonUserChannels(id);
+  }
 
   @UseGuards(JwtGuard)
   @Get('connections')
@@ -84,9 +84,7 @@ export class UserController {
 
   @UseGuards(JwtGuard)
   @Get('dismiss-alert/alert?')
-  dismissAlert(
-    @Query('id') id: string,
-  ) {
+  dismissAlert(@Query('id') id: string) {
     return this.userService.dismissAlert(id);
   }
 
@@ -106,7 +104,11 @@ export class UserController {
   // Respond to Friend Request
   @UseGuards(JwtGuard)
   @Post('friend-response/:id/:action')
-  async respondFriend(@Param('id') user_id: any, @Param('action') action: any, @decodeJwt() decoded_jwt: any) {
+  async respondFriend(
+    @Param('id') user_id: any,
+    @Param('action') action: any,
+    @decodeJwt() decoded_jwt: any,
+  ) {
     await this.userService.respondFriend(user_id, action, decoded_jwt);
     const socket = this.notificationsGateway.usersConnected.get(user_id);
     if (socket) socket.emit('newAlert');

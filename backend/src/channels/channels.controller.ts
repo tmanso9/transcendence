@@ -7,30 +7,36 @@ import { decodeJwt } from 'src/user/decorator';
 @UseGuards(JwtGuard)
 @Controller('channels')
 export class ChannelsController {
-	constructor(private channelsService: ChannelsService) {}
+  constructor(private channelsService: ChannelsService) {}
 
-	@Get()
-	getChannels() {
-		return this.channelsService.getChannels();
-	}
+  @Get()
+  getChannels() {
+    return this.channelsService.getChannels();
+  }
 
-	@Post('create')
-	createChannel(@Body() dto: CreateChannelDTO, @decodeJwt('sub') id: string) {
-		return this.channelsService.createChannel(dto, id);
-	}
+  @Post('create')
+  createChannel(@Body() dto: CreateChannelDTO, @decodeJwt('sub') id: string) {
+    return this.channelsService.createChannel(dto, id);
+  }
 
-	@Post('add-user')
-	addUserToChannel(@Body() dto: AddToChannelDTO, @decodeJwt('sub') id: string) {
-		return this.channelsService.addUserToChannel(dto, id);
-	}
+  @Post('add-user')
+  addUserToChannel(@Body() dto: AddToChannelDTO, @decodeJwt('sub') id: string) {
+    return this.channelsService.addUserToChannel(dto, id);
+  }
 
-	@Post('remove-user')
-	removeUserFromChannel(@Body() dto: AddToChannelDTO, @decodeJwt('sub') id: string) {
-		return this.channelsService.removeUserFromChannel(dto, id);
-	}
+  @Post('remove-user')
+  removeUserFromChannel(
+    @Body() dto: AddToChannelDTO,
+    @decodeJwt('sub') id: string,
+  ) {
+    return this.channelsService.removeUserFromChannel(dto, id);
+  }
 
-	@Post('add-admin')
-	addAdminToChannel(@Body() dto: AddToChannelDTO, @decodeJwt('sub') id: string) {
-		return this.channelsService.addAdminToChannel(dto, id);
-	}
+  @Post('add-admin')
+  addAdminToChannel(
+    @Body() dto: AddToChannelDTO,
+    @decodeJwt('sub') id: string,
+  ) {
+    return this.channelsService.addAdminToChannel(dto, id);
+  }
 }

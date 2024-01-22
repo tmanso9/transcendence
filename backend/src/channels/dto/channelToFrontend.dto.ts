@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { IsNotEmpty, IsString, Validate } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class ChannelToFrontendDTO {
   @IsString()
@@ -19,7 +19,7 @@ export class ChannelToFrontendDTO {
 
   members: User[];
 
-  messages: { sender: String; content: String; date: String }[];
+  messages: { sender: string; content: string; date: string }[];
 
   admins: User[];
 

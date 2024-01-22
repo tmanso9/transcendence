@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { JwtService } from '@nestjs/jwt';
-import { notificationsGateway, userGateway } from './user.gateway';
+import { NotificationsGateway, UserGateway } from './user.gateway';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService, JwtService, notificationsGateway, userGateway],
+  providers: [UserService, JwtService, NotificationsGateway, UserGateway],
   exports: [UserService],
 })
 export class UserModule {}

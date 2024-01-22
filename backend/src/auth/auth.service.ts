@@ -41,10 +41,10 @@ export class AuthService {
 
     try {
       const achievements = {
-				games_played: null,
-				ratio: null,
-				streak: null
-			};
+        games_played: null,
+        ratio: null,
+        streak: null,
+      };
       // Add user to the db
       const user = await this.prisma.user.create({
         data: {
@@ -56,7 +56,7 @@ export class AuthService {
           login: 'REGULAR',
           tfa_enabled: false,
           tfa_secret: '',
-          achievements: achievements
+          achievements: achievements,
         },
       });
       delete user.password;
@@ -89,7 +89,8 @@ export class AuthService {
     // Check if user exists
     if (!user) throw new ForbiddenException('User does not exist');
 
-    if (user.login !== "REGULAR") throw new ForbiddenException('Not a regular user');
+    if (user.login !== 'REGULAR')
+      throw new ForbiddenException('Not a regular user');
 
     const validPassword = await argon.verify(user.password, dto.password);
     if (!validPassword) throw new ForbiddenException('Invalid Password');
@@ -119,7 +120,7 @@ export class AuthService {
 
   /***** GOOGLE *****/
   async googleLogin(data: any) {
-	let firstLogin = false;
+    let firstLogin = false;
 
     // Check if the user already exists in the database
     let user = await this.prisma.user.findUnique({
@@ -147,11 +148,10 @@ export class AuthService {
           });
         // Add user to the db
         const achievements = {
-
           games_played: null,
           ratio: null,
-          streak: null
-        }
+          streak: null,
+        };
         user = await this.prisma.user.create({
           data: {
             email: data.email,
@@ -162,7 +162,7 @@ export class AuthService {
             login: 'GOOGLE',
             tfa_enabled: false,
             tfa_secret: '',
-            achievements: achievements
+            achievements: achievements,
           },
         });
         await this.prisma.gamestats.create({
@@ -201,13 +201,13 @@ export class AuthService {
       username: user.username,
       avatar: user.avatar,
       tfa: user.tfa_enabled,
-	  firstLogin
+      firstLogin,
     };
   }
 
   /***** 42 *****/
   async login42(user) {
-	let firstLogin = false;
+    let firstLogin = false;
 
     let profile = await this.prisma.user.findUnique({
       where: { email: user.email },
@@ -225,11 +225,12 @@ export class AuthService {
       const achievements = {
         games_played: null,
         ratio: null,
-        streak: null
+        streak: null,
       };
-      let check_username = await this.prisma.user.findFirst({where: {username: user.username}})
-      if (check_username)
-        user.username = await this.getRandomName();
+      const check_username = await this.prisma.user.findFirst({
+        where: { username: user.username },
+      });
+      if (check_username) user.username = await this.getRandomName();
       profile = await this.prisma.user.create({
         data: {
           email: user.email,
@@ -240,14 +241,14 @@ export class AuthService {
           login: 'FORTYTWO',
           tfa_enabled: false,
           tfa_secret: '',
-          achievements: achievements
+          achievements: achievements,
         },
       });
-	  await this.prisma.gamestats.create({
-		data: {
-			userId: profile.id
-		}
-	  });
+      await this.prisma.gamestats.create({
+        data: {
+          userId: profile.id,
+        },
+      });
       firstLogin = true;
     } else if (!profile.tfa_enabled) {
       profile = await this.prisma.user.update({
@@ -301,7 +302,7 @@ export class AuthService {
       where: { token: accessToken },
     });
     if (!check) {
-      const blackToken = await this.prisma.blacklist.create({
+      await this.prisma.blacklist.create({
         data: {
           email: decoded['email'],
           token: accessToken,
@@ -477,7 +478,11 @@ export class AuthService {
   }
 
   validateUsername(username: string) {
-    if (username.length <= 4 || username.length > 20 || !/^[a-zA-Z0-9_-]+$/.test(username))
+    if (
+      username.length <= 4 ||
+      username.length > 20 ||
+      !/^[a-zA-Z0-9_-]+$/.test(username)
+    )
       throw new ForbiddenException(
         'Username must be between 5 and 20 characters long and can only have alphanumeric characters or -/_',
       );
