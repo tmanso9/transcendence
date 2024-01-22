@@ -18,9 +18,8 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import type { User } from "@/types";
-import { useUserStore } from "@/stores/user";
 import type { VDataTable } from "vuetify/components";
 import { apiURI } from "@/utils";
 
@@ -33,7 +32,6 @@ const headers: ReadOnlyHeaders = [
 ];
 
 const users = ref<User[]>([]);
-const loggedUser = useUserStore();
 
 async function getUsers() {
   try {
@@ -79,32 +77,6 @@ const getColor = (user: User) => {
       return "grey-darken-1";
   }
 };
-
-const topTree = (index: number) => ({
-  ranking__user__isGold: index === 0,
-  ranking__user__isSilver: index === 1,
-  ranking__user__isBronze: index === 2,
-});
-
-const isUser = (username: string | undefined) => ({
-  ranking__user__isUser: username === loggedUser.username,
-});
-
-const showExtraRow = computed(() => {
-  let show = false;
-  const users = orderedUsers();
-  const top = users[users.length - 1];
-  if (
-    top &&
-    top.points &&
-    loggedUser &&
-    loggedUser.points &&
-    loggedUser.points < top.points
-  ) {
-    show = true;
-  }
-  return show;
-});
 </script>
 
 <style lang="scss">
@@ -115,57 +87,4 @@ const showExtraRow = computed(() => {
     color: var(--primary);
   }
 }
-
-// .ranking {
-//   width: 500px;
-//   margin: 0 auto;
-//   margin-bottom: 30px;
-
-//   &__title {
-//     font-weight: bold;
-//     font-size: 1.2rem;
-//     border: 1px solid white;
-//     border-radius: 7px;
-//     padding-inline: 10px;
-//     padding-block: 7px;
-//     margin-bottom: 15px;
-//   }
-
-//   &__extra_row {
-//     margin-top: 20px;
-//   }
-
-//   &__title,
-//   &__user {
-//     display: grid;
-//     grid-template-columns: 1fr 2fr 1fr 2fr;
-//     padding-block: 3px;
-//     &__position,
-//     &__username,
-//     &__points,
-//     &__victories {
-//       text-align: center;
-//     }
-//   }
-//   &__user {
-//     &__isGold,
-//     &__isSilver,
-//     &__isBronze {
-//       color: black;
-//     }
-//     &__isGold {
-//       background-color: gold;
-//     }
-//     &__isSilver {
-//       background-color: silver;
-//     }
-//     &__isBronze {
-//       background-color: #cd7f32;
-//     }
-
-//     &__isUser {
-//       border: 2px dashed gray;
-//     }
-//   }
-// }
 </style>

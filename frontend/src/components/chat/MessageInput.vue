@@ -2,9 +2,7 @@
 import { chatAppStore } from "@/store/chat";
 import { ref } from "vue";
 import { onMounted } from "vue";
-import { useDisplay } from "vuetify/lib/framework.mjs";
 
-const { height } = useDisplay();
 const store = chatAppStore();
 const canSendMessages = ref(false);
 const message = ref("");

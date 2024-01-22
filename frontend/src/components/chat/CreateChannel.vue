@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { chatAppStore } from "@/store/chat";
-import { count } from "console";
 import { User } from "../../store/chat";
 
 const store = chatAppStore();
@@ -48,7 +47,7 @@ const channelName = ref("");
           <template v-slot:prepend>
             <v-icon :icon="item.avatar"></v-icon>
           </template>
-          <v-list-item-title v-text="item.name"></v-list-item-title>
+          <v-list-item-title>{{ item.name }}</v-list-item-title>
         </v-list-item>
       </template>
     </v-virtual-scroll>
@@ -97,7 +96,7 @@ const channelName = ref("");
           <template v-slot:prepend>
             <v-icon icon="mdi-account"></v-icon>
           </template>
-          <v-list-item-title v-text="item.friend.username"></v-list-item-title>
+          <v-list-item-title>{{ item.friend.username }}</v-list-item-title>
           <v-icon
             v-if="item.added"
             icon="mdi-check-bold"

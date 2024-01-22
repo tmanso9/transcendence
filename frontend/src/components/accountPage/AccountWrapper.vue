@@ -39,8 +39,7 @@ import StatsWrapper from "./Stats/StatsWrapper.vue";
 import MatchHistory from "./Stats/MatchHistory.vue";
 import InteractButtons from "./InteractButtons.vue";
 import { useDisplay } from "vuetify";
-import { useUserStore } from "@/stores/user";
-import { User } from "@/types";
+import { useUserStore } from "@/store/user";
 import { apiURI, fetchMe } from "@/utils";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
@@ -57,10 +56,8 @@ const isSelf = computed(() => {
   return user.username && user.username === props.account.username;
 });
 
-const updateAccount = async (newUser: User) => {
-  //   console.log(newUser);
+const updateAccount = async () => {
   await fetchMe(cookies, user);
-  // if (newUser.username) user.username = newUser.username
 };
 
 const handleFriendRequest = async (path: string, id: string) => {

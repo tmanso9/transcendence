@@ -45,7 +45,7 @@ import { ref, onMounted } from "vue";
 import { defineEmits } from "vue";
 import { encodeFormData, apiURI } from "@/utils";
 import SigninFormElements from "./SigninFormElements.vue";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { useRouter } from "vue-router";

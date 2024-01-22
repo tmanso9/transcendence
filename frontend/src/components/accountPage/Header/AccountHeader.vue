@@ -18,7 +18,9 @@
           offset-x="-13"
           :color="mapColor"
         >
-          <p class="text-subtitle-1 text-sm-h6">{{ account.status.replace("_", " ") }}</p>
+          <p class="text-subtitle-1 text-sm-h6">
+            {{ account.status.replace("_", " ") }}
+          </p>
         </v-badge>
         <p class="text-overline text-sm-button text-deep-purple-lighten-3">
           Rank: <span class="text-white">{{ account.rank }}</span>
@@ -59,13 +61,13 @@ import AvatarWrapper from "./AvatarWrapper.vue";
 import ChangeProfilePicture from "./ChangeProfilePicture.vue";
 import UserSettings from "@/components/accountPage/Settings/UserSettings.vue";
 import { User } from "@/types";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { chatAppStore } from "@/store/chat";
 import { isFriend } from "@/utils";
 
 const props = defineProps(["account", "isSelf", "myFriends", "connections"]);
 const emits = defineEmits(["accountUpdated"]);
-const { sm, mdAndUp } = useDisplay();
+const { mdAndUp } = useDisplay();
 const editAvatar = ref(false);
 const user = useUserStore();
 const chat = chatAppStore();

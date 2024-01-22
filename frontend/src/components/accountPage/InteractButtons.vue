@@ -18,18 +18,22 @@
         <span class="ml-2">{{ button.text }}</span>
       </v-btn>
     </div>
-    <v-btn v-if="account.status === 'IN_GAME'" class="watchButton mx-auto mt-n5 ml-10" color="deep-purple-darken-3"
-    @click="watchGame">watch game</v-btn>
+    <v-btn
+      v-if="account.status === 'IN_GAME'"
+      class="watchButton mx-auto mt-n5 ml-10"
+      color="deep-purple-darken-3"
+      @click="watchGame"
+      >watch game</v-btn
+    >
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { computed } from "vue";
 import { useDisplay } from "vuetify";
 import { isFriend, inviteToGame, apiURI } from "@/utils";
 import { chatAppStore } from "@/store/chat";
-import { useRouter } from "vue-router";
 import { useGameStore } from "@/store/game";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
@@ -39,7 +43,6 @@ const emit = defineEmits(["friendRequest"]);
 const { sm, mdAndUp } = useDisplay();
 const user = useUserStore();
 const chat = chatAppStore();
-const router = useRouter();
 const game = useGameStore();
 const cookies = inject<VueCookies>("$cookies");
 
@@ -134,18 +137,18 @@ const buttonSize = computed(() => {
 
 const watchGame = () => {
   game.connectSocket(cookies?.get("access_token"));
-    setTimeout(() => {
-      game.joinRoom(props.account.gameId);
-    }, 200);
-}
+  setTimeout(() => {
+    game.joinRoom(props.account.gameId);
+  }, 200);
+};
 </script>
 
 <style lang="scss">
-.what{
+.what {
   width: 800px;
   margin: 0 auto;
 }
-.watchButton{
+.watchButton {
   width: 90%;
   margin: 0 auto;
 }

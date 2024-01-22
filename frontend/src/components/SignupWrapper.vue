@@ -34,7 +34,7 @@ import { ref } from "vue";
 import { encodeFormData, apiURI } from "@/utils";
 import { onMounted } from "vue";
 import SigninFormElements from "./SigninFormElements.vue";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 
 const emit = defineEmits(["signup", "showSignUp"]);
 const email = ref("");

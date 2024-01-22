@@ -4,7 +4,6 @@ import { onMounted, ref } from "vue";
 import PersonalSettings from "./PersonalSettings.vue";
 import SettingsPopUp from "./SettingsPopUp.vue";
 import { useDisplay } from "vuetify/lib/framework.mjs";
-import { Channel } from "../../store/chat";
 
 const store = chatAppStore();
 const channelPermission = ref(false);

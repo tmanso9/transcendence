@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { apiURI, fetchMe } from "@/utils";
 import { inject } from "vue";
 import { ref } from "vue";
@@ -78,14 +78,11 @@ const upload = async () => {
 
     try {
       await fetchMe(cookies, user);
-      const response = await fetch(
-        `${apiURI}/users/change-avatar`,
-        {
-          method: "post",
-          body: formData,
-          credentials: "include",
-        },
-      );
+      const response = await fetch(`${apiURI}/users/change-avatar`, {
+        method: "post",
+        body: formData,
+        credentials: "include",
+      });
 
       if (!response.ok) throw new Error(await response.text());
       emit("avatarChange");

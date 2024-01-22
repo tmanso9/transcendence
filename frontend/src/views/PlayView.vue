@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, Ref } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import router from "@/router";
-import { useDisplay } from "vuetify";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { inject } from "vue";
 import { VueCookies } from "vue-cookies";
 import { useGameStore } from "@/store/game";
@@ -43,10 +42,12 @@ onMounted(async () => {
         <v-btn
           variant="outlined"
           color="white"
-          @click="async () => {
-            await fetchMe(cookies, user);
-            gameStore.joinRoom(room);
-          }"
+          @click="
+            async () => {
+              await fetchMe(cookies, user);
+              gameStore.joinRoom(room);
+            }
+          "
           style="margin: 10px"
         >
           Join {{ room }}
@@ -57,10 +58,12 @@ onMounted(async () => {
     <v-btn
       variant="outlined"
       color="white"
-      @click="async () => {
-        await fetchMe(cookies, user);
-        gameStore.goToGame();
-        }"
+      @click="
+        async () => {
+          await fetchMe(cookies, user);
+          gameStore.goToGame();
+        }
+      "
       style="margin: 10px"
     >
       Create new Game!

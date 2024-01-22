@@ -49,14 +49,6 @@ export const useGameStore = defineStore("game", () => {
     return socket.value;
   }
 
-  function setWidth(width: number) {
-    canvasWidth.value = width;
-  }
-
-  function setHeight(height: number) {
-    canvasHeight.value = height;
-  }
-
   function goToGame(alertId: string | undefined = undefined) {
     const room = alertId
       ? alertId

@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import SendCodeForm from "@/components/accountPage/Settings/SendCodeForm.vue";
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from "@/store/user";
 import { onBeforeMount, ref } from "vue";
 import { useRouter } from "vue-router";
 

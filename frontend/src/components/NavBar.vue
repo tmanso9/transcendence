@@ -67,13 +67,11 @@
 <script lang="ts" setup>
 import { fetchMe } from "@/utils";
 import { computed, inject } from "vue";
-import { ref } from "vue";
 import { VueCookies } from "vue-cookies";
 import { chatAppStore } from "../store/chat";
 
 const props = defineProps(["user"]);
 const emit = defineEmits(["login", "logout", "notifications", "chat"]);
-const showLogin = ref(false);
 const chatStore = chatAppStore();
 
 const cookies = inject<VueCookies>("$cookies");
@@ -103,8 +101,8 @@ const logOut = async () => {
 };
 
 const handleNotificationClick = () => {
-  if (props.user.id && props.user.status !== 'IN_GAME') emit('notifications')
-}
+  if (props.user.id && props.user.status !== "IN_GAME") emit("notifications");
+};
 </script>
 
 <style lang="scss">

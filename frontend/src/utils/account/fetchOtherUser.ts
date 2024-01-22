@@ -6,7 +6,6 @@ export const fetchOtherUser = async (username: string) => {
       credentials: "include",
     });
     if (!result.ok) {
-      const error = result.status;
       console.error(result.statusText);
       throw new Error(result.statusText);
     }
